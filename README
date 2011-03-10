@@ -1,13 +1,13 @@
 How to get it:
 ----------------------
 
-You can download the SpecParser code here:
+You can download the StructuralSpec code here:
 
-http://github.com/vmurali/SpecParser/archives/master
+http://github.com/vmurali/StructuralSpec/archives/master
 
 You can also use git to download it using the following command:
 
-$ git clone git://github.com/vmurali/SpecParser.git
+$ git clone git://github.com/vmurali/StructuralSpec.git
 
 
 
@@ -17,11 +17,11 @@ How to compile it:
 
 You need GHC (Haskell compiler), Perl and BSV in order to use the parser.
 
-To create the SpecParser, type
+To create the StructuralSpec, type
 
-$ ghc --make -outputdir build SpecParser.hs
+$ ghc --make -outputdir build StructuralSpec.hs
 
-This creates an executable SpecParser. You should set your path to contain this directory.
+This creates an executable StructuralSpec. You should set your path to contain this directory.
 
 $ export PATH=$PATH:`pwd`
 
@@ -38,19 +38,19 @@ How to run it:
 
 To get help:
 
-$ SpecParser -h
+$ StructuralSpec -h
 
 
 To generate Bluespec code for the Spec files
 
-$ SpecParser -s -t topModule -o outputDir File.spec
+$ StructuralSpec -s -t topModule -o outputDir File.spec
 
 This will automatically compile all the dependencies etc into Bluespec
 
 
 To generate BDN code for the Spec files
 
-$ SpecParser -b -r refineModule1:refineModule2  -p +:path/to/lib/files -o outputDir -m tempFilesDir File.spec
+$ StructuralSpec -b -r refineModule1:refineModule2  -p +:path/to/lib/files -o outputDir -m tempFilesDir File.spec
 
 This generates File_Bdn.spec. This has to be compiled again as a Spec in order to generate Bluespec code.
 
