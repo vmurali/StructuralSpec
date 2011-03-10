@@ -19,7 +19,7 @@ You need GHC (Haskell compiler), Perl and BSV in order to use the parser.
 
 To create the StructuralSpec, type
 
-$ ghc --make -outputdir build StructuralSpec.hs
+$ make
 
 This creates an executable StructuralSpec. You should set your path to contain this directory.
 
@@ -27,7 +27,7 @@ $ export PATH=$PATH:`pwd`
 
 In order to clean the build
 
-$ ./clean.sh
+$ make clean
 
 
 
@@ -39,40 +39,3 @@ How to run it:
 To get help:
 
 $ StructuralSpec -h
-
-
-To generate Bluespec code for the Spec files
-
-$ StructuralSpec -s -t topModule -o outputDir File.spec
-
-This will automatically compile all the dependencies etc into Bluespec
-
-
-To generate BDN code for the Spec files
-
-$ StructuralSpec -b -r refineModule1:refineModule2  -p +:path/to/lib/files -o outputDir -m tempFilesDir File.spec
-
-This generates File_Bdn.spec. This has to be compiled again as a Spec in order to generate Bluespec code.
-
-path/to/lib/files is essentially the path to "lib" directory supplied with the sources.
-
-
-If source files are spread across multiple directory, use: -i includePath1:includePath2
-
-
-The compiler is smart, it does compilation of dependent files only when necessary. To force recompilation, use: -f
-
-
-
-Hiccups, if any:
--------------------------
-
-If there are any bugs, they will be in the "lib" files
-The Bluespec code generation phase has been tested reasonably. So this should work. The BDN has not been tested properly. So that might have bugs.
-
-
-
-Examples:
------------------
-
-There is an "examples" folder to show the syntax in the source distribution
