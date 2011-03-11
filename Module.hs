@@ -8,7 +8,7 @@ import DataTypes
 import Lexer
 
 parseHeader = do
-  reserved "module"
+  try $ reserved "module"
   name <- identifier
   args <- parseParams
   reserved "implements"
@@ -28,15 +28,9 @@ parseHeader = do
          , moduleBody = ""
          }
 
-parseTill x = do
-  let stop = do {sep <- oneOf " \n\t;"; reserved x}
-  xs <- manyTill anyChar ((try . lookAhead) stop)
-  sep <- stop
-  return xs
-
 parseModule = do
   header <- parseHeader
-  body   <- parseTill "endmodule"
+  body   <- manyTill anyChar $ try (reserved "endmodule")
   return header
          { moduleBody = body
          }

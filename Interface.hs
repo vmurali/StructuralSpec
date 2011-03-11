@@ -1,12 +1,14 @@
 module Interface(parseInterface) where
 
 import Text.ParserCombinators.Parsec.Prim
+import Text.ParserCombinators.Parsec.Combinator
+import Text.ParserCombinators.Parsec.Char
 
 import DataTypes
 import Lexer
 
 parseInterface = do
-  reserved "interface"
+  try $ reserved "interface"
   name <- identifier
   args <- parseParams
   semi
@@ -23,10 +25,44 @@ parseField = do
   args <- parseParams
   indices <- parseIndices
   name <- identifier
-  semi
-  return $ Field
-           { fieldType = fieldType
-           , fieldArgs = args
-           , fieldIndices = indices
-           , fieldName = name
-           }
+  let field = Field
+              { fieldType = fieldType
+              , fieldArgs = args
+              , fieldIndices = indices
+              , fieldName = name
+              , fieldEn1 = []
+              , fieldEn2 = []
+              , fieldGuard1 = []
+              , fieldGuard2 = []
+              }
+  modField <- parseAttributes (return field)
+  return modField
+
+parseAttributes fieldMonad = do
+  field <- fieldMonad
+  (    do
+         try $ reserved "en1"
+         xs <- parseAttributeNames
+         parseAttributes $ return field{fieldEn1=xs}
+       )
+   <|> (do
+          try $ reserved "en2"
+          xs <- parseAttributeNames
+          parseAttributes $ return field{fieldEn2=xs}
+       )
+   <|> (do
+          try $ reserved "guard1"
+          xs <- parseAttributeNames
+          parseAttributes $ return field{fieldGuard1=xs}
+       )
+   <|> (do
+          try $ reserved "guard2"
+          xs <- parseAttributeNames
+          parseAttributes $ return field{fieldGuard2=xs}
+       )
+   <|> (do
+          semi
+          return field
+        )
+
+parseAttributeNames = lexeme $ between (char '(') (char ')') (sepBy1 identifier comma)

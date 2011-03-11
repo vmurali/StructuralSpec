@@ -6,6 +6,10 @@ data Field =
   , fieldArgs::String
   , fieldIndices::[String]
   , fieldName::String
+  , fieldEn1::[String]
+  , fieldEn2::[String]
+  , fieldGuard1::[String]
+  , fieldGuard2::[String]
   } deriving Show
 
 data Element =

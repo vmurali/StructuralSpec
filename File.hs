@@ -12,9 +12,9 @@ import Module
 parseFile =
       (eof >> return [])
   <|> do
-        x  <- try parseImport <|>
-              try parseInterface <|>
-              try parseModule <|>
-              (anyChar >>= return . Generic)
+        x  <- (parseImport <|>
+               parseInterface <|>
+               parseModule <|>
+               (anyChar >>= return . Generic))
         xs <- parseFile
         return $ x:xs

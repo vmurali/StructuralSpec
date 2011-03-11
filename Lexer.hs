@@ -27,6 +27,10 @@ defn = P.LanguageDef {
                       , "implements"
                       , "rule"
                       , "connect"
+                      , "en1"
+                      , "en2"
+                      , "guard1"
+                      , "guard2"
                       ],
 
   P.reservedOpNames = [ "#"
@@ -39,6 +43,7 @@ defn = P.LanguageDef {
 whiteSpace = P.whiteSpace lexer
 brackets   = P.brackets lexer
 semi       = P.semi lexer
+comma      = P.comma lexer
 colon      = P.colon lexer
 identifier = P.identifier lexer
 lexeme     = P.lexeme lexer
