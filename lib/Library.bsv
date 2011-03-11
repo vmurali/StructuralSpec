@@ -18,16 +18,16 @@ endmodule
 
 interface PulseWire;
   method Bool _read();
-  method Action _write(void x);
+  method Action send();
 endinterface
 
 import "BVI" mkPulseWire =
 module mkPulseWire(PulseWire);
   method out _read;
-  method _write(in) enable(en);
-  schedule _read CF _write;
+  method send enable(en);
+  schedule _read CF send;
   schedule _read CF _read;
-  schedule _write C _write;
+  schedule send C send;
   default_clock ck();
   default_reset no_reset;
   path(en, out);
