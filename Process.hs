@@ -9,11 +9,9 @@ import DataTypes
 import PrintSpec
 import System.Directory
 import System.IO
-import System.Cmd
 import System.Exit
 import Data.List
 import Data.Maybe
-import Control.Monad
 
 getFilePath file foundPathIO newPath = do
   foundPath <- foundPathIO
@@ -32,13 +30,13 @@ processFile options seenInterfacesIO file = do
   case filePath of
     Nothing -> do
       hPutStrLn stderr $ "File " ++ file ++ " not found!"
-      exitWith $ ExitFailure 2
+      exitFailure
     Just name -> do
       input <- readFile name
       case (runParser (whiteSpace>>parseFile) () name $ preprocess input) of
         Left err -> do
           print err
-          exitWith $ ExitFailure 3
+          exitFailure
         Right elements -> do
           let imports = [x | Import x <- elements, isNothing (find (\(file, ifc) -> x == file) seenInterfaces)]
           let interfaces = [x | x@(Interface {}) <- elements]

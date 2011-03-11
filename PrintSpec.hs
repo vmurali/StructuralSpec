@@ -50,7 +50,7 @@ printModule (Module name args ifcName ifcArgs provisos body) ifcFields =
     replaceArrow str = subRegex (mkRegexWithOpts ":=" True True) str "<="
     newBody = replaceArrow $ foldl createSub body (map (\x -> fieldName x) ifcFields)
 
-printElement ifcs (Generic x) = [x]
+printElement ifcs (Generic x) = x
 printElement ifcs (Import x) = "import " ++ x ++ "::*;\n"
 printElement ifcs x@(Interface {}) = printInterface x
 printElement ifcs x@(Module {implementName=ifcName}) = printModule x (findInterface ifcs ifcName)

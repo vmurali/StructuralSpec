@@ -1,19 +1,17 @@
 module DataTypes where
 
-data Field =
-  Field
+data Field = Field
   { fieldType::String
   , fieldArgs::String
   , fieldIndices::[String]
   , fieldName::String
-  , fieldEn1::[String]
-  , fieldEn2::[String]
-  , fieldGuard1::[String]
-  , fieldGuard2::[String]
+  , fieldEn::[String]
+  , fieldEnRev::[String]
+  , fieldGuard::[String]
+  , fieldGuardRev::[String]
   } deriving Show
 
-data Element =
-    Interface
+data Element = Interface
     { interfaceName::String
     , interfaceArgs::String
     , interfaceFields::[Field]
@@ -27,4 +25,4 @@ data Element =
     , moduleBody::String
     }
   | Import String
-  | Generic Char
+  | Generic String

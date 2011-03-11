@@ -13,9 +13,9 @@ defn = P.LanguageDef {
   P.commentEnd = "",
   P.commentLine = "",
   P.nestedComments = False,
-
-  P.opStart        = oneOf "#:",
-  P.opLetter       = oneOf "#:=",
+  P.opStart = undefined,
+  P.opLetter = undefined,
+  P.reservedOpNames = undefined,
 
   P.identStart      = letter,
   P.identLetter     = alphaNum <|> char '_',
@@ -27,14 +27,10 @@ defn = P.LanguageDef {
                       , "implements"
                       , "rule"
                       , "connect"
-                      , "en1"
-                      , "en2"
-                      , "guard1"
-                      , "guard2"
-                      ],
-
-  P.reservedOpNames = [ "#"
-                      , ":="
+                      , "en"
+                      , "enRev"
+                      , "guard"
+                      , "guardRev"
                       ],
 
   P.caseSensitive   = True
@@ -59,15 +55,19 @@ parensBalanced = do
   where
     allChar = manyTill anyChar $ (try . lookAhead . oneOf) "()"
 
-optionList p = lexeme $ do
-  mayX <- optionMaybe p
-  return $ case mayX of
-    Just x  -> x
-    Nothing -> []
-
-parseParams = optionList $ do
-  reservedOp "#"
-  xs <- parensBalanced
-  return $ "#" ++ xs
+parensBalancedPrefixed prefix p =
+  (do
+     try p
+     xs <- lexeme parensBalanced
+     return $ prefix ++ xs
+  ) <|> return ""
+     
+parseParams = parensBalancedPrefixed "#" $ char '#'
 
 parseIndices = (many . brackets . many . noneOf) "[]"
+
+manyTill1 p e = do
+  xs <- manyTill p e
+  case xs of
+    [] -> pzero
+    _  -> return xs
