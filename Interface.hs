@@ -41,22 +41,22 @@ parseField = do
 parseAttributes fieldMonad = do
   field <- fieldMonad
   (    do
-         try $ reserved "en1"
+         try $ reserved "en"
          xs <- parseAttributeNames
          parseAttributes $ return field{fieldEn1=xs}
        )
    <|> (do
-          try $ reserved "en2"
+          try $ reserved "enRev"
           xs <- parseAttributeNames
           parseAttributes $ return field{fieldEn2=xs}
        )
    <|> (do
-          try $ reserved "guard1"
+          try $ reserved "guard"
           xs <- parseAttributeNames
           parseAttributes $ return field{fieldGuard1=xs}
        )
    <|> (do
-          try $ reserved "guard2"
+          try $ reserved "guardRev"
           xs <- parseAttributeNames
           parseAttributes $ return field{fieldGuard2=xs}
        )

@@ -1,30 +1,33 @@
-module mkWire(in, out, en);
-  parameter Width = 1;
-  input [Width-1:0] in;
-  output reg [Width-1:0] out;
+module mkBaseWire(in, out, en);
+  parameter width = 1;
+  input [width-1:0] in;
+  output [width-1:0] out;
   input en;
 
-  initial
-    out = {((Width+1))/2{2'b10}};
+  assign out = in;
+endmodule
 
-  always@(*)
-    out = in;
+module mkPulseWire(out, en);
+  output out;
+  input en;
+
+  assign out = en;
 endmodule
 
 module mkReg(clk, rst_n, in, out, en);
-  parameter Width = 1;
-  parameter Init = 0;
-  input [Width-1:0] in;
-  output reg [Width-1:0] out;
+  parameter width = 1;
+  parameter init = 0;
+  input [width-1:0] in;
+  output reg [width-1:0] out;
   input en, clk, rst_n;
 
   initial
-    out = {((Width+1))/2{2'b10}};
+    out = {((width+1))/2{2'b10}};
 
   always @(posedge clk)
   begin
     if(!rst_n)
-      out <= Init;
+      out <= init;
     else
       if(en)
         out <= in;
@@ -32,13 +35,13 @@ module mkReg(clk, rst_n, in, out, en);
 endmodule
 
 module mkRegU(clk, in, out, en);
-  parameter Width = 1;
-  input [Width-1:0] in;
-  output reg [Width-1:0] out;
+  parameter width = 1;
+  input [width-1:0] in;
+  output reg [width-1:0] out;
   input en, clk;
 
   initial
-    out = {((Width+1))/2{2'b10}};
+    out = {((width+1))/2{2'b10}};
 
   always @(posedge clk)
     if(en)

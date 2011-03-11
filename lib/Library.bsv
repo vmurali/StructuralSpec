@@ -1,11 +1,11 @@
-interface Wire#(type t);
+interface BaseWire#(type t);
   method t _read();
   method Action _write(t d);
 endinterface
 
-import "BVI" mkWire =
-module mkWire(Wire#(t));
-  parameter Width = valueOf(SizeOf#(t));
+import "BVI" mkBaseWire =
+module mkBaseWire(BaseWire#(t));
+  parameter width = valueOf(SizeOf#(t));
   method out _read;
   method _write(in) enable(en);
   schedule _read CF _write;
@@ -13,13 +13,30 @@ module mkWire(Wire#(t));
   schedule _write C _write;
   default_clock ck();
   default_reset no_reset;
-  path(x, y);
+  path(in, out);
+endmodule
+
+interface PulseWire;
+  method Bool _read();
+  method Action _write(void x);
+endinterface
+
+import "BVI" mkPulseWire =
+module mkPulseWire(PulseWire);
+  method out _read;
+  method _write(in) enable(en);
+  schedule _read CF _write;
+  schedule _read CF _read;
+  schedule _write C _write;
+  default_clock ck();
+  default_reset no_reset;
+  path(en, out);
 endmodule
 
 import "BVI" mkReg =
 module mkReg#(t init)(Reg#(t));
-  parameter Width = valueOf(SizeOf#(t));
-  parameter Init = pack(init);
+  parameter width = valueOf(SizeOf#(t));
+  parameter init = pack(init);
   method out _read;
   method _write (in) enable(en);
   schedule _read CF _write;
@@ -31,7 +48,7 @@ endmodule
 
 import "BVI" mkRegU =
 module mkRegU(Reg#(t));
-  parameter Width = valueOf(SizeOf#(t));
+  parameter width = valueOf(SizeOf#(t));
   method out _read;
   method _write (in) enable(en);
   schedule _read CF _write;

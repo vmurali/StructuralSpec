@@ -1,0 +1,5 @@
+build
+StructuralSpec
+lib/*.bi
+lib/*.bo
+lib/a.out

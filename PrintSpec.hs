@@ -9,32 +9,33 @@ printInterface (Interface name args fields) =
   "interface " ++ name ++ args ++ ";\n" ++
      concatMap showField fields ++
   "endinterface\n\n" ++
-  "interface " ++ name ++ "_" ++ args ++ ";\n" ++
-     concatMap showDualField fields ++
+  "interface Rev" ++ name ++ args ++ ";\n" ++
+     concatMap showRevField fields ++
   "endinterface\n\n" ++
-  "module _" ++ name ++ "(Tuple2#(" ++ name ++ args ++ "," ++ name ++ "_" ++ args ++ "));\n" ++
+  "module _" ++ name ++ "(Tuple2#(" ++ name ++ args ++ ", Rev" ++ name ++ args ++ "));\n" ++
      concatMap showFieldInst fields ++
   "  return(\n" ++
-  "    interface " ++ name ++ args ++ "_i;\n" ++
+  "    interface " ++ name ++ args ++ " _i;\n" ++
          concatMap (showConn "1") fields ++
   "    endinterface,\n" ++
-  "    interface " ++ name ++ "_ " ++ args ++ "i_;\n" ++
+  "    interface Rev" ++ name ++ args ++ " i_;\n" ++
          concatMap (showConn "2") fields ++
   "    endinterface)\n" ++
+  "endmodule\n\n" ++
+  "module _Rev" ++ name ++ "(Tuple2#(Rev" ++ name ++ args ++ ", " ++ name ++ args ++ "));\n" ++
+  "  Tuple2#(" ++ name ++ args ++ ", Rev" ++ name ++ args ++ ")" ++ " this <- _" ++ name ++ ";\n" ++
+  "  return tuple2(tpl_2(this), tpl_1(this));\n" ++
   "endmodule\n\n"
   where
     showIndices field = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
     repDefs field = showIndices field ++ fieldType field ++ fieldArgs field ++ (repLen field) ')' ++ " " ++ fieldName field
     showField field = "  interface " ++ repDefs field ++ ";\n"
-    showDualField field = showField field {fieldType = fieldType field ++ "_"}
+    showRevField field = showField field {fieldType = "Rev" ++ fieldType field}
     indicesLen field = length $ fieldIndices field
     repLen field = replicate $ indicesLen field
     concatRepLen field = concat . (repLen field)
     showFieldInst field = "  " ++ repDefs field ++ "_ <- " ++ concatRepLen field "replicateM(" ++ "_" ++ fieldName field ++ (repLen field) ')' ++ ";\n"
     showConn num field = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
-
---replaceArrow str =
---  subRegex (mkRegexWithOpts "[ \n\t]*:=([^;]*);" False True) str "._write(\\1);"
 
 printModule (Module name args ifcName ifcArgs provisos body) ifcFields =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
