@@ -1,4 +1,4 @@
-module Process(processFile) where
+module Process(process) where
 
 import Text.ParserCombinators.Parsec.Prim
 
@@ -25,7 +25,7 @@ getFilePath file foundPathIO newPath = do
         then (return . Just) newF
         else return Nothing
 
-processFile options seenInterfacesIO file = do
+process options seenInterfacesIO file = do
   seenInterfaces <- seenInterfacesIO
   filePath <- foldl (getFilePath file) (return Nothing) $ optIncludes options
   case filePath of
@@ -41,7 +41,7 @@ processFile options seenInterfacesIO file = do
         Right elements -> do
           let imports = [x | Import x <- elements, isNothing (find (\(file, ifc) -> x == file) seenInterfaces)]
           let interfaces = [x | x@(Interface {}) <- elements]
-          newInterfaces <- foldl (processFile options) (return $ (file, interfaces):seenInterfaces) imports
+          newInterfaces <- foldl (process options) (return $ (file, interfaces):seenInterfaces) imports
           let fullInterfacesList = (file, interfaces):newInterfaces
           writeFile (outPath ++ ".bsv") $ printFile elements fullInterfacesList
           return fullInterfacesList

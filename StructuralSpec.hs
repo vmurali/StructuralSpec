@@ -9,4 +9,4 @@ removePrefix str = subRegex (mkRegex "^[^A-Z]*") str ""
 main = do
   args <- getArgs
   opts <- parserOpts args
-  processFile opts (return []) $ (removeSpec . removePrefix) (optFile opts)
+  process opts (return []) $ (removeSpec . removePrefix) (optFile opts)
