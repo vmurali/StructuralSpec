@@ -16,15 +16,15 @@ module mkBaseWire(BaseWire#(t));
   path(in, out);
 endmodule
 
-interface PulseWire;
+interface BasePulse;
   method Bool _read();
   method Action send();
 endinterface
 
-import "BVI" mkPulseWire =
-module mkPulseWire(PulseWire);
+import "BVI" mkBasePulse =
+module mkBasePulse(BasePulse);
   method out _read;
-  method send enable(en);
+  method send() enable(en);
   schedule _read CF send;
   schedule _read CF _read;
   schedule send C send;

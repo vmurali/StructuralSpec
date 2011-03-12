@@ -10,7 +10,11 @@ import Lexer
 parseInterface = do
   try $ reserved "interface"
   name <- identifier
-  args <- parseParams
+  args <-
+    (do
+       (try . lexeme) $ char '#'
+       betweenParens $ many1 parseArg
+    ) <|> (return [])
   semi
   fields <- many parseField
   reserved "endinterface"
@@ -19,6 +23,19 @@ parseInterface = do
     , interfaceArgs = args
     , interfaceFields = fields
     }
+
+parseArg =
+   (do
+     reserved "numeric"
+     reserved "type"
+     x <- identifier
+     return $ Num x
+   ) <|>
+   (do
+     reserved "type"
+     x <- identifier
+     return $ Type x
+   )
 
 parseField = do
   fieldType <- identifier
@@ -44,7 +61,5 @@ parseField = do
 parseAttribute str =
   ( do 
       try $ reserved str
-      parseAttributeNames
+      betweenParens $ sepBy1 identifier comma
   ) <|> return []
-
-parseAttributeNames = lexeme $ between (char '(') (char ')') (sepBy1 identifier comma)

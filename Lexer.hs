@@ -62,7 +62,7 @@ parensBalancedPrefixed prefix p =
      return $ prefix ++ xs
   ) <|> return ""
      
-parseParams = parensBalancedPrefixed "#" $ char '#'
+parseParams = parensBalancedPrefixed $ char '#'
 
 parseIndices = (many . brackets . many . noneOf) "[]"
 
@@ -71,3 +71,5 @@ manyTill1 p e = do
   case xs of
     [] -> pzero
     _  -> return xs
+
+betweenParens p = between (lexeme $ char '(') (lexeme $ char ')') p

@@ -7,7 +7,7 @@ module mkBaseWire(in, out, en);
   assign out = in;
 endmodule
 
-module mkPulseWire(out, en);
+module mkBasePulse(out, en);
   output out;
   input en;
 

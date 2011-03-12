@@ -11,9 +11,11 @@ data Field = Field
   , fieldGuardRev::[String]
   } deriving Show
 
+data InterfaceArg = Type String | Num String
+
 data Element = Interface
     { interfaceName::String
-    , interfaceArgs::String
+    , interfaceArgs::[InterfaceArg]
     , interfaceFields::[Field]
     }
   | Module
