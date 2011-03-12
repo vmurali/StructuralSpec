@@ -26,7 +26,7 @@ parseInterface = do
 
 parseArg =
    (do
-     reserved "numeric"
+     try $ reserved "numeric"
      reserved "type"
      x <- identifier
      return $ Num x
