@@ -1,6 +1,11 @@
 module Process(process) where
 
 import Text.ParserCombinators.Parsec.Prim
+import System.Directory
+import System.IO
+import System.Exit
+import Data.List
+import Data.Maybe
 
 import Lexer
 import Preprocess
@@ -8,11 +13,6 @@ import ParseFile
 import Options
 import DataTypes
 import PrintFile
-import System.Directory
-import System.IO
-import System.Exit
-import Data.List
-import Data.Maybe
 
 getFilePath file foundPathIO newPath = do
   foundPath <- foundPathIO
