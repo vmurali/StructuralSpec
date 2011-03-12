@@ -20,7 +20,7 @@ modifyBody body ifcName fileIfcs = replaceArrow $ foldl prefixModule body (map (
  where
   replaceArrow str = subRegex (mkRegex ":=") str "<="
 
-printModule (Module name args ifcName ifcArgs provisos body) fileIfcs =
+printModule fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", Rev" ++ ifcName ++ ifcArgs ++ ")" ++ "_ <- " ++ "_" ++ ifcName ++ "(True, True);\n" ++
      modifyBody body ifcName fileIfcs ++

@@ -1,12 +1,13 @@
 module Process(processFile) where
 
 import Text.ParserCombinators.Parsec.Prim
+
 import Lexer
 import Preprocess
-import File
+import ParseFile
 import Options
 import DataTypes
-import PrintSpec
+import PrintFile
 import System.Directory
 import System.IO
 import System.Exit

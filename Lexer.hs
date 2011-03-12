@@ -62,7 +62,7 @@ parensBalancedPrefixed prefix p =
      return $ prefix ++ xs
   ) <|> return ""
      
-parseParams = parensBalancedPrefixed $ char '#'
+parseParams = parensBalancedPrefixed "#" $ char '#'
 
 parseIndices = (many . brackets . many . noneOf) "[]"
 
