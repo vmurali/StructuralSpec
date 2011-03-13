@@ -19,12 +19,6 @@ For enables in the normal direction:
   tpl_2 of the enable wires will be used for writing
 -}
 
-{-
-TODO
-1. Reverses : mkRev, mkRevRev
-2. mkConnection between all this
--}
-
 -----------------------------------------------------------------------
 
 repLen field = replicate indicesLen
@@ -97,4 +91,22 @@ printInterface (Interface name args fields) =
   "    interface Rev" ++ name ++ ";\n" ++
          concatMap (showConn "2") fields ++
   "    endinterface)\n" ++
-  "endmodule\n\n"
+  "endmodule\n\n" ++
+  "module _Rev" ++ name ++ "#(Bool _g2, Bool _g1)(Tuple2#(Rev" ++ name ++ "#(" ++ printJustArgs args ++ "), " ++ name ++ "#(" ++ printJustArgs args ++ "))) provisos(" ++ printProvisosArgs args ++ ");\n" ++
+  "  Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), Rev" ++ name ++ "#(" ++ printJustArgs args ++ ")) _ <- _" ++ name ++ "(_g1, _g2);\n" ++
+  "  return tuple2(tpl_2(_), tpl_1(_));\n" ++
+  "endmodule\n\n" ++
+  "module _RevRev" ++ name ++ "#(Bool _g1, Bool _g2)(Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), Rev" ++ name ++ "#(" ++ printJustArgs args ++ "))) provisos(" ++ printProvisosArgs args ++ ");\n" ++
+  "  Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), Rev" ++ name ++ "#(" ++ printJustArgs args ++ ")) _ <- _" ++ name ++ "(_g1, _g2);\n" ++
+  "  return _;\n" ++
+  "endmodule\n\n" ++
+  "instance Connectable#(" ++ name ++ "#(" ++ printJustArgs args ++ "), Rev" ++ name ++ "#(" ++ printJustArgs args ++ "));\n" ++
+  "  module mkConnection#(" ++ name ++ "#(" ++ printJustArgs args ++ ") a, Rev" ++ name ++ "#(" ++ printJustArgs args ++ ") b)();\n" ++
+       concatMap (\x -> "mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
+  "  endmodule" ++
+  "endinstance\n\n" ++
+  "instance Connectable#(Rev" ++ name ++ "#(" ++ printJustArgs args ++ "), " ++ name ++ "#(" ++ printJustArgs args ++ "));\n" ++
+  "  module mkConnection#(Rev" ++ name ++ "#(" ++ printJustArgs args ++ ") a, " ++ name ++ "#(" ++ printJustArgs args ++ ") b)();\n" ++
+       concatMap (\x -> "mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
+  "  endmodule" ++
+  "endinstance\n\n"
