@@ -7,16 +7,16 @@ import DataTypes
 {-
 for Input:
 
-tpl_2 is the read
-tpl_1 is the write
+tpl_1 is the read
+tpl_2 is the write
 
 For guards in the normal direction:
-  guards should be applied to implementation of tpl_2
-  tpl_2 of the guard wires will be used for reading
+  guards should be applied to implementation of tpl_1
+  tpl_1 of the guard wires will be used for reading
 
 For enables in the normal direction:
-  the extra writes will be done in the implementation of tpl_2 for the main interface
-  tpl_2 of the enable wires will be used for writing
+  the extra writes will be done in the implementation of tpl_1 for the main interface
+  tpl_1 of the enable wires will be used for writing
 -}
 
 -----------------------------------------------------------------------
@@ -67,7 +67,7 @@ showEnConn enables num field = "      interface " ++ fieldType field ++ fieldNam
                                "        endmethod\n" ++
                                "      endinterface\n"
 
-showConn num field = let enables = if num == "1" then fieldEnRev field else fieldEnRev field in
+showConn num field = let enables = if num == "1" then fieldEn field else fieldEnRev field in
   case enables of
    [] -> showSimpleConn num field
    _  -> showEnConn enables num field
@@ -84,7 +84,7 @@ printInterface (Interface name args fields) =
   "typedef " ++ name ++ "#(" ++ printJustArgs args ++ ") RevRev" ++ name ++ "#(" ++ printKindArgs args ++ ");\n" ++
   "module _" ++ name ++ "#(Bool _g1, Bool _g2)(Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), Rev" ++ name ++ "#(" ++ printJustArgs args ++ "))) provisos(" ++ printProvisosArgs args ++ ");\n" ++
      concatMap showFieldInst fields ++
-  "  return(\n" ++
+  "  return tuple2(\n" ++
   "    interface " ++ name ++ ";\n" ++
          concatMap (showConn "1") fields ++
   "    endinterface,\n" ++

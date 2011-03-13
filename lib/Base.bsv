@@ -4,8 +4,8 @@ interface BaseWire#(type t);
 endinterface
 
 import "BVI" mkBaseWire =
-module mkBaseWire(BaseWire#(t));
-  parameter width = valueOf(SizeOf#(t));
+module mkBaseWire(BaseWire#(t)) provisos(Bits#(t, tSz));
+  parameter width = valueOf(tSz);
   method out _read;
   method _write(in) enable(en);
   schedule _read CF _write;
@@ -34,8 +34,8 @@ module mkBasePulse(BasePulse);
 endmodule
 
 import "BVI" mkReg =
-module mkReg#(t init)(Reg#(t));
-  parameter width = valueOf(SizeOf#(t));
+module mkReg#(t init)(Reg#(t)) provisos(Bits#(t, tSz));
+  parameter width = valueOf(tSz);
   parameter init = pack(init);
   method out _read;
   method _write (in) enable(en);
@@ -47,8 +47,8 @@ module mkReg#(t init)(Reg#(t));
 endmodule
 
 import "BVI" mkRegU =
-module mkRegU(Reg#(t));
-  parameter width = valueOf(SizeOf#(t));
+module mkRegU(Reg#(t)) provisos(Bits#(t, tSz));
+  parameter width = valueOf(tSz);
   method out _read;
   method _write (in) enable(en);
   schedule _read CF _write;
