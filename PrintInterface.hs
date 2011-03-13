@@ -4,82 +4,97 @@ import Data.List
 
 import DataTypes
 
-printArgs numStr typeStr args = intercalate ", " $ map (printArg numStr typeStr) args
- where
-  printArg numStr typeStr arg =
-    case arg of
-      Num x  -> numStr ++ x
-      Type x -> typeStr ++ x
+{-
+for Input:
+
+tpl_2 is the read
+tpl_1 is the write
+
+For guards in the normal direction:
+  guards should be applied to implementation of tpl_2
+  tpl_2 of the guard wires will be used for reading
+
+For enables in the normal direction:
+  the extra writes will be done in the implementation of tpl_2 for the main interface
+  tpl_2 of the enable wires will be used for writing
+-}
+
+{-
+TODO
+1. Reverses : mkRev, mkRevRev
+2. mkConnection between all this
+-}
+
+-----------------------------------------------------------------------
 
 repLen field = replicate indicesLen
  where
   indicesLen = length $ fieldIndices field
+-------------------------------------------------------------------------
 
-concatRepLen field = concat . (repLen field)
+printArgs printFn args = intercalate ", " $ map printFn args
 
-showField field = "  interface " ++ repVectors field ++ ";\n"
+printKindArgs = printArgs printKind
  where
-   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
-   repVectors field = showIndices ++ fieldType field ++ fieldArgs field ++ (repLen field) ')' ++ " " ++ fieldName field
+  printKind arg =
+    case arg of
+      Num  x -> "numeric type " ++ x
+      Type x -> "type " ++ x
+
+printJustArgs = printArgs (\x-> "")
+
+printProvisosArgs args = intercalate ", " provisos
+ where
+  provisos = ["Bits#(" ++ x ++ ", _sZ" ++ x ++ ")" | Type x <- args]
+--------------------------------------------------------------------------
+
+repVectors field = showIndices ++ fieldType field ++ fieldArgs field ++ (repLen field) ')' ++ " " ++ fieldName field
+ where
+  showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
+
+showField    field = "  interface " ++ repVectors field ++ ";\n"
 
 showRevField field = showField field {fieldType = "Rev" ++ fieldType field}
+-----------------------------------------------------------------------------------
 
-{-
-interface = WrappedInput{Input x}
-Module A which has WrappedInput interface reads mkInput. Thus, tpl_2(_).x is a read
-Module B which instantiates the module which has WrappedInput interface writes to mkInput. Thus, tpl_1(_).x is a write
+showFieldInst field = "  " ++ repVectors field ++ "_ <- " ++
+                      concatRepLen "replicateM(" ++ "_" ++ fieldType field ++ "(" ++ (genGuard (fieldGuardRev field) "1") ++ ", " ++ (genGuard (fieldGuard field) "2") ++ ")" ++ (repLen field) ')' ++ ";\n"
+ where
+  concatRepLen = concat . (repLen field)
+  genGuard guards num = "_g" ++ num ++ concatMap (\g -> " && (tpl_" ++ num ++ "(" ++ g ++ "_))._read") guards
+----------------------------------------------------------------------------------
 
-_ instantiates mkInput
-tpl_2(_) = read of mkInput, tpl_1(_) = write of mkInput
+showSimpleConn     num field = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
 
-interface = GuardedInput{Input x guard(y), InputPulse y}
-Module A which has GuardedInput interface reads mkInput, mkInputPulse. Thus, tpl_2(_).x = read, with implicit guard for x
+showEnConn enables num field = "      interface " ++ fieldType field ++ fieldName field ++ ";\n" ++
+                               "        method _write(x);\n" ++
+                               "          (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write(x);\n" ++
+                                          concatMap (\e -> "          (tpl_" ++ num ++ "(" ++ e ++ "_)).send;\n") enables ++
+                               "        endmethod\n" ++
+                               "      endinterface\n"
 
-Module B which instantiates the module which has WrappedInput interface writes to mkInput. Thus, tpl_1(_).x = write . _ = mkInput
+showConn num field = let enables = if num == "1" then fieldEnRev field else fieldEnRev field in
+  case enables of
+   [] -> showSimpleConn num field
+   _  -> showEnConn enables num field
 
-
--}
+----------------------------------------------------------------------------------
 
 printInterface (Interface name args fields) =
-  "interface " ++ name ++ "#(" ++ printArgs "numeric type " "type " args ++ ");\n" ++
+  "interface " ++ name ++ "#(" ++ printKindArgs args ++ ");\n" ++
      concatMap showField fields ++
   "endinterface\n\n" ++
-  "interface Rev" ++ name ++ "#(" ++ printArgs "numeric type" "type " args ++ ");\n" ++
+  "interface Rev" ++ name ++ "#(" ++ printKindArgs args ++ ");\n" ++
      concatMap showRevField fields ++
   "endinterface\n\n" ++
-  "typedef RevRev" ++ name ++ "#(" ++ printArgs "numeric type " "type " args ++ ") " ++ name ++ "#(" ++ printArgs "" "" args ++ ");\n\n" {-++
-  "module _" ++ name ++ "#(Bool _guard1, Bool _guard2)(Tuple2#(" ++ name ++ args ++ ", Rev" ++ name ++ args ++ ")) provisos();\n" ++
+  "typedef " ++ name ++ "#(" ++ printJustArgs args ++ ") RevRev" ++ name ++ "#(" ++ printKindArgs args ++ ");\n" ++
+  "module _" ++ name ++ "#(Bool _g1, Bool _g2)(Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), Rev" ++ name ++ "#(" ++ printJustArgs args ++ "))) provisos(" ++ printProvisosArgs args ++ ");\n" ++
      concatMap showFieldInst fields ++
   "  return(\n" ++
-  "    interface " ++ name ++ args ++ " _i;\n" ++
-         concatMap (showConn 1) fields ++
+  "    interface " ++ name ++ ";\n" ++
+         concatMap (showConn "1") fields ++
   "    endinterface,\n" ++
-  "    interface Rev" ++ name ++ args ++ " i_;\n" ++
-         concatMap (showConn 2) fields ++
+  "    interface Rev" ++ name ++ ";\n" ++
+         concatMap (showConn "2") fields ++
   "    endinterface)\n" ++
-  "endmodule\n\n" ++
-  "module _Rev" ++ name ++ "#(Bool _guard2, Bool _guard1)(Tuple2#(Rev" ++ name ++ args ++ ", " ++ name ++ args ++ "));\n" ++
-  "  Tuple2#(" ++ name ++ args ++ ", Rev" ++ name ++ args ++ ")" ++ " _this <- _" ++ name ++ "(_guard1, _guard);\n" ++
-  "  return tuple2(tpl_2(_this), tpl_1(_this));\n" ++
   "endmodule\n\n"
-  where
-
-    generateGuard guards num = "_guard" ++ num ++ concatMap (\g -> " && (tpl_" ++ num ++ "(_" ++ g ++ "))._read") guards
-    showFieldInst field = "  " ++ repDefs field ++ "_ <- " ++
-                          concatRepLen field "replicateM(" ++ "_" ++ fieldName field ++ "(" ++ (generateGuard (fieldGuard field) "1") ++ ", " ++ (generateGuard (fieldGuardRev field) "2") ++ ")" ++ (repLen field) ')' ++ ";\n"
-
-    showSimpleConn num field = "      interface " ++ fieldName field ++ " = tpl_" ++ show num ++ "(" ++ fieldName field ++ "_);\n"
-
-    writeEns enables num = concatMap (\e -> "          (tpl_" ++ show num ++ "(_" ++ e ++ ")).send;\n") enables
-    showEnConn enables num field = "      interface " ++ fieldType field ++ fieldName field ++ ";\n" ++
-                                   "        method _write(x);\n" ++
-                                   "          (tpl_" ++ show (3-num) ++ "(_" ++ fieldName field ++ "))._write(x);\n" ++
-                                              writeEns enables (3-num) ++
-                                   "        endmethod\n" ++
-                                   "      endinterface\n"
-
-    showConn num field = let enables = if num == 1 then fieldEn field else fieldEnRev field in
-      case enables of
-       [] -> showSimpleConn num field
-       _  -> showEnConn enables num field
--}

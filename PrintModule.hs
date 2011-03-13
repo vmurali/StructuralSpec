@@ -11,7 +11,7 @@ getFields ifcName fileIfcs = (interfaceFields . fromJust) $ foldl (matchInterfac
   matchInterface _       (Just found) _            = Just found
   matchInterface ifcName Nothing      (file, ifcs) = find (\x -> interfaceName x == ifcName) ifcs
 
-prefixModule body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWord)) body ("\\1(tpl_2(_))." ++ field ++ "\\2")
+prefixModule body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWord)) body ("\\1(tpl_1(_))." ++ field ++ "\\2")
  where
   nonWordNonDot = "([^A-Za-z0-9_\\.]|^)"
   nonWord       = "([^A-Za-z0-9_]|$)"
@@ -24,5 +24,5 @@ printModule fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", Rev" ++ ifcName ++ ifcArgs ++ ")" ++ "_ <- " ++ "_" ++ ifcName ++ "(True, True);\n" ++
      modifyBody body ifcName fileIfcs ++
-  "  return tpl_1(_);\n" ++
+  "  return tpl_2(_);\n" ++
   "endmodule\n\n"
