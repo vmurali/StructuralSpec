@@ -45,6 +45,9 @@ printJustArgs = printArgs printNone
 printProvisosArgs args = intercalate ", " provisos
  where
   provisos = ["Bits#(" ++ x ++ ", _sZ" ++ x ++ ")" | Type x <- args]
+------------------------------------------------------------------------
+
+specialEnable field = fieldType field == "Enable" && fieldIndices field == []
 --------------------------------------------------------------------------
 
 repVectors field = showIndices ++ fieldType field ++ (if fieldArgs field /= [] then "#" else "") ++ fieldArgs field ++ (repLen field) ')'
@@ -52,12 +55,15 @@ repVectors field = showIndices ++ fieldType field ++ (if fieldArgs field /= [] t
   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
 
 showField field =
-  "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
-  if fieldDefault field
-    then if not $ fieldReverse field
-           then "  method Action _write(" ++ fieldArgs field ++ " x);\n"
-           else "  method " ++ fieldArgs field ++ " _read();\n"
-    else ""
+  if specialEnable field && (not $ fieldReverse field)
+    then "  method Action " ++ fieldName field ++ "();\n"
+    else "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
+      if fieldDefault field
+        then
+          if not $ fieldReverse field
+            then "  method Action _write(" ++ fieldArgs field ++ " x);\n"
+            else "  method " ++ fieldArgs field ++ " _read();\n"
+        else ""
 
 showRevField field = showField field {fieldType = fieldType field ++ "_", fieldReverse = not $ fieldReverse field}
 -----------------------------------------------------------------------------------
@@ -93,23 +99,17 @@ showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <
 ----------------------------------------------------------------------------------
 
 showConn num field =
-  if fieldType field == "Enable"
-    then
-      if normal
-        then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)).send;\n"
-        else showNormalConn
-    else showNormalConn ++
+  if specialEnable field && normal
+    then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)).send;\n"
+    else "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n" ++
       if fieldDefault field
         then
           if normal
-            then showDefaultWrite
-            else showDefaultRead
+            then "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"
+            else "      method  _read = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._read;\n"
         else ""
  where
   normal = (num == "1") == (not $ fieldReverse field)
-  showNormalConn = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
-  showDefaultWrite = "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"
-  showDefaultRead  = "      method  _read = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._read;\n"
 
 ----------------------------------------------------------------------------------
 
