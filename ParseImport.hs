@@ -6,7 +6,10 @@ import Lexer
 import DataTypes
 
 parseImport = do
-  try $ reserved "import"
+  bsv <- do{try $ reserved "import"; return False} <|> do{try $ reserved "importBsv"; return True}
   file <- identifier
   semi
-  return $ Import file
+  return $ Import
+    { importName = file
+    , importBsv  = bsv
+    }
