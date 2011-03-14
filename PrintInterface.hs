@@ -63,7 +63,7 @@ showField field =
 showRevField field = showField field {fieldType = fieldType field ++ "_", fieldReverse = not $ fieldReverse field}
 -----------------------------------------------------------------------------------
 
-showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <- " ++ concatRepLen "replicateM(" ++ "_" ++ fieldType field ++ params ++ (repLen field) ')' ++ ";\n" ++
+showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <- " ++ concatRepLen "replicateTupleM(" ++ "_" ++ fieldType field ++ params ++ (repLen field) ')' ++ ";\n" ++
                       if rev then "  " ++ typeTupleRev ++ fieldName field ++ "_ = tuple2(tpl_2(" ++ fieldName field ++ "__), tpl_1(" ++ fieldName field ++ "__));\n" else ""
  where
   concatRepLen = concat . (repLen field)
