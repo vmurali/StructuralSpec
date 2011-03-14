@@ -47,7 +47,7 @@ printProvisosArgs args = intercalate ", " provisos
   provisos = ["Bits#(" ++ x ++ ", _sZ" ++ x ++ ")" | Type x <- args]
 --------------------------------------------------------------------------
 
-repVectors field = showIndices ++ fieldType field ++ "#" ++ fieldArgs field ++ (repLen field) ')'
+repVectors field = showIndices ++ fieldType field ++ "#(" ++ fieldArgs field ++ ")" ++ (repLen field) ')'
  where
   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
 
