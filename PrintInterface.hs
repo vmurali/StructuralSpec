@@ -54,7 +54,7 @@ repVectors field = showIndices ++ fieldType field ++ "#" ++ fieldArgs field ++ (
 showField field =
   "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
   if fieldDefault field
-    then if (not $ fieldReverse field) == (fieldType field == "Output")
+    then if not $ fieldReverse field
            then "  method Action _write(" ++ fieldArgs field ++ " x);\n"
            else "  method " ++ fieldArgs field ++ " _read();\n"
     else ""
@@ -70,37 +70,43 @@ showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <
   typeTupleRev = "Tuple2#(" ++ repVectors field{fieldType = fieldType field ++ "_"} ++ ", " ++ repVectors field ++ ") "
   rev = fieldReverse field
   ubarForRev = if rev then "_" else ""
-  en    = fieldEn    field
-  enRev = fieldEnRev field
-  enValid = en /= []
-  enRevValid = enRev /= []
-  tpl1En = if enValid then "(tpl_1(" ++ en ++ "_))._read" else "?"
-  tpl2EnRev = if enRevValid then "(tpl_2(" ++ enRev ++ "_))._read" else "?"
-  g    = fieldGuard field
-  gRev = fieldGuardRev field
-  gValid = g /= []
-  gRevValid = gRev /= []
-  tpl1G = if gValid then "(tpl_1(" ++ g ++ "_))._read && _g1" else "_g1"
-  tpl2GRev = if gRevValid then "(tpl_2(" ++ gRev ++ "_))._read && _g2" else "_g2"
-  params =
-    if rev
-      then "(" ++ show enRevValid ++ ", " ++ tpl2EnRev ++ ", " ++ show enValid ++ ", " ++ tpl1En ++ ", " ++ tpl2GRev ++ ", " ++ tpl1G ++ ")"
-      else "(" ++ show enValid ++ ", " ++ tpl1En ++ ", " ++ show enRevValid ++ ", " ++ tpl2EnRev ++ ", " ++ tpl1G ++ ", " ++ tpl2GRev ++ ")"
+  enStr = if fieldEn field /= []
+            then "True, tpl_1(" ++ fieldEn field ++ "_)"
+            else
+              if fieldEnRev field /= []
+                then "True, tpl_2(" ++ fieldEnRev field ++ "_)"
+                else "False, ?"
+  g1 = if fieldGuard field /= []
+         then "(tpl_1(" ++ fieldGuard field ++ "_))._read"
+         else "True"
+  g2 = if fieldGuardRev field /= []
+         then "(tpl_2(" ++ fieldGuardRev field ++ "_))._read"
+         else "True"
+  params = if (fieldType field /= "Output")
+             then ""
+             else "(" ++ enStr ++ ", " ++
+               (if rev
+                  then g2 ++ ", " ++ g1
+                  else g1 ++ ", " ++ g2)
+               ++ ")"
   
 ----------------------------------------------------------------------------------
 
 showConn num field =
   if fieldType field == "Enable"
-    then if (num == "1" && not (fieldReverse field)) || (num == "2" && fieldReverse field)
-           then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)).send;\n"
-           else showNormalConn
+    then
+      if normal
+        then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)).send;\n"
+        else showNormalConn
     else showNormalConn ++
-         if fieldDefault field
-           then if (num == "1") ==  ((not $ fieldReverse field) == (fieldType field == "Output"))
-                  then showDefaultWrite
-                  else showDefaultRead
-           else ""
+      if fieldDefault field
+        then
+          if normal
+            then showDefaultWrite
+            else showDefaultRead
+        else ""
  where
+  normal = (num == "1") == (not $ fieldReverse field)
   showNormalConn = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
   showDefaultWrite = "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"
   showDefaultRead  = "      method  _read = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._read;\n"
@@ -114,8 +120,7 @@ printInterface (Interface name args oldFields) =
   "interface " ++ name ++ "_#(" ++ printKindArgs args ++ ");\n" ++
      concatMap showRevField fields ++
   "endinterface\n\n" ++
-  "module _" ++ name ++ "#(Bool _en1Valid, Enable _en1, Bool _en2Valid, Enable _en2, Bool _g1, Bool _g2)" ++
-                         "(Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), " ++ name ++ "_#(" ++ printJustArgs args ++ "))) provisos(" ++ printProvisosArgs args ++ ");\n" ++
+  "module _" ++ name ++ "(Tuple2#(" ++ name ++ "#(" ++ printJustArgs args ++ "), " ++ name ++ "_#(" ++ printJustArgs args ++ "))) provisos(" ++ printProvisosArgs args ++ ");\n" ++
      concatMap showFieldInst fields ++
   "  return tuple2(\n" ++
   "    interface " ++ name ++ ";\n" ++
