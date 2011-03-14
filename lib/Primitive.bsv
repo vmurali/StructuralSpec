@@ -8,15 +8,15 @@ interface Output_#(type t);
   method t _read();
 endinterface
 
-module _Output#(Bool en1Valid, Enable en1, Bool en2Valid, Enable en2, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
+module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
   BaseWire#(t) w <- mkBaseWire;
 
   return tuple2(
     interface Output;
       method Action _write(t x) if(g1);
         w <= x;
-        if(en1Valid)
-          en1.send;
+        if(enValid)
+          en.send;
       endmethod
     endinterface,
     interface Output_;
@@ -34,7 +34,7 @@ interface Enable_;
   method Bool _read();
 endinterface
 
-module _Enable#(Bool en1Valid, Enable en1, Bool en2Valid, Enable en2, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
+module _Enable(Tuple2#(Enable, Enable_));
   BasePulse w <- mkBasePulse;
 
   return tuple2(
