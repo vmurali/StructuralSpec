@@ -17,7 +17,7 @@ module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), O
       method Action _write(t x) if(g1);
         w <= x;
         if(enValid)
-          en.send;
+          en;
       endmethod
     endinterface,
     interface Output_;
@@ -43,9 +43,7 @@ instance Connectable#(Output_#(t), Output#(t));
   endmodule
 endinstance
 
-interface Enable;
-  method Action send();
-endinterface
+typedef function Action send() Enable;
 
 interface Enable_;
   method Bool _read();
@@ -54,12 +52,14 @@ endinterface
 module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
   BasePulse w <- mkBasePulse;
 
+  function Action send();
+  action
+    _when_(g1, w.send);
+  endaction
+  endfunction
+
   return tuple2(
-    interface Enable;
-      method Action send() if(g1);
-        w.send;
-      endmethod
-    endinterface,
+    send,
     interface Enable_;
       method Bool _read() if(g2);
         return w;
@@ -71,33 +71,13 @@ instance Connectable#(Enable, Enable_);
   module mkConnection#(Enable a, Enable_ b)();
     rule r;
       if(b)
-        a.send;
+        a;
     endrule
   endmodule
 endinstance
 
 instance Connectable#(Enable_, Enable);
   module mkConnection#(Enable_ a, Enable b)();
-    rule r;
-      if(a)
-        b.send;
-    endrule
-  endmodule
-endinstance
-
-typedef function Action send() Send;
-
-instance Connectable#(Send, Enable_);
-  module mkConnection#(Send a, Enable_ b)();
-    rule r;
-      if(b)
-        a;
-    endrule
-  endmodule
-endinstance
-
-instance Connectable#(Enable_, Send);
-  module mkConnection#(Enable_ a, Send b)();
     rule r;
       if(a)
         b;
