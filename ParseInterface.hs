@@ -40,7 +40,7 @@ parseArg =
 parseField = do
   reverse <- optional "Reverse"
   deflt <- optional "Default"
-  fieldType <- identifier
+  fieldT <- identifier
   args <- parensBalancedPrefixed "" $ char '#'
   indices <- parseIndices
   name <- identifier
@@ -50,9 +50,9 @@ parseField = do
   guardRev <- parseAttribute "GuardRev"
   semi
   return Field
-    { fieldReverse = reverse
+    { fieldReverse = if fieldT == "Input" then not reverse else reverse
     , fieldDefault = deflt
-    , fieldType = fieldType
+    , fieldType = if fieldT == "Input" then "Output" else fieldT
     , fieldArgs = args
     , fieldIndices = indices
     , fieldName = name

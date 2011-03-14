@@ -54,9 +54,9 @@ repVectors field = showIndices ++ fieldType field ++ "#" ++ fieldArgs field ++ (
 showField field =
   "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
   if fieldDefault field
-    then if (not $ fieldReverse field) == (fieldType field == "Input")
-           then "  method " ++ fieldArgs field ++ " _read();\n"
-           else "  method Action _write(" ++ fieldArgs field ++ " x);\n"
+    then if (not $ fieldReverse field) == (fieldType field == "Output")
+           then "  method Action _write(" ++ fieldArgs field ++ " x);\n"
+           else "  method " ++ fieldArgs field ++ " _read();\n"
     else ""
 
 showRevField field = showField field {fieldType = fieldType field ++ "_", fieldReverse = not $ fieldReverse field}
@@ -96,9 +96,9 @@ showConn num field =
            else showNormalConn
     else showNormalConn ++
          if fieldDefault field
-           then if (num == "1") ==  ((not $ fieldReverse field) == (fieldType field == "Input"))
-                  then showDefaultRead
-                  else showDefaultWrite
+           then if (num == "1") ==  ((not $ fieldReverse field) == (fieldType field == "Output"))
+                  then showDefaultWrite
+                  else showDefaultRead
            else ""
  where
   showNormalConn = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
