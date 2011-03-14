@@ -34,7 +34,7 @@ interface Enable_;
   method Bool _read();
 endinterface
 
-module _Enable(Tuple2#(Enable, Enable_));
+module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
   BasePulse w <- mkBasePulse;
 
   return tuple2(

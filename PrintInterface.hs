@@ -88,7 +88,7 @@ showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <
   g2 = if fieldGuardRev field /= []
          then "(tpl_2(" ++ fieldGuardRev field ++ "_))._read"
          else "True"
-  params = if (fieldType field /= "Output")
+  params = if (fieldType field /= "Output" || fieldType field /= "Enable")
              then ""
              else "(" ++ enStr ++ ", " ++
                (if rev
