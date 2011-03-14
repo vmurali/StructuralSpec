@@ -20,17 +20,19 @@ defn = P.LanguageDef {
   P.identStart      = letter,
   P.identLetter     = alphaNum <|> char '_',
 
-  P.reservedNames   = [ "interface"
+  P.reservedNames   = [ "import"
+                      , "interface"
                       , "endinterface"
                       , "module"
                       , "endmodule"
                       , "implements"
-                      , "rule"
-                      , "connect"
                       , "en"
                       , "enRev"
                       , "guard"
                       , "guardRev"
+                      , "reverse"
+                      , "read"
+                      , "write"
                       ],
 
   P.caseSensitive   = True

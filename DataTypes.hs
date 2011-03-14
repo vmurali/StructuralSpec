@@ -1,15 +1,19 @@
 module DataTypes where
 
+data Default = Read | Write | None deriving Eq
+
 data Field = Field
-  { fieldType::String
+  { fieldReverse::Bool
+  , fieldDefault::Default
+  , fieldType::String
   , fieldArgs::String
   , fieldIndices::[String]
   , fieldName::String
-  , fieldEn::[String]
-  , fieldEnRev::[String]
-  , fieldGuard::[String]
-  , fieldGuardRev::[String]
-  } deriving Show
+  , fieldEn::String
+  , fieldEnRev::String
+  , fieldGuard::String
+  , fieldGuardRev::String
+  }
 
 data InterfaceArg = Type String | Num String
 
@@ -26,8 +30,5 @@ data Element = Interface
     , moduleProvisos::String
     , moduleBody::String
     }
-  | Import
-    { importName::String
-    , importBsv::Bool
-    }
+  | Import String
   | Generic String
