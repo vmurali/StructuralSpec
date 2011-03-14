@@ -1,69 +1,51 @@
 import Base::*;
 
-interface Input#(type t);
-  method t _read();
-endinterface
-
 interface Output#(type t);
   method Action _write(t x);
 endinterface
 
-typedef Output#(t) RevInput#(type t);
-typedef Input#(t) RevOutput#(type t);
+interface Output_#(type t);
+  method t _read();
+endinterface
 
-module _Input#(Bool guard1, Bool guard2)(Tuple2#(Input#(t), Output#(t))) provisos(Bits#(t, tSz));
+module _Output#(Bool en1Valid, Enable en1, Bool en2Valid, Enable en2, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
   BaseWire#(t) w <- mkBaseWire;
 
   return tuple2(
-    interface Input;
-      method t _read() if(guard1);
-        return w;
+    interface Output;
+      method Action _write(t x) if(g1);
+        w <= x;
+        if(en1Valid)
+          en1.send;
       endmethod
     endinterface,
-    interface Output;
-      method Action _write(t x) if(guard2);
-        w <= x;
+    interface Output_;
+      method t _read() if(g2);
+        return w;
       endmethod
     endinterface);
-endmodule
-
-module _Output#(Bool guard2, Bool guard1)(Tuple2#(Output#(t), Input#(t))) provisos(Bits#(t, tSz));
-  Tuple2#(Input#(t), Output#(t)) x <- _Input(guard1, guard2);
-  return tuple2(tpl_2(x), tpl_1(x));
 endmodule
 
 interface Enable;
   method Action send();
 endinterface
 
-interface RevEnable;
+interface Enable_;
   method Bool _read();
 endinterface
 
-typedef Enable RevRevEnable;
-
-module _Enable#(Bool guard1, Bool guard2)(Tuple2#(Enable, RevEnable));
+module _Enable#(Bool en1Valid, Enable en1, Bool en2Valid, Enable en2, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
   BasePulse w <- mkBasePulse;
 
   return tuple2(
     interface Enable;
-      method Action send() if(guard1);
+      method Action send() if(g1);
         w.send;
       endmethod
     endinterface,
-    interface RevEnable;
-      method Bool _read() if(guard2);
+    interface Enable_;
+      method Bool _read() if(g2);
         return w;
       endmethod
     endinterface);
-endmodule
-
-module _RevEnable#(Bool guard2, Bool guard1)(Tuple2#(RevEnable, Enable));
-  Tuple2#(Enable, RevEnable) x <- _Enable(guard1, guard2);
-  return tuple2(tpl_2(x), tpl_1(x));
-endmodule
-
-module _RevRevEnable#(Bool guard1, Bool guard2)(Tuple2#(Enable, RevEnable));
-  Tuple2#(Enable, RevEnable) x <- _Enable(guard1, guard2);
-  return x;
 endmodule
