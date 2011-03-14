@@ -47,14 +47,19 @@ printProvisosArgs args = intercalate ", " provisos
   provisos = ["Bits#(" ++ x ++ ", _sZ" ++ x ++ ")" | Type x <- args]
 --------------------------------------------------------------------------
 
-repVectors field = showIndices ++ fieldType field ++ fieldArgs field ++ (repLen field) ')'
+repVectors field = showIndices ++ fieldType field ++ "#" ++ fieldArgs field ++ (repLen field) ')'
  where
   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
 
-showField    field =
-  "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n"
+showField field =
+  "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
+  if fieldDefault field
+    then if (not $ fieldReverse field) == (fieldType field == "Input")
+           then "method " ++ fieldArgs field ++ " _read();\n"
+           else "method Action _write(" ++ fieldArgs field ++ " x);\n"
+    else ""
 
-showRevField field = showField field {fieldType = fieldType field ++ "_"}
+showRevField field = showField field {fieldType = fieldType field ++ "_", fieldReverse = not $ fieldReverse field}
 -----------------------------------------------------------------------------------
 
 showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <- " ++ concatRepLen "replicateM(" ++ "_" ++ fieldType field ++ params ++ (repLen field) ')' ++ ";\n" ++
@@ -90,11 +95,11 @@ showConn num field =
            then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)).send;\n"
            else showNormalConn
     else showNormalConn ++
-         if fieldDefault field == None
-           then ""
-           else if num == "1" && fieldDefault field == Write
-                   then showDefaultWrite
-                   else showDefaultRead
+         if fieldDefault field
+           then if (num == "1") ==  ((not $ fieldReverse field) == (fieldType field == "Input"))
+                  then showDefaultRead
+                  else showDefaultWrite
+           else ""
  where
   showNormalConn = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
   showDefaultWrite = "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"

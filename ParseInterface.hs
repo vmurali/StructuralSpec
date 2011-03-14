@@ -38,10 +38,10 @@ parseArg =
    )
 
 parseField = do
-  reverse <- do{try $ reserved "Reverse"; return True} <|> return False
-  deflt <- do{try $ reserved "Read"; return Read;} <|> do{try $ reserved "Write"; return Write;} <|> return None
+  reverse <- optional "Reverse"
+  deflt <- optional "Default"
   fieldType <- identifier
-  args <- parseParams
+  args <- parensBalancedPrefixed "" $ char '#'
   indices <- parseIndices
   name <- identifier
   en <- parseAttribute "En"
@@ -61,6 +61,12 @@ parseField = do
     , fieldGuard = guard
     , fieldGuardRev = guardRev
     }
+  where
+    optional str =
+      (do
+        try $ reserved str
+        return True
+      ) <|> return False
 
 parseAttribute str =
   ( do 

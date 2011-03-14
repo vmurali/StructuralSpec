@@ -31,8 +31,7 @@ defn = P.LanguageDef {
                       , "Guard"
                       , "GuardRev"
                       , "Reverse"
-                      , "Read"
-                      , "Write"
+                      , "Default"
                       ],
 
   P.caseSensitive   = True

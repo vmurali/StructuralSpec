@@ -1,10 +1,8 @@
 module DataTypes where
 
-data Default = Read | Write | None deriving Eq
-
 data Field = Field
   { fieldReverse::Bool
-  , fieldDefault::Default
+  , fieldDefault::Bool
   , fieldType::String
   , fieldArgs::String
   , fieldIndices::[String]
