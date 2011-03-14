@@ -107,7 +107,7 @@ showConn num field =
 
 ----------------------------------------------------------------------------------
 
-printInterface (Interface name args fields) =
+printInterface (Interface name args oldFields) =
   "interface " ++ name ++ "#(" ++ printKindArgs args ++ ");\n" ++
      concatMap showField fields ++
   "endinterface\n\n" ++
@@ -135,3 +135,6 @@ printInterface (Interface name args fields) =
        concatMap (\x -> "    mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
   "  endmodule\n" ++
   "endinstance\n\n"
+ where
+  removeInput field = if fieldType field == "Input" then field{fieldType = "Output", fieldReverse = not $ fieldReverse field} else field
+  fields = map removeInput oldFields

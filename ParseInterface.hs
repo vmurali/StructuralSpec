@@ -50,9 +50,9 @@ parseField = do
   guardRev <- parseAttribute "GuardRev"
   semi
   return Field
-    { fieldReverse = if fieldT == "Input" then not reverse else reverse
+    { fieldReverse = reverse
     , fieldDefault = deflt
-    , fieldType = if fieldT == "Input" then "Output" else fieldT
+    , fieldType = fieldT
     , fieldArgs = args
     , fieldIndices = indices
     , fieldName = name
