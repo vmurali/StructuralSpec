@@ -26,13 +26,13 @@ defn = P.LanguageDef {
                       , "module"
                       , "endmodule"
                       , "implements"
-                      , "en"
-                      , "enRev"
-                      , "guard"
-                      , "guardRev"
-                      , "reverse"
-                      , "read"
-                      , "write"
+                      , "En"
+                      , "EnRev"
+                      , "Guard"
+                      , "GuardRev"
+                      , "Reverse"
+                      , "Read"
+                      , "Write"
                       ],
 
   P.caseSensitive   = True

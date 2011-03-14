@@ -35,7 +35,12 @@ printKindArgs = printArgs printKind
       Num  x -> "numeric type " ++ x
       Type x -> "type " ++ x
 
-printJustArgs = printArgs (\x-> "")
+printJustArgs = printArgs printNone
+ where
+  printNone arg =
+    case arg of
+      Num  x -> x
+      Type x -> x
 
 printProvisosArgs args = intercalate ", " provisos
  where
@@ -46,7 +51,8 @@ repVectors field = showIndices ++ fieldType field ++ fieldArgs field ++ (repLen 
  where
   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
 
-showField    field = "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n"
+showField    field =
+  "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n"
 
 showRevField field = showField field {fieldType = fieldType field ++ "_"}
 -----------------------------------------------------------------------------------
@@ -81,7 +87,7 @@ showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <
 showConn num field =
   if fieldType field == "Enable"
     then if (num == "1" && not (fieldReverse field)) || (num == "2" && fieldReverse field)
-           then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"
+           then "      method Action " ++ fieldName field ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)).send;\n"
            else showNormalConn
     else showNormalConn ++
          if fieldDefault field == None
@@ -91,8 +97,8 @@ showConn num field =
                    else showDefaultRead
  where
   showNormalConn = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n"
-  showDefaultWrite = "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)._write;\n"
-  showDefaultRead  = "      method  _read = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_)._read;\n"
+  showDefaultWrite = "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"
+  showDefaultRead  = "      method  _read = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._read;\n"
 
 ----------------------------------------------------------------------------------
 
@@ -110,17 +116,17 @@ printInterface (Interface name args fields) =
   "    interface " ++ name ++ ";\n" ++
          concatMap (showConn "1") fields ++
   "    endinterface,\n" ++
-  "    interface Rev" ++ name ++ ";\n" ++
+  "    interface " ++ name ++ "_;\n" ++
          concatMap (showConn "2") fields ++
-  "    endinterface)\n" ++
+  "    endinterface);\n" ++
   "endmodule\n\n" ++
   "instance Connectable#(" ++ name ++ "#(" ++ printJustArgs args ++ "), " ++ name ++ "_#(" ++ printJustArgs args ++ "));\n" ++
   "  module mkConnection#(" ++ name ++ "#(" ++ printJustArgs args ++ ") a, " ++ name ++ "_#(" ++ printJustArgs args ++ ") b)();\n" ++
-       concatMap (\x -> "mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
-  "  endmodule" ++
+       concatMap (\x -> "    mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
+  "  endmodule\n" ++
   "endinstance\n\n" ++
   "instance Connectable#(" ++ name ++ "_#(" ++ printJustArgs args ++ "), " ++ name ++ "#(" ++ printJustArgs args ++ "));\n" ++
   "  module mkConnection#(" ++ name ++ "_#(" ++ printJustArgs args ++ ") a, " ++ name ++ "#(" ++ printJustArgs args ++ ") b)();\n" ++
-       concatMap (\x -> "mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
-  "  endmodule" ++
+       concatMap (\x -> "    mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
+  "  endmodule\n" ++
   "endinstance\n\n"

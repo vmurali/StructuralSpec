@@ -38,16 +38,16 @@ parseArg =
    )
 
 parseField = do
-  reverse <- do{try $ reserved "reverse"; return True} <|> return False
-  deflt <- do{try $ reserved "read"; return Read;} <|> do{try $ reserved "write"; return Write;} <|> return None
+  reverse <- do{try $ reserved "Reverse"; return True} <|> return False
+  deflt <- do{try $ reserved "Read"; return Read;} <|> do{try $ reserved "Write"; return Write;} <|> return None
   fieldType <- identifier
   args <- parseParams
   indices <- parseIndices
   name <- identifier
-  en <- parseAttribute "en"
-  enRev <- parseAttribute "enRev"
-  guard <- parseAttribute "guard"
-  guardRev <- parseAttribute "guardRev"
+  en <- parseAttribute "En"
+  enRev <- parseAttribute "EnRev"
+  guard <- parseAttribute "Guard"
+  guardRev <- parseAttribute "GuardRev"
   semi
   return Field
     { fieldReverse = reverse

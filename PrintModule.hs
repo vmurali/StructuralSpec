@@ -22,7 +22,7 @@ modifyBody body ifcName fileIfcs = replaceArrow $ foldl prefixModule body (map (
 
 printModule fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
-  "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", Rev" ++ ifcName ++ ifcArgs ++ ")" ++ "_ <- " ++ "_" ++ ifcName ++ "(False, ?, False, ?, True, True);\n" ++
+  "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ ifcArgs ++ "_)" ++ "_ <- " ++ "_" ++ ifcName ++ "(False, ?, False, ?, True, True);\n" ++
      modifyBody body ifcName fileIfcs ++
   "  return tpl_2(_);\n" ++
   "endmodule\n\n"
