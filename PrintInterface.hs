@@ -55,8 +55,8 @@ showField field =
   "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
   if fieldDefault field
     then if (not $ fieldReverse field) == (fieldType field == "Input")
-           then "method " ++ fieldArgs field ++ " _read();\n"
-           else "method Action _write(" ++ fieldArgs field ++ " x);\n"
+           then "  method " ++ fieldArgs field ++ " _read();\n"
+           else "  method Action _write(" ++ fieldArgs field ++ " x);\n"
     else ""
 
 showRevField field = showField field {fieldType = fieldType field ++ "_", fieldReverse = not $ fieldReverse field}
