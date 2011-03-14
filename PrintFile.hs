@@ -11,5 +11,5 @@ printElement fileIfcs x@(Module {}) = printModule fileIfcs x
 
 printFile elements ifcs =
   "import Vector::*;\n" ++
-  "import Library::*;\n\n" ++
+  "import Primitive::*;\n\n" ++
   (concatMap (printElement ifcs) elements)
