@@ -88,13 +88,13 @@ showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev ++ "_ <
   g2 = if fieldGuardRev field /= []
          then "(tpl_2(" ++ fieldGuardRev field ++ "_))._read"
          else "True"
-  params = if (fieldType field /= "Output" || fieldType field /= "Enable")
-             then ""
-             else "(" ++ enStr ++ ", " ++
+  params = if (fieldType field == "Output" || fieldType field == "Enable")
+             then "(" ++ enStr ++ ", " ++
                (if rev
                   then g2 ++ ", " ++ g1
                   else g1 ++ ", " ++ g2)
                ++ ")"
+             else ""
   
 ----------------------------------------------------------------------------------
 
@@ -132,12 +132,12 @@ printInterface (Interface name args oldFields) =
   "endmodule\n\n" ++
   "instance Connectable#(" ++ name ++ "#(" ++ printJustArgs args ++ "), " ++ name ++ "_#(" ++ printJustArgs args ++ "));\n" ++
   "  module mkConnection#(" ++ name ++ "#(" ++ printJustArgs args ++ ") a, " ++ name ++ "_#(" ++ printJustArgs args ++ ") b)();\n" ++
-       concatMap (\x -> "    mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
+       concatMap (\x -> "    mkConnection(asIfc(a." ++ x ++ "), asIfc(b." ++ x ++ "));\n") (map fieldName fields) ++
   "  endmodule\n" ++
   "endinstance\n\n" ++
   "instance Connectable#(" ++ name ++ "_#(" ++ printJustArgs args ++ "), " ++ name ++ "#(" ++ printJustArgs args ++ "));\n" ++
   "  module mkConnection#(" ++ name ++ "_#(" ++ printJustArgs args ++ ") a, " ++ name ++ "#(" ++ printJustArgs args ++ ") b)();\n" ++
-       concatMap (\x -> "    mkConnection(a." ++ x ++ ", b." ++ x ++ ");\n") (map fieldName fields) ++
+       concatMap (\x -> "    mkConnection(asIfc(a." ++ x ++ "), asIfc(b." ++ x ++ "));\n") (map fieldName fields) ++
   "  endmodule\n" ++
   "endinstance\n\n"
  where

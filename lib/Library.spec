@@ -1,4 +1,4 @@
 interface ActionCall#(type t);
-  Default Output#(t) data En(en);
   Enable en;
+  Default Output#(t) data En(en);
 endinterface

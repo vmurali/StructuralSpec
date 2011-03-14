@@ -1,4 +1,5 @@
 import Base::*;
+import Connectable::*;
 
 interface Output#(type t);
   method Action _write(t x);
@@ -26,6 +27,22 @@ module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), O
     endinterface);
 endmodule
 
+instance Connectable#(Output#(t), Output_#(t));
+  module mkConnection#(Output#(t) a, Output_#(t) b)();
+    rule r;
+      a <= b;
+    endrule
+  endmodule
+endinstance
+
+instance Connectable#(Output_#(t), Output#(t));
+  module mkConnection#(Output_#(t) a, Output#(t) b)();
+    rule r;
+      b <= a;
+    endrule
+  endmodule
+endinstance
+
 interface Enable;
   method Action send();
 endinterface
@@ -49,3 +66,41 @@ module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enabl
       endmethod
     endinterface);
 endmodule
+
+instance Connectable#(Enable, Enable_);
+  module mkConnection#(Enable a, Enable_ b)();
+    rule r;
+      if(b)
+        a.send;
+    endrule
+  endmodule
+endinstance
+
+instance Connectable#(Enable_, Enable);
+  module mkConnection#(Enable_ a, Enable b)();
+    rule r;
+      if(a)
+        b.send;
+    endrule
+  endmodule
+endinstance
+
+typedef function Action send() Send;
+
+instance Connectable#(Send, Enable_);
+  module mkConnection#(Send a, Enable_ b)();
+    rule r;
+      if(b)
+        a;
+    endrule
+  endmodule
+endinstance
+
+instance Connectable#(Enable_, Send);
+  module mkConnection#(Enable_ a, Send b)();
+    rule r;
+      if(a)
+        b;
+    endrule
+  endmodule
+endinstance
