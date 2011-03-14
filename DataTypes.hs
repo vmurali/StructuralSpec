@@ -28,8 +28,5 @@ data Element = Interface
     , moduleProvisos::String
     , moduleBody::String
     }
-  | Import
-    { importName::String
-    , importBsv::Bool
-    }
+  | Import String
   | Generic String
