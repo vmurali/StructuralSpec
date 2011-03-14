@@ -97,12 +97,12 @@ showConn num field =
   "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(" ++ fieldName field ++ "_);\n" ++
   if fieldDefault field
     then
-      if normal
-        then "      method _write = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._write;\n"
-        else "      method  _read = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))._read;\n"
+      if (fieldReverse field) /= (num == "1")
+        then assign "_write"
+        else assign "_read"
     else ""
  where
-  normal = (num == "1") == (not $ fieldReverse field)
+  assign str = "      method " ++ str ++ " = (tpl_" ++ num ++ "(" ++ fieldName field ++ "_))." ++ str ++ ";\n"
 
 ----------------------------------------------------------------------------------
 
