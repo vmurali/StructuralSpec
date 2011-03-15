@@ -38,7 +38,8 @@ process options seenInterfacesIO file = do
         Left err -> do
           print err
           exitFailure
-        Right elements -> do
+        Right preElements -> do
+          let elements = (Import "Library"):preElements
           let imports = [x | Import x <- elements, isNothing (find (\(file, ifc) -> x == file) seenInterfaces)]
           let interfaces = [x | x@(Interface {}) <- elements]
           newInterfaces <- foldl (process options) (return $ (file, interfaces):seenInterfaces) imports
