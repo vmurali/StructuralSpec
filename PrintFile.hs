@@ -11,7 +11,7 @@ printElement elastic fileIfcs x@(Module {}) = printModule elastic fileIfcs x
 
 printFile elastic ifcs elements =
   "import Vector::*;\n" ++
-  "import ReplicateTuple::*;\n" ++
+  "import HaskellLib::*;\n" ++
   "import Connectable::*;\n" ++
-  "import Primitive::*;\n\n" ++
+  "import Primitive" ++ (if elastic then "Elastic" else "") ++ "::*;\n\n" ++
   (concatMap (printElement elastic ifcs) elements)

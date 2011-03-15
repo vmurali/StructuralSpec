@@ -1,7 +1,18 @@
 import Base::*;
 import Connectable::*;
+import Vector::*;
 
 typedef function Action send() Send;
+
+typeclass Sync_#(type t);
+  function Action _hasBeenUsed(t x);
+  function Bool _isSupplied(t x);
+endtypeclass
+
+instance Sync_#(Vector#(num, t)) provisos(Sync_#(t));
+  function Action _hasBeenUsed(Vector#(num, t) xs) = joinActions(map(_hasBeenUsed, xs));
+  function Bool _isSupplied(Vector#(num, t) xs) = foldl(\&& , True, map(_isSupplied, xs));
+endinstance
 
 interface Normal_#(type t);
   method Maybe#(t) dataIn;
@@ -54,8 +65,8 @@ interface Output#(type t);
   method Action _write(t x);
   method Action justFinish();
   method Bool canAccept();
-  method Bool isOutputSupplied();
-  method Action done();
+  method Bool isSupplied();
+  method Action hasBeenUsed();
 
   interface Reverse_#(t) conn;
 endinterface
@@ -64,8 +75,8 @@ interface Output_#(type t);
   method t _read();
   method Bool isValid();
   method Bool canFinish();
-  method Action done();
-  method Bool isOutputSupplied();
+  method Action hasBeenUsed();
+  method Bool isSupplied();
 
   interface Normal_#(t) conn;
 endinterface
@@ -120,15 +131,15 @@ module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), O
         return canAccept_;
       endmethod
     
-      method Bool isOutputSupplied();
+      method Bool isSupplied();
         return isOutputSupplied_;
       endmethod
 
-      method Action done();
+      method Action hasBeenUsed();
       endmethod
 
       interface Reverse_ conn;
-        method Bool doneIn;
+        method Bool doneIn();
           return done_;
         endmethod
 
@@ -154,16 +165,16 @@ module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), O
         return canFinish_;
       endmethod
 
-      method Action done();
+      method Action hasBeenUsed();
         done_.send;
       endmethod
 
-      method Bool isOutputSupplied();
+      method Bool isSupplied();
         return True;
       endmethod
 
       interface Normal_ conn;
-        method Maybe#(t) dataIn;
+        method Maybe#(t) dataIn();
           if(dataInValid_)
             return tagged Just dataIn_;
           else
@@ -188,11 +199,22 @@ instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
   endmodule
 endinstance
 
+instance Sync_#(Output#(t));
+  function Action _hasBeenUsed(Output#(t) x) = x.hasBeenUsed;
+  function Bool _isSupplied(Output#(t) x) = x.isSupplied;
+endinstance
+
+instance Sync_#(Output_#(t));
+  function Action _hasBeenUsed(Output_#(t) x) = x.hasBeenUsed;
+  function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
+endinstance
+
 interface Enable;
   method Action _read();
   method Action justFinish();
-  method Bool canAccept;
-  method Bool isOutputSupplied;
+  method Bool canAccept();
+  method Bool isSupplied();
+  method Action hasBeenUsed();
 
   interface Reverse_#(Bool) conn;
 endinterface
@@ -201,7 +223,8 @@ interface Enable_;
   method Bool _read();
   method Bool isValid();
   method Bool canFinish();
-  method Action done();
+  method Action hasBeenUsed();
+  method Bool isSupplied();
 
   interface Normal_#(Bool) conn;
 endinterface
@@ -252,16 +275,19 @@ module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enabl
           en.justFinish;
       endmethod
     
-      method Bool canAccept;
+      method Bool canAccept();
         return canAccept_;
       endmethod
     
-      method Bool isOutputSupplied;
+      method Bool isSupplied();
         return isOutputSupplied_;
       endmethod
 
+      method Action hasBeenUsed();
+      endmethod
+
       interface Reverse_ conn;
-        method Bool doneIn;
+        method Bool doneIn();
           return done_;
         endmethod
 
@@ -288,12 +314,16 @@ module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enabl
         return canFinish_;
       endmethod
 
-      method Action done();
+      method Action hasBeenUsed();
         done_.send;
       endmethod
 
+      method Bool isSupplied();
+        return True;
+      endmethod
+
       interface Normal_ conn;
-        method Maybe#(Bool) dataIn;
+        method Maybe#(Bool) dataIn();
           if(dataInValid_)
             return tagged Just dataIn_;
           else
@@ -316,5 +346,15 @@ instance Connectable#(Enable_, Enable);
   module mkConnection#(Enable_ a, Enable b)();
     connect_(asIfc(b).conn, asIfc(a).conn);
   endmodule
+endinstance
+
+instance Sync_#(Enable);
+  function Action _hasBeenUsed(Enable x) = x.hasBeenUsed;
+  function Bool _isSupplied(Enable x) = x.isSupplied;
+endinstance
+
+instance Sync_#(Enable_);
+  function Action _hasBeenUsed(Enable_ x) = x.hasBeenUsed;
+  function Bool _isSupplied(Enable_ x) = x.isSupplied;
 endinstance
 

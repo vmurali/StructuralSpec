@@ -1,7 +1,0 @@
-package ReplicateTuple where
-
-import Monad
-import Vector
-
-replicateTupleM :: (Monad m) => m (a,b) -> m (Vector n a, Vector n b)
-replicateTupleM mx = (liftM  unzip) $ replicateM mx

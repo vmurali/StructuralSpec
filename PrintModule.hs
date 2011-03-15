@@ -25,7 +25,7 @@ printModule elastic fileIfcs (Module name args ifcReverse ifcName ifcArgs provis
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ "_" ++ ifcArgs ++ ")" ++ underbar ++ "_ <- " ++ "_" ++ ifcName ++ (if (ifcName == "Output" || ifcName == "Enable") then "(False, ?, True, True);\n" else "") ++
      (if ifcReverse then "  Tuple2#(" ++ ifcName ++ "_" ++ ifcArgs ++ ", " ++ ifcName ++ ifcArgs ++ ")" ++ " _ = tuple2(tpl_2(asIfc(__)), tpl1(asIfc(__)));\n" else "") ++
      modifyBody body ifcName fileIfcs ++
-     if elastic then "  rule _r;\n    if(tpl_2(asIfc(isOutputSupplied)))\n      (tpl_2(asIfc(_))).done;\nendrule\n" else "" ++
+     if elastic then "  rule _r;\n    if(tpl_2(asIfc(isSupplied)))\n      (tpl_2(asIfc(_))).hasBeenUsed;\nendrule\n" else "" ++
   "  return tpl_2(asIfc(_));\n" ++
   "endmodule\n\n"
  where
