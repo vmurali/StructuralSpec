@@ -24,6 +24,6 @@ printModule elastic fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ ifcArgs ++ "_)" ++ "_ <- " ++ "_" ++ ifcName ++ (if (ifcName == "Output" || ifcName == "Enable") then "(False, ?, True, True);\n" else "") ++
      modifyBody body ifcName fileIfcs ++
-     if elastic then "  rule _r;\n    allInputsDone <= allOutputsSupplied;\nendrule\n" else "" ++
+     if elastic then "  rule _r;\n    (tpl_2(asIfc(_))).done(tpl_2(asIfc(isOutputSupplied)));\nendrule\n" else "" ++
   "  return tpl_2(asIfc(_));\n" ++
   "endmodule\n\n"
