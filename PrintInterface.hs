@@ -4,21 +4,6 @@ import Data.List
 
 import DataTypes
 
-{-
-for Input:
-
-tpl_1 is the read
-tpl_2 is the write
-
-For guard in the normal direction:
-  guards should be applied to implementation of tpl_1
-  tpl_1 of the guard wires will be used for reading
-
-For enable in the normal direction:
-  the extra writes will be done in the implementation of tpl_1 for the main interface
-  tpl_1 of the enable wires will be used for writing
--}
-
 -----------------------------------------------------------------------
 
 repLen field = replicate indicesLen
@@ -113,11 +98,11 @@ showConn num field =
 printInterface elastic (Interface name args oldFields) =
   "interface " ++ name ++ printKindArgs args ++ ";\n" ++
      concatMap showField fields ++
-     extras ++
+     extrasField ++
   "endinterface\n\n" ++
   "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
      concatMap showRevField fields ++
-     extras ++
+     extrasField ++
   "endinterface\n\n" ++
   "module _" ++ name ++ "(Tuple2#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
      concatMap showFieldInst fields ++
@@ -142,4 +127,4 @@ printInterface elastic (Interface name args oldFields) =
  where
   removeInput field = if fieldType field == "Input" then field{fieldType = "Output", fieldReverse = not $ fieldReverse field} else field
   fields = map removeInput oldFields
-  extras = if elastic then "  method Action done();\n  method Bool isOutputSupplied();\n" else ""
+  extrasField = if elastic then "  method Action done();\n  method Bool isOutputSupplied();\n" else ""
