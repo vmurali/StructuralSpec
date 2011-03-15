@@ -113,9 +113,11 @@ showConn num field =
 printInterface elastic (Interface name args oldFields) =
   "interface " ++ name ++ printKindArgs args ++ ";\n" ++
      concatMap showField fields ++
+     extras ++
   "endinterface\n\n" ++
   "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
      concatMap showRevField fields ++
+     extras ++
   "endinterface\n\n" ++
   "module _" ++ name ++ "(Tuple2#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
      concatMap showFieldInst fields ++
@@ -140,3 +142,4 @@ printInterface elastic (Interface name args oldFields) =
  where
   removeInput field = if fieldType field == "Input" then field{fieldType = "Output", fieldReverse = not $ fieldReverse field} else field
   fields = map removeInput oldFields
+  extras = if elastic then "  method Action done();\n  method Bool isOutputSupplied();\n" else ""

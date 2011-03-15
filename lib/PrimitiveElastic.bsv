@@ -53,8 +53,9 @@ endmodule
 interface Output#(type t);
   method Action _write(t x);
   method Action justFinish();
-  method Bool canAccept;
-  method Bool isOutputSupplied;
+  method Bool canAccept();
+  method Bool isOutputSupplied();
+  method Action done();
 
   interface Reverse_#(t) conn;
 endinterface
@@ -64,6 +65,7 @@ interface Output_#(type t);
   method Bool isValid();
   method Bool canFinish();
   method Action done();
+  method Bool isOutputSupplied();
 
   interface Normal_#(t) conn;
 endinterface
@@ -114,12 +116,15 @@ module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), O
           en.justFinish;
       endmethod
     
-      method Bool canAccept;
+      method Bool canAccept();
         return canAccept_;
       endmethod
     
-      method Bool isOutputSupplied;
+      method Bool isOutputSupplied();
         return isOutputSupplied_;
+      endmethod
+
+      method Action done();
       endmethod
 
       interface Reverse_ conn;
@@ -151,6 +156,10 @@ module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), O
 
       method Action done();
         done_.send;
+      endmethod
+
+      method Bool isOutputSupplied();
+        return True;
       endmethod
 
       interface Normal_ conn;
