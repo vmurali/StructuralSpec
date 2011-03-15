@@ -180,22 +180,21 @@ instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
 endinstance
 
 interface Enable;
-  method Action _read;
+  method Action _read();
   method Action justFinish();
   method Bool canAccept;
   method Bool isOutputSupplied;
 
-  interface Normal_#(Bool) conn;
+  interface Reverse_#(Bool) conn;
 endinterface
 
-/*
 interface Enable_;
   method Bool _read();
   method Bool isValid();
   method Bool canFinish();
   method Action done();
 
-  interface Reverse_#(Bool) conn;
+  interface Normal_#(Bool) conn;
 endinterface
 
 module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
@@ -203,6 +202,11 @@ module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enabl
   BasePulse      dataInValid_ <- mkBasePulse;
   BasePulse        canAccept_ <- mkBasePulse;
   BasePulse isOutputSupplied_ <- mkBasePulse;
+
+  BasePulse          dataOut_ <- mkBasePulse;
+  BasePulse          isValid_ <- mkBasePulse;
+  BasePulse        canFinish_ <- mkBasePulse;
+  BasePulse             done_ <- mkBasePulse;
 
   function Action canAcceptFn();
   action
@@ -216,34 +220,81 @@ module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enabl
   endaction
   endfunction
 
-  method Action _read() if(g1 && canAccept_);
-    dataIn_.send;
-    dataInValid_.send; 
-  endmethod
+  function Action canFinishFn();
+  action
+    canFinish_.send;
+  endaction
+  endfunction
 
-  method Action justFinish() if(canAccept_);
-    dataInValid_.send;
-  endmethod
+  return tuple2(
+    interface Enable;
+      method Action _read() if(g1 && canAccept_);
+        dataIn_.send;
+        dataInValid_.send; 
+    
+        if(enValid)
+          en;
+      endmethod
+    
+      method Action justFinish() if(canAccept_);
+        dataInValid_.send;
+    
+        if(enValid)
+          en.justFinish;
+      endmethod
+    
+      method Bool canAccept;
+        return canAccept_;
+      endmethod
+    
+      method Bool isOutputSupplied;
+        return isOutputSupplied_;
+      endmethod
 
-  method Bool canAccept;
-    return canAccept_;
-  endmethod
+      interface Reverse_ conn;
+        method Bool doneIn;
+          return done_;
+        endmethod
 
-  method Bool isOutputSupplied;
-    return isOutputSupplied_;
-  endmethod
+        method Action dataOut(Bool x);
+          isValid_.send;
+          if(x)
+            dataOut_.send;
+        endmethod
 
-  interface Normal_ conn;
-    method Maybe#(Bool) dataIn;
-      if(dataInValid_)
-        return tagged Just dataIn_;
-      else
-        return Nothing;
-    endmethod
+        interface canFinish = canFinishFn;
+      endinterface
+    endinterface,
 
-    interface canAccept = canAcceptFn;
-    interface isOutputSupplied = isOutputSuppliedFn;
-  endinterface
+    interface Enable_;
+      method Bool _read() if(g2 && isValid_);
+        return dataOut_;
+      endmethod
+
+      method Bool isValid();
+        return isValid_;
+      endmethod
+
+      method Bool canFinish();
+        return canFinish_;
+      endmethod
+
+      method Action done();
+        done_.send;
+      endmethod
+
+      interface Normal_ conn;
+        method Maybe#(Bool) dataIn;
+          if(dataInValid_)
+            return tagged Just dataIn_;
+          else
+            return Nothing;
+        endmethod
+    
+        interface canAccept = canAcceptFn;
+        interface isOutputSupplied = isOutputSuppliedFn;
+      endinterface
+    endinterface);
 endmodule
 
 instance Connectable#(Enable, Enable_);
@@ -257,4 +308,4 @@ instance Connectable#(Enable_, Enable);
     connect_(asIfc(b).conn, asIfc(a).conn);
   endmodule
 endinstance
-*/
+

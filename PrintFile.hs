@@ -4,14 +4,14 @@ import DataTypes
 import PrintModule
 import PrintInterface
 
-printElement fileIfcs (Generic x) = x
-printElement fileIfcs (Import x) = "import " ++ x ++ "::*;\n"
-printElement fileIfcs x@(Interface {}) = printInterface x
-printElement fileIfcs x@(Module {}) = printModule fileIfcs x
+printElement _       _        (Generic x) = x
+printElement _       _        (Import x) = "import " ++ x ++ "::*;\n"
+printElement elastic _        x@(Interface {}) = printInterface elastic x
+printElement elastic fileIfcs x@(Module {}) = printModule elastic fileIfcs x
 
-printFile elements ifcs =
+printFile elastic ifcs elements =
   "import Vector::*;\n" ++
   "import ReplicateTuple::*;\n" ++
   "import Connectable::*;\n" ++
   "import Primitive::*;\n\n" ++
-  (concatMap (printElement ifcs) elements)
+  (concatMap (printElement elastic ifcs) elements)

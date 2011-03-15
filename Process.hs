@@ -38,13 +38,12 @@ process options seenInterfacesIO file = do
         Left err -> do
           print err
           exitFailure
-        Right preElements -> do
-          let elements = (Import "Library"):preElements
+        Right elements -> do
           let imports = [x | Import x <- elements, isNothing (find (\(file, ifc) -> x == file) seenInterfaces)]
           let interfaces = [x | x@(Interface {}) <- elements]
           newInterfaces <- foldl (process options) (return $ (file, interfaces):seenInterfaces) imports
           let fullInterfacesList = (file, interfaces):newInterfaces
-          writeFile (outPath ++ ".bsv") $ printFile elements fullInterfacesList
+          writeFile (outPath ++ ".bsv") $ printFile (optElastic options) fullInterfacesList elements
           return fullInterfacesList
   where
     outPath = optOutDir options ++ "/" ++ file

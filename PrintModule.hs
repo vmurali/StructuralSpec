@@ -11,7 +11,7 @@ getFields ifcName fileIfcs = (interfaceFields . fromJust) $ foldl (matchInterfac
   matchInterface _       (Just found) _            = Just found
   matchInterface ifcName Nothing      (file, ifcs) = find (\x -> interfaceName x == ifcName) ifcs
 
-prefixModule body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWord)) body ("\\1(tpl_1(_))." ++ field ++ "\\2")
+prefixModule body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWord)) body ("\\1(tpl_1(asIfc(_)))." ++ field ++ "\\2")
  where
   nonWordNonDot = "([^A-Za-z0-9_\\.]|^)"
   nonWord       = "([^A-Za-z0-9_]|$)"
@@ -20,9 +20,10 @@ modifyBody body ifcName fileIfcs = replaceArrow $ foldl prefixModule body (map (
  where
   replaceArrow str = subRegex (mkRegex ":=") str "<="
 
-printModule fileIfcs (Module name args ifcName ifcArgs provisos body) =
+printModule elastic fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ ifcArgs ++ "_)" ++ "_ <- " ++ "_" ++ ifcName ++ (if (ifcName == "Output" || ifcName == "Enable") then "(False, ?, True, True);\n" else "") ++
      modifyBody body ifcName fileIfcs ++
-  "  return tpl_2(_);\n" ++
+     if elastic then "  rule _r;\n    allInputsDone <= allOutputsSupplied;\nendrule\n" else "" ++
+  "  return tpl_2(asIfc(_));\n" ++
   "endmodule\n\n"
