@@ -21,7 +21,7 @@ parseHeader = do
   implementName <- identifier
   implementArgs <- parseParams
   provisos <- parensBalancedPrefixed "provisos" $ reserved "provisos"
-  semi
+  char ';'
   return Module
          { moduleName = name
          , moduleArgs = args
