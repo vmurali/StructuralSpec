@@ -17,6 +17,7 @@ parseHeader = do
   name <- identifier
   args <- parseParams
   reserved "implements"
+  implementReverse <- do{try $ reserved "Reverse"; return True} <|> return False
   implementName <- identifier
   implementArgs <- parseParams
   provisos <- parensBalancedPrefixed "provisos" $ reserved "provisos"
@@ -24,6 +25,7 @@ parseHeader = do
   return Module
          { moduleName = name
          , moduleArgs = args
+         , implementReverse = implementReverse
          , implementName = implementName
          , implementArgs = implementArgs
          , moduleProvisos = provisos

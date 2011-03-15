@@ -20,10 +20,13 @@ modifyBody body ifcName fileIfcs = replaceArrow $ foldl prefixModule body (map (
  where
   replaceArrow str = subRegex (mkRegex ":=") str "<="
 
-printModule elastic fileIfcs (Module name args ifcName ifcArgs provisos body) =
-  "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
-  "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ ifcArgs ++ "_)" ++ "_ <- " ++ "_" ++ ifcName ++ (if (ifcName == "Output" || ifcName == "Enable") then "(False, ?, True, True);\n" else "") ++
+printModule elastic fileIfcs (Module name args ifcReverse ifcName ifcArgs provisos body) =
+  "module " ++ name ++ args ++ "(" ++ ifcName ++ underbar ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
+  "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ "_" ++ ifcArgs ++ ")" ++ underbar ++ "_ <- " ++ "_" ++ ifcName ++ (if (ifcName == "Output" || ifcName == "Enable") then "(False, ?, True, True);\n" else "") ++
+     (if ifcReverse then "  Tuple2#(" ++ ifcName ++ "_" ++ ifcArgs ++ ", " ++ ifcName ++ ifcArgs ++ ")" ++ " _ = tuple2(tpl_2(asIfc(__)), tpl1(asIfc(__)));\n" else "") ++
      modifyBody body ifcName fileIfcs ++
      if elastic then "  rule _r;\n    (tpl_2(asIfc(_))).done(tpl_2(asIfc(isOutputSupplied)));\nendrule\n" else "" ++
   "  return tpl_2(asIfc(_));\n" ++
   "endmodule\n\n"
+ where
+  underbar = if ifcReverse then "_" else ""
