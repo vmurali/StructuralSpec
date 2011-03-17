@@ -23,7 +23,6 @@ data Element = Interface
   | Module
     { moduleName::String
     , moduleArgs::String
-    , implementReverse::Bool
     , implementName::String
     , implementArgs::String
     , moduleProvisos::String
