@@ -1,10 +1,10 @@
-interface BaseWire#(type t);
+interface Wire#(type t);
   method t _read();
   method Action _write(t d);
 endinterface
 
-import "BVI" mkBaseWire =
-module mkBaseWire(BaseWire#(t)) provisos(Bits#(t, tSz));
+import "BVI" mkWire =
+module mkWire(Wire#(t)) provisos(Bits#(t, tSz));
   parameter width = valueOf(tSz);
   method out _read;
   method _write(in) enable(en);
@@ -16,13 +16,13 @@ module mkBaseWire(BaseWire#(t)) provisos(Bits#(t, tSz));
   path(in, out);
 endmodule
 
-interface BasePulse;
+interface Pulse;
   method Bool _read();
   method Action send();
 endinterface
 
-import "BVI" mkBasePulse =
-module mkBasePulse(BasePulse);
+import "BVI" mkPulse =
+module mkPulse(Pulse);
   method out _read;
   method send() enable(en);
   schedule _read CF send;

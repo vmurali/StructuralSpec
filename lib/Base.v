@@ -1,4 +1,4 @@
-module mkBaseWire(in, out, en);
+module mkWire(in, out, en);
   parameter width = 1;
   input [width-1:0] in;
   output [width-1:0] out;
@@ -7,7 +7,7 @@ module mkBaseWire(in, out, en);
   assign out = in;
 endmodule
 
-module mkBasePulse(out, en);
+module mkPulse(out, en);
   output out;
   input en;
 

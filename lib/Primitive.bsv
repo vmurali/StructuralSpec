@@ -10,7 +10,7 @@ interface Output_#(type t);
 endinterface
 
 module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
-  BaseWire#(t) w <- mkBaseWire;
+  Wire#(t) w <- mkWire;
 
   return tuple2(
     interface Output;
@@ -50,11 +50,11 @@ interface Enable_;
 endinterface
 
 module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
-  BasePulse w <- mkBasePulse;
+  Pulse w <- mkPulse;
 
   function Action send();
   action
-    _when_(g1, w.send);
+    _when_(g1, action w.send; if(enValid) en; endaction);
   endaction
   endfunction
 

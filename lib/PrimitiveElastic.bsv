@@ -82,15 +82,15 @@ interface Output_#(type t);
 endinterface
 
 module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
-  BaseWire#(t)        dataIn_ <- mkBaseWire;
-  BasePulse      dataInValid_ <- mkBasePulse;
-  BasePulse        canAccept_ <- mkBasePulse;
-  BasePulse isOutputSupplied_ <- mkBasePulse;
+  Wire#(t)        dataIn_ <- mkWire;
+  Pulse      dataInValid_ <- mkPulse;
+  Pulse        canAccept_ <- mkPulse;
+  Pulse isOutputSupplied_ <- mkPulse;
 
-  BaseWire#(t)       dataOut_ <- mkBaseWire;
-  BasePulse          isValid_ <- mkBasePulse;
-  BasePulse        canFinish_ <- mkBasePulse;
-  BasePulse             done_ <- mkBasePulse;
+  Wire#(t)       dataOut_ <- mkWire;
+  Pulse          isValid_ <- mkPulse;
+  Pulse        canFinish_ <- mkPulse;
+  Pulse             done_ <- mkPulse;
 
   function Action canAcceptFn();
   action
@@ -230,15 +230,15 @@ interface Enable_;
 endinterface
 
 module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
-  BasePulse           dataIn_ <- mkBasePulse;
-  BasePulse      dataInValid_ <- mkBasePulse;
-  BasePulse        canAccept_ <- mkBasePulse;
-  BasePulse isOutputSupplied_ <- mkBasePulse;
+  Pulse           dataIn_ <- mkPulse;
+  Pulse      dataInValid_ <- mkPulse;
+  Pulse        canAccept_ <- mkPulse;
+  Pulse isOutputSupplied_ <- mkPulse;
 
-  BasePulse          dataOut_ <- mkBasePulse;
-  BasePulse          isValid_ <- mkBasePulse;
-  BasePulse        canFinish_ <- mkBasePulse;
-  BasePulse             done_ <- mkBasePulse;
+  Pulse          dataOut_ <- mkPulse;
+  Pulse          isValid_ <- mkPulse;
+  Pulse        canFinish_ <- mkPulse;
+  Pulse             done_ <- mkPulse;
 
   function Action canAcceptFn();
   action
