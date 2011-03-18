@@ -1,8 +1,8 @@
 module DataTypes where
 
 data Field = Field
-  { fieldReverse::Bool
-  , fieldDefault::Bool
+  { fieldDefault::Bool
+  , fieldReverse::Bool
   , fieldType::String
   , fieldArgs::String
   , fieldIndices::[String]
