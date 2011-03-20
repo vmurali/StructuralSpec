@@ -9,7 +9,7 @@ interface Output_#(type t);
   method t _read();
 endinterface
 
-module _Output#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
+module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
   Wire#(t) w <- mkWire;
 
   return tuple2(
@@ -43,13 +43,13 @@ instance Connectable#(Output_#(t), Output#(t));
   endmodule
 endinstance
 
-typedef function Action send() Enable;
+typedef function Action send() OutputPulse;
 
-interface Enable_;
+interface OutputPulse_;
   method Bool _read();
 endinterface
 
-module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enable_));
+module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(OutputPulse, OutputPulse_));
   Pulse w <- mkPulse;
 
   function Action send();
@@ -60,15 +60,15 @@ module _Enable#(Bool enValid, Enable en, Bool g1, Bool g2)(Tuple2#(Enable, Enabl
 
   return tuple2(
     send,
-    interface Enable_;
+    interface OutputPulse_;
       method Bool _read() if(g2);
         return w;
       endmethod
     endinterface);
 endmodule
 
-instance Connectable#(Enable, Enable_);
-  module mkConnection#(Enable a, Enable_ b)();
+instance Connectable#(OutputPulse, OutputPulse_);
+  module mkConnection#(OutputPulse a, OutputPulse_ b)();
     rule r;
       if(b)
         a;
@@ -76,8 +76,8 @@ instance Connectable#(Enable, Enable_);
   endmodule
 endinstance
 
-instance Connectable#(Enable_, Enable);
-  module mkConnection#(Enable_ a, Enable b)();
+instance Connectable#(OutputPulse_, OutputPulse);
+  module mkConnection#(OutputPulse_ a, OutputPulse b)();
     rule r;
       if(a)
         b;

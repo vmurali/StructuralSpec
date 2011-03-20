@@ -28,4 +28,4 @@ printModule elastic fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"
  where
-  ending = (if (ifcName == "Output" || ifcName == "Enable") then "(False, ?, True, True);\n" else ";\n")
+  ending = (if (ifcName == "Output" || ifcName == "OutputPulse") then "(False, ?, True, True);\n" else ";\n")
