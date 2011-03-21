@@ -20,11 +20,19 @@ modifyBody body ifcName fileIfcs = replaceArrow $ foldl prefixModule body (map (
  where
   replaceArrow str = subRegex (mkRegex ":=") str "<="
 
+instancesDone body = concatMap showDone instanceLines
+ where
+  arrow = mkRegexWithOpts "[ \t\n]*<-[ \t\n]*" False True
+  instanceLines = splitRegex arrow body
+  spaces = mkRegexWithOpts "[ \t\n]+" False True
+  showDone line = if getInstance line == [] then "" else "    (asIfc(" ++ getInstance line ++ ")).specCycleDone;\n"
+  getInstance line = last $ splitRegex spaces line
+
 printModule elastic fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ "_" ++ ifcArgs ++ ") mod_" ++ " <- " ++ "_" ++ ifcName ++ ending ++
      modifyBody body ifcName fileIfcs ++
-     (if elastic then "  rule _r;\n    if(tpl_2(asIfc(mod_)).isSupplied)\n      (tpl_2(asIfc(mod_))).hasBeenUsed;\n  endrule\n" else "") ++
+     (if elastic then "  rule _r;\n    (tpl_2(asIfc(mod_))).specCycleDone;\n" ++ instancesDone body ++ "  endrule\n" else "") ++
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"
  where
