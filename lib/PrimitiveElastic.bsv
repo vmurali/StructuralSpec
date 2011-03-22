@@ -4,16 +4,6 @@ import Vector::*;
 
 typedef function Action send() Send;
 
-typeclass Sync_#(type t);
-  function Action _specCycleDone(t x);
-  function Bool _isSupplied(t x);
-endtypeclass
-
-instance Sync_#(Vector#(num, t)) provisos(Sync_#(t));
-  function Action _specCycleDone(Vector#(num, t) xs) = joinActions(map(_specCycleDone, xs));
-  function Bool _isSupplied(Vector#(num, t) xs) = foldl(\&& , True, map(_isSupplied, xs));
-endinstance
-
 interface OutputCarry_#(type t);
   method Action connected();
   method Maybe#(t) write();
