@@ -1,6 +1,6 @@
-interface OutputEn;
+interface OutputEn#(type t);
   OutputPulse en;
-  Default Output#(Bool) data En(en);
+  Default Output#(t) data En(en);
 endinterface
 
 interface ActionCall#(type t);
