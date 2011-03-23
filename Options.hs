@@ -23,7 +23,7 @@ splitColon str = splitRegex (mkRegex ":") str
 options :: [OptDescr (Options -> IO Options)]
 options =
   [ Option ['i'] ["include"]
-      (ReqArg (\inc opts -> return opts {optIncludes = splitColon inc}) "")
+      (ReqArg (\inc opts -> return opts {optIncludes = optIncludes opts ++ splitColon inc}) "")
       "Include Paths"
   , Option ['o'] ["outdir"]
       (ReqArg (\out opts -> createDirectoryIfMissing True out >> return opts{optOutDir = out}) "")
