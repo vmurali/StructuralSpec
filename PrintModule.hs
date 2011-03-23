@@ -28,11 +28,10 @@ instancesDone body = concatMap showDone instanceLines
   showDone line = if getInstance line == [] then "" else "    (asIfc(" ++ getInstance line ++ ")).specCycleDone;\n"
   getInstance line = last $ splitRegex spaces line
 
-printModule elastic fileIfcs (Module name args ifcName ifcArgs provisos body) =
+printModule fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ "_" ++ ifcArgs ++ ") mod_" ++ " <- " ++ "_" ++ ifcName ++ ending ++
      modifyBody body ifcName fileIfcs ++
-     (if elastic then "  rule _r;\n    _specCycleDone(tpl_2(asIfc(mod_)));\n" ++ instancesDone body ++ "  endrule\n" else "") ++
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"
  where

@@ -94,47 +94,43 @@ showConn num field =
   assign str = "      method " ++ str ++ " = (tpl_" ++ num ++ "(asIfc(" ++ fieldName field ++ "_)))." ++ str ++ ";\n"
 
 ----------------------------------------------------------------------------------
-extrasField elastic = if elastic then "  method Action hasBeenUsed();\n  method Bool isSupplied();\n" else ""
+extrasField = "  method Action specCycleDone();\n  method Bool isSupplied();\n"
 
-extrasMethods elastic num fields = 
-  if elastic
-    then "      method Action hasBeenUsed();\n" ++
-                  concatMap (\x -> "        _hasBeenUsed(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)));\n") (map fieldName fields) ++
-         "      endmethod\n" ++
-         "      method Bool isSupplied = " ++ intercalate " && " (map ((\x -> "_isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
-    else ""
+extrasMethods num fields = 
+  "      method Action specCycleDone();\n" ++
+           concatMap (\x -> "        _specCycleDone(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)));\n") (map fieldName fields) ++
+  "      endmethod\n" ++
+  "      method Bool isSupplied = " ++ intercalate " && " (map ((\x -> "_isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
 
-extrasInstances elastic name args =
-  if elastic
-    then "instance Sync_#(" ++ name ++ printJustArgs args ++ ");\n" ++
-         "  function Action _hasBeenUsed(" ++ name ++ printJustArgs args ++ " x) = x.hasBeenUsed;\n" ++
-         "  function Bool _isSupplied(" ++ name ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
-         "endinstance\n\n" ++
-         "instance Sync_#(" ++ name ++ "_" ++ printJustArgs args ++ ");\n" ++
-         "  function Action _hasBeenUsed(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.hasBeenUsed;\n" ++
-         "  function Bool _isSupplied(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
-         "endinstance\n\n"
-    else ""
+extrasInstances name args =
+  "instance Sync_#(" ++ name ++ printJustArgs args ++ ");\n" ++
+  "  function Action _specCycleDone(" ++ name ++ printJustArgs args ++ " x) = x.specCycleDone;\n" ++
+  "  function Bool _isSupplied(" ++ name ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
+  "endinstance\n\n" ++
+  "instance Sync_#(" ++ name ++ "_" ++ printJustArgs args ++ ");\n" ++
+  "  function Action _specCycleDone(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.specCycleDone;\n" ++
+  "  function Bool _isSupplied(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
+  "endinstance\n\n"
 ------------------------------------------------------------------------------------------------------
-printInterface elastic (Interface name args oldFields) =
+printInterface (Interface name args oldFields) =
   "interface " ++ name ++ printKindArgs args ++ ";\n" ++
      concatMap showField fields ++
-     extrasField elastic ++
+     extrasField ++
   "endinterface\n\n" ++
   "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
      concatMap showRevField fields ++
-     extrasField elastic ++
+     extrasField ++
   "endinterface\n\n" ++
   "module _" ++ name ++ "(Tuple2#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
      concatMap showFieldInst fields ++
   "  return tuple2(\n" ++
   "    interface " ++ name ++ ";\n" ++
          concatMap (showConn "1") fields ++
-         extrasMethods elastic "1" fields ++
+         extrasMethods "1" fields ++
   "    endinterface,\n" ++
   "    interface " ++ name ++ "_;\n" ++
          concatMap (showConn "2") fields ++
-         extrasMethods elastic "2" fields ++
+         extrasMethods "2" fields ++
   "    endinterface);\n" ++
   "endmodule\n\n" ++
   "instance Connectable#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ") " ++ printProvisosArgs args ++ ";\n" ++
@@ -147,7 +143,7 @@ printInterface elastic (Interface name args oldFields) =
        concatMap (\x -> "    mkConnection(asIfc(a." ++ x ++ "), asIfc(b." ++ x ++ "));\n") (map fieldName fields) ++
   "  endmodule\n" ++
   "endinstance\n\n" ++
-  extrasInstances elastic name args
+  extrasInstances name args
  where
   fields = map removeInput oldFields
    where
