@@ -67,16 +67,12 @@ interface OutputPulse;
   method Action specCycleDone();
 endinterface
 
-interface OutputPulse_;
-  method Bool _read();
-  method Bool isSupplied();
-  method Action specCycleDone();
-endinterface
-
 instance Sync_#(OutputPulse);
   function Action _specCycleDone(OutputPulse x) = x.specCycleDone;
   function Bool _isSupplied(OutputPulse x) = x.isSupplied;
 endinstance
+
+typedef Output_#(Bool) OutputPulse_;
 
 module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(OutputPulse, OutputPulse_));
   Pulse w <- mkPulse;
