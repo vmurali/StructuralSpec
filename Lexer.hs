@@ -20,7 +20,7 @@ defn = P.LanguageDef {
   P.identStart      = letter,
   P.identLetter     = alphaNum <|> char '_',
 
-  P.reservedNames   = [ "import"
+  P.reservedNames   = [ "include"
                       , "interface"
                       , "endinterface"
                       , "module"

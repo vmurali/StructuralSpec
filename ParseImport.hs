@@ -6,7 +6,7 @@ import Lexer
 import DataTypes
 
 parseImport = do
-  try $ reserved "import"
+  try $ reserved "include"
   file <- identifier
   semi
   return $ Import file
