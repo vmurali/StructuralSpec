@@ -1,15 +1,15 @@
-interface OutputEn#(type t);
+port OutputEn#(type t);
   OutputPulse en;
   Default Output#(t) data En(en);
-endinterface
+endport
 
-interface ActionCall#(type t);
+port ActionCall#(type t);
   OutputPulse en;
   Input#(Bool) guard;
   Default Output#(t) data En(en) Guard(guard);
-endinterface
+endport
 
-interface GuardedInput#(type t);
+port GuardedInput#(type t);
   Input#(Bool) guard;
   Default Input#(t) data Guard(guard);
-endinterface
+endport

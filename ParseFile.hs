@@ -3,9 +3,9 @@ module ParseFile(parseFile) where
 import Text.ParserCombinators.Parsec.Prim
 
 import DataTypes
-import ParseImport
-import ParseInterface
-import ParseModule
+import ParseInclude
+import ParsePort
+import ParsePartition
 import ParseGeneric
 
-parseFile = many $ parseImport <|> parseInterface <|> parseModule <|> parseGeneric
+parseFile = many $ parseInclude <|> parsePort <|> parsePartition <|> parseGeneric

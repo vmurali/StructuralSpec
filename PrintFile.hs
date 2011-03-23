@@ -1,18 +1,18 @@
 module PrintFile(printFile) where
 
 import DataTypes
-import PrintModule
-import PrintInterface
+import PrintPartition
+import PrintPort
 
-printElement _        (Generic x) = x
-printElement _        (Import x) = "import " ++ x ++ "::*;\n"
-printElement _        x@(Interface {}) = printInterface x
-printElement fileIfcs x@(Module {}) = printModule fileIfcs x
+printElement _         (Generic x) = x
+printElement _         (Include x) = "import " ++ x ++ "::*;\n"
+printElement _         x@(Port {}) = printPort x
+printElement filePorts x@(Partition {}) = printPartition filePorts x
 
-printFile ifcs elements =
+printFile ports elements =
   "import Vector::*;\n" ++
   "import HaskellLib::*;\n" ++
   "import Connectable::*;\n" ++
   "import Base::*;\n" ++
   "import Primitive::*;\n\n" ++
-  (concatMap (printElement ifcs) elements)
+  (concatMap (printElement ports) elements)

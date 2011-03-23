@@ -21,10 +21,10 @@ defn = P.LanguageDef {
   P.identLetter     = alphaNum <|> char '_',
 
   P.reservedNames   = [ "include"
-                      , "interface"
-                      , "endinterface"
-                      , "module"
-                      , "endmodule"
+                      , "port"
+                      , "endport"
+                      , "partition"
+                      , "endpartition"
                       , "implements"
                       , "En"
                       , "EnRev"

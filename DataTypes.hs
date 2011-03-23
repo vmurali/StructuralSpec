@@ -13,20 +13,20 @@ data Field = Field
   , fieldGuardRev::String
   }
 
-data InterfaceArg = Type String | Num String
+data PortArg = Type String | Num String
 
-data Element = Interface
-    { interfaceName::String
-    , interfaceArgs::[InterfaceArg]
-    , interfaceFields::[Field]
+data Element = Port
+    { portName::String
+    , portArgs::[PortArg]
+    , portFields::[Field]
     }
-  | Module
-    { moduleName::String
-    , moduleArgs::String
+  | Partition
+    { partitionName::String
+    , partitionArgs::String
     , implementName::String
     , implementArgs::String
-    , moduleProvisos::String
-    , moduleBody::String
+    , partitionProvisos::String
+    , partitionBody::String
     }
-  | Import String
+  | Include String
   | Generic String

@@ -8,6 +8,6 @@ import DataTypes
 import Lexer
 
 parseGeneric = do
-  xs <- manyTill1 anyChar $ (try $ reserved "import") <|> (try $ reserved "interface") <|> (try $ reserved "module") <|> eof
+  xs <- manyTill1 anyChar $ (try $ reserved "include") <|> (try $ reserved "port") <|> (try $ reserved "partition") <|> eof
   return $ Generic xs
 

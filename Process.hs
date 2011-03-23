@@ -25,8 +25,8 @@ getFilePath file foundPathIO newPath = do
         then (return . Just) newF
         else return Nothing
 
-process options seenInterfacesIO file = do
-  seenInterfaces <- seenInterfacesIO
+process options seenPortsIO file = do
+  seenPorts <- seenPortsIO
   filePath <- foldl (getFilePath file) (return Nothing) $ optIncludes options
   case filePath of
     Nothing -> do
@@ -39,11 +39,11 @@ process options seenInterfacesIO file = do
           print err
           exitFailure
         Right elements -> do
-          let imports = [x | Import x <- elements, isNothing (find (\(file, ifc) -> x == file) seenInterfaces)]
-          let interfaces = [x | x@(Interface {}) <- elements]
-          newInterfaces <- foldl (process options) (return $ (file, interfaces):seenInterfaces) imports
-          let fullInterfacesList = (file, interfaces):newInterfaces
-          writeFile (outPath ++ ".bsv") $ printFile fullInterfacesList elements
-          return fullInterfacesList
+          let imports = [x | Include x <- elements, isNothing (find (\(file, _) -> x == file) seenPorts)]
+          let ports = [x | x@(Port {}) <- elements]
+          newPorts <- foldl (process options) (return $ (file, ports):seenPorts) imports
+          let fullPortsList = (file, ports):newPorts
+          writeFile (outPath ++ ".bsv") $ printFile fullPortsList elements
+          return fullPortsList
   where
     outPath = optOutDir options ++ "/" ++ file
