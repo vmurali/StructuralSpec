@@ -1,10 +1,10 @@
-interface ActionCall;
-  Enable en;
+interface OutputEn;
+  OutputPulse en;
   Default Output#(Bool) data En(en);
 endinterface
 
-interface GuardedActionCall#(type t);
-  Enable en;
+interface ActionCall#(type t);
+  OutputPulse en;
   Input#(Bool) guard;
   Default Output#(t) data En(en) Guard(guard);
 endinterface
