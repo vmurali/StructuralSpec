@@ -9,14 +9,12 @@ import System.Directory
 data Options = Options
   { optIncludes :: [String]
   , optOutDir   :: String
-  , optElastic  :: Bool
   , optFile     :: String
   }
 
 defaultOptions = Options
   { optIncludes = ["."]
   , optOutDir = "."
-  , optElastic = False
   , optFile = ""
   }
 
@@ -30,9 +28,6 @@ options =
   , Option ['o'] ["outdir"]
       (ReqArg (\out opts -> createDirectoryIfMissing True out >> return opts{optOutDir = out}) "")
       "Output directory"
-  , Option ['e'] ["elastic"]
-      (NoArg (\opts -> return opts{optElastic = True}))
-      "Make elastic wrappers"
   , Option ['h'] ["help"]
       (NoArg (\_ -> do{prg <- getProgName; hPutStrLn stderr (usageInfo prg options); exitWith ExitSuccess}))
       "Show help"

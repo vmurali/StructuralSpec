@@ -9,9 +9,9 @@ printElement _        (Import x) = "import " ++ x ++ "::*;\n"
 printElement _        x@(Interface {}) = printInterface x
 printElement fileIfcs x@(Module {}) = printModule fileIfcs x
 
-printFile elastic ifcs elements =
+printFile ifcs elements =
   "import Vector::*;\n" ++
   "import HaskellLib::*;\n" ++
   "import Connectable::*;\n" ++
-  "import Primitive" ++ (if elastic then "Elastic" else "") ++ "::*;\n\n" ++
+  "import Primitive::*;\n" ++
   (concatMap (printElement ifcs) elements)

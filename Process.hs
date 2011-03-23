@@ -43,7 +43,7 @@ process options seenInterfacesIO file = do
           let interfaces = [x | x@(Interface {}) <- elements]
           newInterfaces <- foldl (process options) (return $ (file, interfaces):seenInterfaces) imports
           let fullInterfacesList = (file, interfaces):newInterfaces
-          writeFile (outPath ++ ".bsv") $ printFile (optElastic options) fullInterfacesList elements
+          writeFile (outPath ++ ".bsv") $ printFile fullInterfacesList elements
           return fullInterfacesList
   where
     outPath = optOutDir options ++ "/" ++ file
