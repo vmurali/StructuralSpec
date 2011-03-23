@@ -33,7 +33,7 @@ instancesDone body = concatMap showDone instanceLines
 printModule fileIfcs (Module name args ifcName ifcArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ ifcName ++ ifcArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ ifcName ++ ifcArgs ++ ", " ++ ifcName ++ "_" ++ ifcArgs ++ ") mod_" ++ " <- " ++ "_" ++ ifcName ++ ending ++
-     modifyBody body ifcName fileIfcs ++
+     modifyBody body ifcName fileIfcs ++ "\n" ++
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"
  where

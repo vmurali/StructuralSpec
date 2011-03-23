@@ -13,5 +13,5 @@ printFile ifcs elements =
   "import Vector::*;\n" ++
   "import HaskellLib::*;\n" ++
   "import Connectable::*;\n" ++
-  "import Primitive::*;\n" ++
+  "import Primitive::*;\n\n" ++
   (concatMap (printElement ifcs) elements)
