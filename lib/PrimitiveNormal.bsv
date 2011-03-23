@@ -13,6 +13,16 @@ interface Output_#(type t);
   method Action specCycleDone();
 endinterface
 
+instance Sync_#(Output#(t));
+  function Action _specCycleDone(Output#(t) x) = x.specCycleDone;
+  function Bool _isSupplied(Output#(t) x) = x.isSupplied;
+endinstance
+
+instance Sync_#(Output_#(t));
+  function Action _specCycleDone(Output_#(t) x) = x.specCycleDone;
+  function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
+endinstance
+
 module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
   Wire#(t) w <- mkWire;
 
@@ -62,6 +72,11 @@ interface OutputPulse_;
   method Bool isSupplied();
   method Action specCycleDone();
 endinterface
+
+instance Sync_#(OutputPulse);
+  function Action _specCycleDone(OutputPulse x) = x.specCycleDone;
+  function Bool _isSupplied(OutputPulse x) = x.isSupplied;
+endinstance
 
 module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(OutputPulse, OutputPulse_));
   Pulse w <- mkPulse;
