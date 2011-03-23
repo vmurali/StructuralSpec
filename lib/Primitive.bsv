@@ -3,10 +3,14 @@ import Connectable::*;
 
 interface Output#(type t);
   method Action _write(t x);
+  method Bool isSupplied();
+  method Action specCycleDone();
 endinterface
 
 interface Output_#(type t);
   method t _read();
+  method Bool isSupplied();
+  method Action specCycleDone();
 endinterface
 
 module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
@@ -19,11 +23,15 @@ module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(
         if(enValid)
           en;
       endmethod
+      method Bool isSupplied = True;
+      method Action specCycleDone = noAction;
     endinterface,
     interface Output_;
       method t _read() if(g2);
         return w;
       endmethod
+      method Bool isSupplied = True;
+      method Action specCycleDone = noAction;
     endinterface);
 endmodule
 
@@ -43,27 +51,37 @@ instance Connectable#(Output_#(t), Output#(t));
   endmodule
 endinstance
 
-typedef function Action send() OutputPulse;
+interface OutputPulse;
+  method Action _read();
+  method Bool isSupplied();
+  method Action specCycleDone();
+endinterface
 
 interface OutputPulse_;
   method Bool _read();
+  method Bool isSupplied();
+  method Action specCycleDone();
 endinterface
 
 module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(OutputPulse, OutputPulse_));
   Pulse w <- mkPulse;
 
-  function Action send();
-  action
-    _when_(g1, action w.send; if(enValid) en; endaction);
-  endaction
-  endfunction
-
   return tuple2(
-    send,
+    interface OutputPulse;
+      method Action _read() if(g1);
+        w.send;
+        if(enValid)
+          en;
+      endmethod
+      method Bool isSupplied = True;
+      method Action specCycleDone = noAction;
+    endinterface,
     interface OutputPulse_;
       method Bool _read() if(g2);
         return w;
       endmethod
+      method Bool isSupplied = True;
+      method Action specCycleDone = noAction;
     endinterface);
 endmodule
 
