@@ -11,14 +11,16 @@ getFields ifcName fileIfcs = (interfaceFields . fromJust) $ foldl (matchInterfac
   matchInterface _       (Just found) _            = Just found
   matchInterface ifcName Nothing      (file, ifcs) = find (\x -> interfaceName x == ifcName) ifcs
 
+nonWord       = "([^A-Za-z0-9_]|$)"
+nonWordNonDot = "([^A-Za-z0-9_\\.]|^)"
+
 prefixModule body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWord)) body ("\\1(tpl_1(asIfc(mod_)))." ++ field ++ "\\2")
  where
-  nonWordNonDot = "([^A-Za-z0-9_\\.]|^)"
-  nonWord       = "([^A-Za-z0-9_]|$)"
 
-modifyBody body ifcName fileIfcs = replaceArrow $ foldl prefixModule body (map (\x -> fieldName x) $ getFields ifcName fileIfcs)
+modifyBody body ifcName fileIfcs = (replaceDone . replaceArrow) $ foldl prefixModule body (map (\x -> fieldName x) $ getFields ifcName fileIfcs)
  where
   replaceArrow str = subRegex (mkRegex ":=") str "<="
+  replaceDone str = subRegex (mkRegex (nonWordNonDot ++ "specCycleDone" ++ nonWord)) str ("\\1(tpl_1(asIfc(mod_))).specCycleDone" ++ "\\2")
 
 instancesDone body = concatMap showDone instanceLines
  where
