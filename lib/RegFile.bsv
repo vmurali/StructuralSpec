@@ -71,19 +71,19 @@ instance Sync_#(RegRead_#(n, t));
 endinstance
 
 interface RegWrite#(numeric type n, type t);
-  interface OutputEn#(Tuple2(Bit#(n), t)) write;
+  interface OutputEn#(Tuple2#(Bit#(n), t)) write;
   method Action specCycleDone();
   method Bool isSupplied();
 endinterface
 
 interface RegWrite_#(numeric type n, type t);
-  interface OutputEn_#(Tuple2(Bit#(n), t)) write;
+  interface OutputEn_#(Tuple2#(Bit#(n), t)) write;
   method Action specCycleDone();
   method Bool isSupplied();
 endinterface
 
 module _RegWrite(Tuple2#(RegWrite#(n, t), RegWrite_#(n, t))) provisos(Bits#(t, _sZt));
-  Tuple2#(OutputEn#(Tuple2(Bit#(n), t)), OutputEn_#(Tuple2(Bit#(n), t))) write_ <- _OutputEn;
+  Tuple2#(OutputEn#(Tuple2#(Bit#(n), t)), OutputEn_#(Tuple2#(Bit#(n), t))) write_ <- _OutputEn;
   return tuple2(
     interface RegWrite;
       interface write = tpl_1(asIfc(write_));
@@ -193,20 +193,24 @@ module mkRegFileLoad#(String file, Bool binary)(RegFile_#(reads, writes, n, t)) 
   RegFileVerilog_#(reads, writes, n, t) regFile <- regFileVerilog_(file, binary);
 
   rule r1;
-    Vector#(reads, t) resp = unpack(regFile.read(pack((tpl_1(asIfc(mod_))).read.req)));
+    Vector#(reads, Bit#(n)) req = newVector;
     for(Integer i = 0; i < valueOf(reads); i = i + 1)
-      (tpl_1(asIfc(mod_))).read.resp[i] <= resp[i];
+      req[i] = (tpl_1(asIfc(mod_))).read[i].req;
+    Vector#(reads, t) resp = regFile.read(req);
+    for(Integer i = 0; i < valueOf(reads); i = i + 1)
+      (tpl_1(asIfc(mod_))).read[i].resp <= resp[i];
 
     Vector#(writes, Bool) enables;
     Vector#(writes, Bit#(n)) index;
     Vector#(writes, t) data;
     for(Integer i = 0; i < valueOf(writes); i = i + 1)
     begin
-      enables[i] = (tpl_1(asIfc(mod_))).write.write.en;
-      index[i] = tpl_1((tpl_1(asIfc(mod_))).write.write);
-      data[i] = tpl_2((tpl_1(asIfc(mod_))).write.write);
+      enables[i] = (tpl_1(asIfc(mod_))).write[i].write.en;
+      index[i] = tpl_1((tpl_1(asIfc(mod_))).write[i].write);
+      data[i] = tpl_2((tpl_1(asIfc(mod_))).write[i].write);
     end
-    regFile.write(pack(enables), pack(index), pack(data));
+    regFile.write(enables, index, data);
+    (tpl_1(asIfc(mod_))).specCycleDone;
   endrule
 
   return tpl_2(asIfc(mod_));

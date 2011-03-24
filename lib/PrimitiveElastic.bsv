@@ -181,6 +181,8 @@ interface OutputPulse;
   interface Output_Carry_#(Bool) carry;
 endinterface
 
+typedef Output_#(Bool) OutputPulse_;
+
 module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(OutputPulse, Output_#(Bool)));
   Pulse              carryWire <- mkPulse;
   Pulse      dataOutValidCarry <- mkPulse;

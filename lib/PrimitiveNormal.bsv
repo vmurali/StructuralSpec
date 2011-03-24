@@ -29,15 +29,11 @@ module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(
         if(enValid)
           en;
       endmethod
-      method Bool isSupplied = True;
-      method Action specCycleDone = noAction;
     endinterface,
     interface Output_;
       method t _read() if(g2);
         return w;
       endmethod
-      method Bool isSupplied = True;
-      method Action specCycleDone = noAction;
     endinterface);
 endmodule
 
@@ -78,15 +74,11 @@ module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Out
         if(enValid)
           en;
       endmethod
-      method Bool isSupplied = True;
-      method Action specCycleDone = noAction;
     endinterface,
     interface OutputPulse_;
       method Bool _read() if(g2);
         return w;
       endmethod
-      method Bool isSupplied = True;
-      method Action specCycleDone = noAction;
     endinterface);
 endmodule
 
