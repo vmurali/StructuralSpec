@@ -3,24 +3,20 @@ import Connectable::*;
 
 interface Output#(type t);
   method Action _write(t x);
-  method Bool isSupplied();
-  method Action specCycleDone();
 endinterface
 
 interface Output_#(type t);
   method t _read();
-  method Bool isSupplied();
-  method Action specCycleDone();
 endinterface
 
 instance Sync_#(Output#(t));
-  function Action _specCycleDone(Output#(t) x) = x.specCycleDone;
-  function Bool _isSupplied(Output#(t) x) = x.isSupplied;
+  function Action _specCycleDone(Output#(t) x) = noAction;
+  function Bool _isSupplied(Output#(t) x) = True;
 endinstance
 
 instance Sync_#(Output_#(t));
-  function Action _specCycleDone(Output_#(t) x) = x.specCycleDone;
-  function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
+  function Action _specCycleDone(Output_#(t) x) = noAction;
+  function Bool _isSupplied(Output_#(t) x) = True;
 endinstance
 
 module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
@@ -63,13 +59,11 @@ endinstance
 
 interface OutputPulse;
   method Action _read();
-  method Bool isSupplied();
-  method Action specCycleDone();
 endinterface
 
 instance Sync_#(OutputPulse);
-  function Action _specCycleDone(OutputPulse x) = x.specCycleDone;
-  function Bool _isSupplied(OutputPulse x) = x.isSupplied;
+  function Action _specCycleDone(OutputPulse x) = noAction;
+  function Bool _isSupplied(OutputPulse x) = True;
 endinstance
 
 typedef Output_#(Bool) OutputPulse_;

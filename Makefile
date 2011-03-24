@@ -4,4 +4,4 @@ all:
 	ghc --make -outputdir build StructuralSpec.hs
 
 clean:
-	rm -rf *.o *.hi build StructuralSpec lib/*.bi lib/*.bo lib/mk*.v lib/Library.bsv
+	rm -rf *.o *.hi build StructuralSpec lib/*.bi lib/*.bo lib/mk*.v lib/Library.bsv lib/a.out
