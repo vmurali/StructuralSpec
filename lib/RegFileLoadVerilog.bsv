@@ -11,7 +11,7 @@ instance Sync_#(RegFileLoadVerilog_#(reads, writes, n, t));
   function Action _specCycleDone(x) = noAction;
 endinstance
 
-import "BVI" RegFileLoadVerilog_ =
+import "BVI" mkRegFileLoadVerilog_ =
 module mkRegFileLoadVerilog_#(String file, Bool binary)(RegFileLoadVerilog_#(reads, writes, n, t)) provisos(Bits#(t, tSz));
   parameter reads = valueOf(reads);
   parameter writes = valueOf(writes);

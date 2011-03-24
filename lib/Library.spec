@@ -3,10 +3,10 @@ port OutputEn#(type t);
   Default Output#(t) data En(en);
 endport
 
-port ActionCall#(type t);
+port GuardedAction#(type t);
   OutputPulse en;
-  Input#(Bool) guard;
-  Default Output#(t) data En(en) Guard(guard);
+  Input#(Bool) rdy;
+  Default Output#(t) data En(en) Guard(rdy);
 endport
 
 port GuardedInput#(type t);

@@ -1,4 +1,4 @@
-module RegFileLoadVerilog_(clk, rst_n, readReq, readResp, writeEn, writeIndex, writeData, dummy);
+module mkRegFileLoadVerilog_(clk, rst_n, readReq, readResp, writeEn, writeIndex, writeData, dummy);
   parameter reads = 1;
   parameter writes = 1;
   parameter width = 1;

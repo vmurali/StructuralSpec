@@ -19,7 +19,7 @@ prefixPartition body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWor
 
 modifyBody body portName filePorts = (replaceDone . replaceArrow) $ foldl prefixPartition body (map (\x -> fieldName x) $ getFields portName filePorts)
  where
-  replaceArrow str = subRegex (mkRegex ":=") str "<="
+  replaceArrow str = subRegex (mkRegexWithOpts "[ \n\t]*:=([^;]*);" False True) str "._write(\\1);"
   replaceDone str = subRegex (mkRegex (nonWordNonDot ++ "specCycleDone" ++ nonWord)) str ("\\1(tpl_1(asIfc(mod_))).specCycleDone" ++ "\\2")
 
 instancesDone body = concatMap showDone instanceLines

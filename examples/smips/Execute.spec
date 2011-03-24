@@ -1,28 +1,26 @@
 include Library;
 include Types;
 include Fifo;
+include RegFile;
 
 port Execute;
   FifoDeq#(Tuple2#(VAddr, Bool)) pcQ;
   FifoDeq#(Inst) inst;
-  Action#(Mem) dataReqQ;
+  GuardedAction#(Mem) dataReqQ;
   RegRead[2] regRead;
-  Reverse FifoDeq#(Wb) wbDeq;
+  GuardedAction#(Wb) wbQ;
+  Reverse OutputEn#(RegIndex) wbIndex;
   Input#(Bool) currEpoch;
   OutputEn#(VAddr) branchPc;
   Cop cop;
 endport
 
 partition mkExecute implements Execute;
-  Fifo#(1, Wb) wbQ <- mkFifo;
-
   rule r1;
     regRead.req[0] := reg1;
     regRead.req[1] := reg2;
     specCycleDone;
   endrule
-
-  mkConnection(wbDeq, wbQ.deq);
 
   rule r2;
     let {.pcPlus4, .epoch} = pcQ;
@@ -36,7 +34,7 @@ partition mkExecute implements Execute;
     end
     else
     begin
-      if(!(isSrcValid(inst)[0] && wbQ.deq.index == reg1 || isSrcValid(inst)[1] && wbQ.deq.index == reg2))
+      if(!(isSrcValid(inst)[0] && wbIndex == reg1 || isSrcValid(inst)[1] && wbIndex == reg2))
       begin
         pcQ.deq;
         inst.deq;

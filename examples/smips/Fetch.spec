@@ -3,8 +3,8 @@ include Types;
 
 port Fetch;
   Output#(Bool) currEpoch;
-  ActionCall#(Tuple2#(VAddr, Bool)) pcQ;
-  ActionCall#(VAddr) instReqQ;
+  GuardedAction#(Tuple2#(VAddr, Bool)) pcQ;
+  GuardedAction#(VAddr) instReqQ;
   Reverse OutputEn#(VAddr) branchPc;
 endport
 
