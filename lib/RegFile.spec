@@ -1,6 +1,6 @@
 include Library;
 
-import RegFileVerilog::*;
+import RegFileLoadVerilog::*;
 
 port RegRead#(numeric type n, type t);
   Output#(Bit#(n)) req;
@@ -17,7 +17,7 @@ port RegFile#(numeric type reads, numeric type writes, numeric type n, type t);
 endport
 
 partition mkRegFileLoad#(String file, Bool binary) implements RegFile#(reads, writes, n, t) provisos(Bits#(t, tSz));
-  RegFileVerilog_#(reads, writes, n, t) regFile <- regFileVerilog_(file, binary);
+  RegFileLoadVerilog_#(reads, writes, n, t) regFile <- mkRegFileLoadVerilog_(file, binary);
 
   rule r1;
     Vector#(reads, Bit#(n)) req = newVector;

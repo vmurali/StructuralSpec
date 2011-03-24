@@ -1,18 +1,18 @@
 import Base::*;
 import Vector::*;
 
-interface RegFileVerilog_#(numeric type reads, numeric type writes, numeric type n, type t);
+interface RegFileLoadVerilog_#(numeric type reads, numeric type writes, numeric type n, type t);
   method Vector#(reads, t) read(Vector#(reads, Bit#(n)) index);
   method Action write(Vector#(writes, Bool) en, Vector#(writes, Bit#(n)) index, Vector#(writes, t) data);
 endinterface
 
-instance Sync_#(RegFileVerilog_#(reads, writes, n, t));
+instance Sync_#(RegFileLoadVerilog_#(reads, writes, n, t));
   function Bool _isSupplied(x) = True;
   function Action _specCycleDone(x) = noAction;
 endinstance
 
-import "BVI" regFileVerilog_ =
-module regFileVerilog_#(String file, Bool binary)(RegFileVerilog_#(reads, writes, n, t)) provisos(Bits#(t, tSz));
+import "BVI" RegFileLoadVerilog_ =
+module mkRegFileLoadVerilog_#(String file, Bool binary)(RegFileLoadVerilog_#(reads, writes, n, t)) provisos(Bits#(t, tSz));
   parameter reads = valueOf(reads);
   parameter writes = valueOf(writes);
   parameter width = valueOf(tSz);
