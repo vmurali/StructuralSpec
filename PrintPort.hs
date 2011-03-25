@@ -32,10 +32,11 @@ printProvisosArgs args = if null args then "" else "provisos(" ++ (intercalate "
   provisos = ["Bits#(" ++ x ++ ", _sZ" ++ x ++ ")" | Type x <- args]
 ---------------------------------------
 
+ubarForNormal field = if fieldReverse field then "" else "_"
 ubarForRev field = if fieldReverse field then "_" else ""
 ------------------------------------------------------------------------
 
-repVectors field = showIndices ++ fieldType field ++ ubarForRev field ++ (if fieldArgs field /= [] then "#" else "") ++ fieldArgs field ++ (repLen field) ')'
+repVectors field = showIndices ++ fieldType field ++ ubarForNormal field ++ (if fieldArgs field /= [] then "#" else "") ++ fieldArgs field ++ (repLen field) ')'
  where
   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
 
@@ -113,7 +114,7 @@ extrasInstances name args =
   "endinstance\n\n"
 ------------------------------------------------------------------------------------------------------
 printPort (Port name args oldFields) =
-  "interface " ++ name ++ printKindArgs args ++ ";\n" ++
+  "interface " ++ name ++ ++ printKindArgs args ++ ";\n" ++
      concatMap showField fields ++
      extrasField ++
   "endinterface\n\n" ++
@@ -121,14 +122,14 @@ printPort (Port name args oldFields) =
      concatMap showRevField fields ++
      extrasField ++
   "endinterface\n\n" ++
-  "module _" ++ name ++ "(Tuple2#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
+  "module _" ++ name ++ "(Tuple2#(" ++ name ++ "_" ++ printJustArgs args ++ ", " ++ name ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
      concatMap showFieldInst fields ++
   "  return tuple2(\n" ++
-  "    interface " ++ name ++ ";\n" ++
+  "    interface " ++ name ++ "_;\n" ++
          concatMap (showConn "1") fields ++
          extrasMethods "1" fields ++
   "    endinterface,\n" ++
-  "    interface " ++ name ++ "_;\n" ++
+  "    interface " ++ name ++ ";\n" ++
          concatMap (showConn "2") fields ++
          extrasMethods "2" fields ++
   "    endinterface);\n" ++

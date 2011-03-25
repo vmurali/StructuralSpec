@@ -31,8 +31,8 @@ instancesDone body = concatMap showDone instanceLines
   getInstance line = last $ splitRegex spaces line
 
 printPartition filePorts (Partition name args portName portArgs provisos body) =
-  "module " ++ name ++ args ++ "(" ++ portName ++ "_" ++ portArgs ++ ") " ++ provisos ++ ";\n" ++
-  "  Tuple2#(" ++ portName ++ portArgs ++ ", " ++ portName ++ "_" ++ portArgs ++ ") mod_" ++ " <- " ++ "_" ++ portName ++ ending ++
+  "module " ++ name ++ args ++ "(" ++ portName ++ portArgs ++ ") " ++ provisos ++ ";\n" ++
+  "  Tuple2#(" ++ portName ++ "_" ++ portArgs ++ ", " ++ portName ++ portArgs ++ ") mod_" ++ " <- " ++ "_" ++ portName ++ ending ++
      modifyBody body portName filePorts ++ "\n" ++
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"

@@ -13,7 +13,7 @@ endport
 partition mkWriteback implements Writeback;
   Fifo#(1, Wb) wbQ <- mkLFifo;
 
-  mkConnection(wb, wbQ.enq);
+  mkConnection(asIfc(wb), wbQ.enq);
 
   rule r1;
     wbIndex := wbQ.deq.index;

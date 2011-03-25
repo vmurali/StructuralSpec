@@ -10,7 +10,7 @@ interface Output_Carry_#(type t);
   method Bool used;
 endinterface
 
-interface Output#(type t);
+interface Output_#(type t);
   method Action _write(t x);
   method Action justFinish;
   method Bool canAccept;
@@ -20,7 +20,7 @@ interface Output#(type t);
   interface Output_Carry_#(t) carry;
 endinterface
 
-interface Output_#(type t);
+interface Output#(type t);
   method t _read;
   method Bool isValid;
   method Bool canFinish;
@@ -29,7 +29,37 @@ interface Output_#(type t);
   method Bool isSupplied();
 endinterface
 
-module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(t), Output_#(t))) provisos(Bits#(t, tSz));
+instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
+  module mkConnection#(Output_#(t) a, Output#(t) b)();
+    rule r1;
+      if(a.carry.used)
+        b.specCycleDone;
+    endrule
+
+    rule r2;
+      if(b.isValid)
+        a.carry.validWrite(b);
+    endrule
+  endmodule
+endinstance
+
+instance Connectable#(Output#(t), Output_#(t)) provisos(Bits#(t, tSz));
+  module mkConnection#(Output#(t) a, Output_#(t) b)();
+    mkConnection(asIfc(b), asIfc(a));
+  endmodule
+endinstance
+
+instance Sync_#(Output#(t));
+  function Action _specCycleDone(Output#(t) x) = x.specCycleDone;
+  function Bool _isSupplied(Output#(t) x) = x.isSupplied;
+endinstance
+
+instance Sync_#(Output_#(t));
+  function Action _specCycleDone(Output_#(t) x) = x.specCycleDone;
+  function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
+endinstance
+
+module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bits#(t, tSz));
   Pulse           carryWire <- mkPulse;
   Pulse   dataOutValidCarry <- mkPulse;
   Wire#(t) dataOutDataCarry <- mkWire;
@@ -80,7 +110,7 @@ module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(
   endrule
 
   return tuple2(
-    interface Output;
+    interface Output_;
       method Action _write(t x) if(g1 && canAcceptOut);
         dataValid.send;
         dataWire <= x;
@@ -124,7 +154,7 @@ module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(
       endinterface
     endinterface,
 
-    interface Output_;
+    interface Output;
       method t _read if(g2 && isValid(dataOut));
         return validValue(dataOut);
       endmethod
@@ -141,8 +171,20 @@ module _Output#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Output#(
     endinterface);
 endmodule
 
-instance Connectable#(Output#(t), Output_#(t)) provisos(Bits#(t, tSz));
-  module mkConnection#(Output#(t) a, Output_#(t) b)();
+interface OutputPulse_;
+  method Action _read;
+  method Action justFinish();
+  method Bool canAccept();
+  method Bool isSupplied();
+  method Action specCycleDone();
+
+  interface Output_Carry_#(Bool) carry;
+endinterface
+
+typedef Output#(Bool) OutputPulse;
+
+instance Connectable#(OutputPulse_, OutputPulse);
+  module mkConnection#(OutputPulse_ a, OutputPulse b)();
     rule r1;
       if(a.carry.used)
         b.specCycleDone;
@@ -155,35 +197,18 @@ instance Connectable#(Output#(t), Output_#(t)) provisos(Bits#(t, tSz));
   endmodule
 endinstance
 
-instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
-  module mkConnection#(Output_#(t) a, Output#(t) b)();
+instance Connectable#(OutputPulse, OutputPulse_);
+  module mkConnection#(OutputPulse a, OutputPulse_ b)();
     mkConnection(asIfc(b), asIfc(a));
   endmodule
 endinstance
 
-instance Sync_#(Output#(t));
-  function Action _specCycleDone(Output#(t) x) = x.specCycleDone;
-  function Bool _isSupplied(Output#(t) x) = x.isSupplied;
+instance Sync_#(OutputPulse_);
+  function Action _specCycleDone(OutputPulse_ x) = x.specCycleDone;
+  function Bool _isSupplied(OutputPulse_ x) = x.isSupplied;
 endinstance
 
-instance Sync_#(Output_#(t));
-  function Action _specCycleDone(Output_#(t) x) = x.specCycleDone;
-  function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
-endinstance
-
-interface OutputPulse;
-  method Action _read;
-  method Action justFinish();
-  method Bool canAccept();
-  method Bool isSupplied();
-  method Action specCycleDone();
-
-  interface Output_Carry_#(Bool) carry;
-endinterface
-
-typedef Output_#(Bool) OutputPulse_;
-
-module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(OutputPulse, Output_#(Bool)));
+module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
   Pulse              carryWire <- mkPulse;
   Pulse      dataOutValidCarry <- mkPulse;
   Wire#(Bool) dataOutDataCarry <- mkWire;
@@ -234,7 +259,7 @@ module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Out
   endrule
 
   return tuple2(
-    interface OutputPulse;
+    interface OutputPulse_;
       method Action _read if(g1 && canAcceptOut);
         dataValid.send;
         dataWire.send;
@@ -278,7 +303,7 @@ module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Out
       endinterface
     endinterface,
 
-    interface Output_;
+    interface OutputPulse;
       method Bool _read if(g2 && isValid(dataOut));
         return validValue(dataOut);
       endmethod
@@ -294,28 +319,3 @@ module _OutputPulse#(Bool enValid, OutputPulse en, Bool g1, Bool g2)(Tuple2#(Out
       method isSupplied = True;
     endinterface);
 endmodule
-
-instance Connectable#(OutputPulse, Output_#(Bool));
-  module mkConnection#(OutputPulse a, Output_#(Bool) b)();
-    rule r1;
-      if(a.carry.used)
-        b.specCycleDone;
-    endrule
-
-    rule r2;
-      if(b.isValid)
-        a.carry.validWrite(b);
-    endrule
-  endmodule
-endinstance
-
-instance Connectable#(Output_#(Bool), OutputPulse);
-  module mkConnection#(Output_#(Bool) a, OutputPulse b)();
-    mkConnection(asIfc(b), asIfc(a));
-  endmodule
-endinstance
-
-instance Sync_#(OutputPulse);
-  function Action _specCycleDone(OutputPulse x) = x.specCycleDone;
-  function Bool _isSupplied(OutputPulse x) = x.isSupplied;
-endinstance
