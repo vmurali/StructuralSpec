@@ -27,13 +27,28 @@ instancesDone body = concatMap showDone instanceLines
   arrow = mkRegexWithOpts "[ \t\n]*<-[ \t\n]*" False True
   instanceLines = splitRegex arrow body
   spaces = mkRegexWithOpts "[ \t\n]+" False True
-  showDone line = if getInstance line == [] then "" else "    (asIfc(" ++ getInstance line ++ ")).specCycleDone;\n"
+  showDone line = if getInstance line == [] then "" else "    (asIfc(" ++ getInstance line ++ ")).specCycleInputDone;\n"
   getInstance line = last $ splitRegex spaces line
+
+{-
+instances body = [x|x <- map getInstance instanceLines, x /= []]
+ where
+  arrow = mkRegexWithOpts "[ \t\n]*<-[ \t\n]*" False True
+  instanceLines = splitRegex arrow body
+  spaces = mkRegexWithOpts "[ \t\n]+" False True
+  getInstance line = last $ splitRegex spaces line
+-}
 
 printPartition filePorts (Partition name args portName portArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ portName ++ portArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ portName ++ "_" ++ portArgs ++ ", " ++ portName ++ portArgs ++ ") mod_" ++ " <- " ++ "_" ++ portName ++ ending ++
      modifyBody body portName filePorts ++ "\n" ++
+  {--
+  "  rule _r;\n" ++
+  "    tpl_1(asIfc(mod_)).specCycleInputDone;\n" ++
+       instancesDone body ++
+  "  endrule\n\n" ++
+  --}
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"
  where

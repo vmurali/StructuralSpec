@@ -114,11 +114,11 @@ extrasInstances name args =
   "endinstance\n\n"
 ------------------------------------------------------------------------------------------------------
 printPort (Port name args oldFields) =
-  "interface " ++ name ++ ++ printKindArgs args ++ ";\n" ++
+  "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
      concatMap showField fields ++
      extrasField ++
   "endinterface\n\n" ++
-  "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
+  "interface " ++ name ++ printKindArgs args ++ ";\n" ++
      concatMap showRevField fields ++
      extrasField ++
   "endinterface\n\n" ++
