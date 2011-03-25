@@ -15,7 +15,8 @@ interface Output_#(type t);
   method Action justFinish;
   method Bool canAccept;
   method Bool isSupplied;
-  method Action specCycleDone;
+  method Action specCycleInputDone;
+  method Action specCycleOutputDone;
 
   interface Output_Carry_#(t) carry;
 endinterface
@@ -24,7 +25,8 @@ interface Output#(type t);
   method t _read;
   method Bool isValid;
   method Bool canFinish;
-  method Action specCycleDone;
+  method Action specCycleInputDone;
+  method Action specCycleOutputDone;
 
   method Bool isSupplied();
 endinterface
@@ -33,7 +35,7 @@ instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
   module mkConnection#(Output_#(t) a, Output#(t) b)();
     rule r1;
       if(a.carry.used)
-        b.specCycleDone;
+        b.specCycleInputDone;
     endrule
 
     rule r2;
@@ -50,12 +52,14 @@ instance Connectable#(Output#(t), Output_#(t)) provisos(Bits#(t, tSz));
 endinstance
 
 instance Sync_#(Output#(t));
-  function Action _specCycleDone(Output#(t) x) = x.specCycleDone;
+  function Action _specCycleInputDone(Output#(t) x) = x.specCycleInputDone;
+  function Action _specCycleOutputDone(Output#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output#(t) x) = x.isSupplied;
 endinstance
 
 instance Sync_#(Output_#(t));
-  function Action _specCycleDone(Output_#(t) x) = x.specCycleDone;
+  function Action _specCycleInputDone(Output_#(t) x) = x.specCycleInputDone;
+  function Action _specCycleOutputDone(Output_#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
 endinstance
 
@@ -130,7 +134,9 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method isSupplied = isSuppliedOut;
 
-      method Action specCycleDone() if(suppliedReg || usedReg); //suppliedReg || canAcceptOut
+      method Action specCycleInputDone = noAction;
+
+      method Action specCycleOutputDone() if(suppliedReg || usedReg); //suppliedReg || canAcceptOut
         specCycleDoneIn.send;
 
         if(!suppliedReg)
@@ -163,9 +169,11 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method canFinish = isValid(dataOut);
 
-      method Action specCycleDone if(isValid(dataOut));
+      method Action specCycleInputDone if(isValid(dataOut));
         usedIn.send;
       endmethod
+
+      method Action specCycleOutputDone = noAction;
 
       method isSupplied = True;
     endinterface);
@@ -176,7 +184,8 @@ interface OutputPulse_;
   method Action justFinish();
   method Bool canAccept();
   method Bool isSupplied();
-  method Action specCycleDone();
+  method Action specCycleInputDone();
+  method Action specCycleOutputDone();
 
   interface Output_Carry_#(Bool) carry;
 endinterface
@@ -187,7 +196,7 @@ instance Connectable#(OutputPulse_, OutputPulse);
   module mkConnection#(OutputPulse_ a, OutputPulse b)();
     rule r1;
       if(a.carry.used)
-        b.specCycleDone;
+        b.specCycleInputDone;
     endrule
 
     rule r2;
@@ -204,7 +213,8 @@ instance Connectable#(OutputPulse, OutputPulse_);
 endinstance
 
 instance Sync_#(OutputPulse_);
-  function Action _specCycleDone(OutputPulse_ x) = x.specCycleDone;
+  function Action _specCycleInputDone(OutputPulse_ x) = x.specCycleInputDone;
+  function Action _specCycleOutputDone(OutputPulse_ x) = x.specCycleOutputDone;
   function Bool _isSupplied(OutputPulse_ x) = x.isSupplied;
 endinstance
 
@@ -279,7 +289,9 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method isSupplied = isSuppliedOut;
 
-      method Action specCycleDone() if(suppliedReg || usedReg); //suppliedReg || canAcceptOut
+      method Action specCycleInputDone = noAction;
+
+      method Action specCycleOutputDone() if(suppliedReg || usedReg); //suppliedReg || canAcceptOut
         specCycleDoneIn.send;
 
         if(!suppliedReg)
@@ -312,9 +324,11 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method canFinish = isValid(dataOut);
 
-      method Action specCycleDone if(isValid(dataOut));
+      method Action specCycleInputDone if(isValid(dataOut));
         usedIn.send;
       endmethod
+
+      method Action specCycleOutputDone = noAction;
 
       method isSupplied = True;
     endinterface);

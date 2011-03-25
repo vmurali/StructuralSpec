@@ -2,14 +2,14 @@ module mkWire(in, out, en);
   parameter width = 1;
   input [width-1:0] in;
   output [width-1:0] out;
-  input en, dummy;
+  input en;
 
   assign out = in;
 endmodule
 
 module mkPulse(out, en);
   output out;
-  input en, dummy;
+  input en;
 
   assign out = en;
 endmodule
@@ -19,7 +19,7 @@ module mkReg(clk, rst_n, in, out, en);
   parameter init = 0;
   input [width-1:0] in;
   output reg [width-1:0] out;
-  input en, clk, rst_n, dummy;
+  input en, clk, rst_n;
 
   initial
     out = {((width+1))/2{2'b10}};
@@ -38,7 +38,7 @@ module mkRegU(clk, in, out, en);
   parameter width = 1;
   input [width-1:0] in;
   output reg [width-1:0] out;
-  input en, clk, dummy;
+  input en, clk;
 
   initial
     out = {((width+1))/2{2'b10}};

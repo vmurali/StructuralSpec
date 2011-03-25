@@ -27,6 +27,6 @@ partition mkFetch implements Fetch;
       pc <= pc + 4;
     currEpoch := epoch;
 
-    specCycleDone;
+    specCycleOutputDone;
   endrule
 endpartition

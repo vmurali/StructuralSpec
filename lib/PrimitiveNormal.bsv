@@ -10,12 +10,14 @@ interface Output#(type t);
 endinterface
 
 instance Sync_#(Output#(t));
-  function Action _specCycleDone(Output#(t) x) = noAction;
+  function Action _specCycleInputDone(Output#(t) x) = noAction;
+  function Action _specCycleOutputDone(Output#(t) x) = noAction;
   function Bool _isSupplied(Output#(t) x) = True;
 endinstance
 
 instance Sync_#(Output_#(t));
-  function Action _specCycleDone(Output_#(t) x) = noAction;
+  function Action _specCycleInputDone(Output_#(t) x) = noAction;
+  function Action _specCycleOutputDone(Output_#(t) x) = noAction;
   function Bool _isSupplied(Output_#(t) x) = True;
 endinstance
 
@@ -58,7 +60,8 @@ interface OutputPulse_;
 endinterface
 
 instance Sync_#(OutputPulse_);
-  function Action _specCycleDone(OutputPulse_ x) = noAction;
+  function Action _specCycleInputDone(OutputPulse_ x) = noAction;
+  function Action _specCycleOutputDone(OutputPulse_ x) = noAction;
   function Bool _isSupplied(OutputPulse_ x) = True;
 endinstance
 
