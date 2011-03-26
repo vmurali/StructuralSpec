@@ -5,6 +5,6 @@ include Types;
 port Memory;
   FifoDeq#(VAddr) instReqQ;
   GuardedAction#(Inst) instQ;
-  FifoDeq#(Tuple2#(VAddr, Data)) dataReqQ;
+  FifoDeq#(Mem) dataReqQ;
   GuardedAction#(Inst) dataQ;
 endport

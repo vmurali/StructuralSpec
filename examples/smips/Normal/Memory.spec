@@ -2,6 +2,7 @@ include Library;
 include Types;
 include RegFile;
 include MemoryPort;
+include Fifo;
 
 (* synthesize *)
 partition mkMemory implements Memory;
@@ -10,17 +11,17 @@ partition mkMemory implements Memory;
   rule r1;
     regs.read[0].req := truncate(instReqQ.first);
     instReqQ.deq;
-    instQ.enq := regs.read[0].resp;
+    instQ.data := regs.read[0].resp;
   endrule
 
   rule r2;
-    case (dataReqQ.first.data) matches
-      tagged Valid .d:
-        regs.write.data := tuple2(dataReqQ.first.index, d);
-      tagged Invalid:
+    case (dataReqQ.first) matches
+      tagged Store {.addr, .data}:
+        regs.write[0].data := tuple2(truncate(addr), data);
+      tagged Load .addr:
         begin
-          regs.read[1].req := dataReqQ.first.index;
-          dataQ.enq := regs.read[1].resp;
+          regs.read[1].req := truncate(addr);
+          dataQ.data := regs.read[1].resp;
         end
     endcase
   endrule

@@ -2,6 +2,7 @@ include Library;
 include Types;
 include RegFile;
 include MemoryPort;
+include Fifo;
 
 (* synthesize *)
 partition mkMemory implements Memory;
@@ -23,30 +24,30 @@ partition mkMemory implements Memory;
 
   rule r3;
     if(instReqQ.rdy && instQ.rdy)
-      instQ.enq := regs.read[0].resp;
+      instQ.data := regs.read[0].resp;
     else
-      instQ.enq.justFinish;
+      instQ.data.justFinish;
   endrule
 
   rule r4;
-    if(dataReqQ.first.data matches tagged Valid .d)
-      regs.write.data := tuple2(dataReqQ.first.index, d);
+    if(dataReqQ.first.data matches tagged Store {.addr, .data})
+      regs.write[0].data := tuple2(truncate(addr), data);
     else
-      regs.write.data.justFinish;
+      regs.write[0].data.justFinish;
   endrule
 
   rule r5;
-    if(!isValid(dataReqQ.first.data matches tagged Invalid) && dataQ.rdy)
-      regs.read[1].req := dataReqQ.first.index;
+    if(dataReqQ.first.data matches tagged Load .addr &&& dataQ.rdy)
+      regs.read[1].req := truncate(addr);
     else
       regs.read[1].req.justFinish;
   endrule
 
   rule r6;
-    if(!isValid(dataReqQ.first.data matches tagged Invalid) && dataQ.rdy)
-      dataQ.enq := regs.read[1].resp;
+    if(dataReqQ.first.data matches tagged Load .addr && dataQ.rdy)
+      dataQ.data := regs.read[1].resp;
     else
-      dataQ.enq.justFinish;
+      dataQ.data.justFinish;
   endrule
 
   rule r7;

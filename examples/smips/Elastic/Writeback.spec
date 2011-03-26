@@ -8,7 +8,7 @@ include WritebackPort;
 partition mkWriteback implements Writeback;
   Fifo#(1, Wb) wbQ <- mkLFifo;
 
-  mkConnection(asIfc(wb), wbQ.enq);
+  mkConnection(wb, wbQ.enq);
 
   rule r1;
     if(wbQ.deq.rdy)
