@@ -2,14 +2,9 @@ include Library;
 include Types;
 include Fifo;
 include RegFile;
+include WritebackPort;
 
-port Writeback;
-  Reverse GuardedAction#(Wb) wb;
-  OutputEn#(RegIndex) wbIndex;
-  FifoDeq#(Data) dataQ;
-  RegWrite#(RegIndexSz, Data) regWrite;
-endport
-
+(* synthesize *)
 partition mkWriteback implements Writeback;
   Fifo#(1, Wb) wbQ <- mkLFifo;
 
@@ -26,14 +21,14 @@ partition mkWriteback implements Writeback;
     if(wbQ.deq.rdy)
     begin
       if(wbQ.deq.first.data matches tagged Valid .d)
-        regWrite.write.data := tuple2(wbQ.deq.first.index, d);
+        regWrite.data := tuple2(wbQ.deq.first.index, d);
       else if(dataQ.rdy)
-        regWrite.write.data := tuple2(wbQ.deq.first.index, dataQ.first);
+        regWrite.data := tuple2(wbQ.deq.first.index, dataQ.first);
       else
-        regWrite.write.data.justFinish;
+        regWrite.data.justFinish;
     end
     else
-      regWrite.write.data.justFinish;
+      regWrite.data.justFinish;
   endrule
 
   rule r3;

@@ -3,19 +3,9 @@ include Types;
 include Fifo;
 include RegFile;
 include Cop;
+include ExecutePort;
 
-port Execute;
-  FifoDeq#(Tuple2#(VAddr, Bool)) pcQ;
-  FifoDeq#(Inst) instQ;
-  GuardedAction#(Mem) dataReqQ;
-  RegRead#(RegIndexSz, Data)[2] regRead;
-  GuardedAction#(Wb) wbQ;
-  Reverse OutputEn#(RegIndex) wbIndex;
-  Input#(Bool) currEpoch;
-  OutputEn#(VAddr) branchPc;
-  Cop cop;
-endport
-
+(* synthesize *)
 partition mkExecute implements Execute;
   let inst = instQ.first;
   let reg1 = inst[25:21];

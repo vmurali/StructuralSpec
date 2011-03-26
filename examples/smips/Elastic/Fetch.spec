@@ -1,13 +1,8 @@
 include Library;
 include Types;
+include FetchPort;
 
-port Fetch;
-  Output#(Bool) currEpoch;
-  GuardedAction#(Tuple2#(VAddr, Bool)) pcQ;
-  GuardedAction#(VAddr) instReqQ;
-  Reverse OutputEn#(VAddr) branchPc;
-endport
-
+(* synthesize *)
 partition mkFetch implements Fetch;
   Reg#(VAddr)   pc <- mkReg(0);
   Reg#(Bool) epoch <- mkRegU;

@@ -104,7 +104,7 @@ extrasMethods num fields =
   "      method Action specCycleOutputDone();\n" ++
            concatMap (\x -> "        _specCycleOutputDone(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)));\n") (map fieldName fields) ++
   "      endmethod\n" ++
-  "      method Bool isSupplied = " ++ intercalate " && " (map ((\x -> "_isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
+  "      method Bool isSupplied = True " ++ (concatMap ((\x -> " && _isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
 
 extrasInstances name args =
   "instance Sync_#(" ++ name ++ printJustArgs args ++ ");\n" ++
