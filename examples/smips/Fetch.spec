@@ -39,4 +39,8 @@ partition mkFetch implements Fetch;
     else
       pc <= pc + 4;
   endrule
+
+  rule r5;
+    specCycleDone;
+  endrule
 endpartition

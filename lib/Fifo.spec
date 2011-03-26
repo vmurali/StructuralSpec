@@ -41,4 +41,8 @@ partition mkLFifo implements Fifo#(n, t) provisos(Bits#(t, tSz));
       head <= head + 1;
     end
   endrule
+
+  rule r5;
+    specCycleDone;
+  endrule
 endpartition

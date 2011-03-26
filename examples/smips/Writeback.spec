@@ -56,4 +56,8 @@ partition mkWriteback implements Writeback;
     else
       dataQ.deq.justFinish;
   endrule
+
+  rule r5;
+    specCycleDone;
+  endrule
 endpartition

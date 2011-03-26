@@ -20,33 +20,20 @@ prefixPartition body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWor
 modifyBody body portName filePorts = (replaceDone . replaceArrow) $ foldl prefixPartition body (map (\x -> fieldName x) $ getFields portName filePorts)
  where
   replaceArrow str = subRegex (mkRegexWithOpts "[ \n\t]*:=([^;]*);" False True) str "._write(\\1);"
-  replaceDone str = subRegex (mkRegex (nonWordNonDot ++ "specCycleOutputDone" ++ nonWord)) str ("\\1(tpl_1(asIfc(mod_))).specCycleOutputDone" ++ "\\2")
+  replaceDone str = subRegex (mkRegex (nonWordNonDot ++ "specCycleDone[ \n\t]*;[ \t]*\n" ++ nonWord)) str ("\\1(tpl_1(asIfc(mod_))).specCycleInputDone;\n    (tpl_1(asIfc(mod_))).specCycleOutputDone;\n" ++ instancesDone body)
 
 instancesDone body = concatMap showDone instanceLines
  where
   arrow = mkRegexWithOpts "[ \t\n]*<-[ \t\n]*" False True
   instanceLines = splitRegex arrow body
   spaces = mkRegexWithOpts "[ \t\n]+" False True
-  showDone line = if getInstance line == [] then "" else "    _specCycleInputDone(asIfc(" ++ getInstance line ++ "));\n"
+  showDone line = if getInstance line == [] then "" else "    _specCycleInputDone(asIfc(" ++ getInstance line ++ "));\n    _specCycleOutputDone(asIfc(" ++ getInstance line ++ "));\n"
   getInstance line = last $ splitRegex spaces line
-
-{-
-instances body = [x|x <- map getInstance instanceLines, x /= []]
- where
-  arrow = mkRegexWithOpts "[ \t\n]*<-[ \t\n]*" False True
-  instanceLines = splitRegex arrow body
-  spaces = mkRegexWithOpts "[ \t\n]+" False True
-  getInstance line = last $ splitRegex spaces line
--}
 
 printPartition filePorts (Partition name args portName portArgs provisos body) =
   "module " ++ name ++ args ++ "(" ++ portName ++ portArgs ++ ") " ++ provisos ++ ";\n" ++
   "  Tuple2#(" ++ portName ++ "_" ++ portArgs ++ ", " ++ portName ++ portArgs ++ ") mod_" ++ " <- " ++ "_" ++ portName ++ ending ++
      modifyBody body portName filePorts ++ "\n" ++
-  "  rule _r;\n" ++
-  "    tpl_1(asIfc(mod_)).specCycleInputDone;\n" ++
-       instancesDone body ++
-  "  endrule\n\n" ++
   "  return tpl_2(asIfc(mod_));\n" ++
   "endmodule\n\n"
  where

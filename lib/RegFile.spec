@@ -42,4 +42,8 @@ partition mkRegFileLoad#(String file, Bool binary) implements RegFile#(reads, wr
   rule r2;
     regFile.write(enables, index, data);
   endrule
+
+  rule r3;
+    specCycleDone;
+  endrule
 endpartition

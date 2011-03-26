@@ -2,12 +2,13 @@ include Library;
 include Types;
 include Fifo;
 include RegFile;
+include Cop;
 
 port Execute;
   FifoDeq#(Tuple2#(VAddr, Bool)) pcQ;
-  FifoDeq#(Inst) inst;
+  FifoDeq#(Inst) instQ;
   GuardedAction#(Mem) dataReqQ;
-  RegRead[2] regRead;
+  RegRead#(RegIndexSz, Data)[2] regRead;
   GuardedAction#(Wb) wbQ;
   Reverse OutputEn#(RegIndex) wbIndex;
   Input#(Bool) currEpoch;
@@ -16,56 +17,95 @@ port Execute;
 endport
 
 partition mkExecute implements Execute;
+  let inst = instQ.first;
+  let reg1 = inst[25:21];
+  let reg2 = inst[20:16];
+
   rule r1;
-    regRead.req[0] := reg1;
-    regRead.req[1] := reg2;
-    specCycleDone;
+    if(instQ.rdy)
+      regRead[0].req := reg1;
+    else
+      regRead[0].req := ?;
   endrule
 
   rule r2;
-    let {.pcPlus4, .epoch} = pcQ;
-    let reg1 = inst[25:21];
-    let reg2 = inst[20:16];
+    if(instQ.rdy)
+      regRead[1].req := reg2;
+    else
+      regRead[1].req := ?;
+  endrule
 
-    if(epoch != currEpoch)
-    begin
+  match {.pcPlus4, .epoch} = pcQ.first;
+
+  let stall = (isSrcValid(inst)[0] && wbIndex.en && wbIndex.data == req1 || isSrcValid(inst)[1] && wbIndex.en && wbIndex.data == reg2));
+
+  rule r3;
+    if(pcQ.rdy && instQ.rdy && (epoch != currEpoch || !stall)
       pcQ.deq;
-      inst.deq;
     end
     else
-    begin
-      if(!(isSrcValid(inst)[0] && wbIndex == reg1 || isSrcValid(inst)[1] && wbIndex == reg2))
-      begin
-        pcQ.deq;
-        inst.deq;
-        let dest = getDest(inst);
-        if(isBranch(inst))
-        begin
-          match {.taken, .branchTarget, .isLinked} = branch(inst, regRead.resp[0], regRead.resp[1], pcPlus4);
-          if(taken)
-            branchPc := branchTarget;
-          if(isLinked)
-            wbQ.enq := Wb{index: dest, data: tagged Valid pcPlus4};
-        end
-        else
-        begin
-          let res = aluDataAddr(inst, regRead.resp[0], regRead.resp[1]);
-          if(isLoad(inst))
-          begin
-            wbQ.enq := Wb{index: dest, data: tagged Invalid};
-            dataReqQ := tagged Load aluDataAddr(inst, regRead.resp[0], regRead.resp[1]);
-          end
-          else if(isStore(inst))
-            dataReqQ := tagged Store tuple2(res, regRead.resp[1]);
-          else if(copRead(inst))
-            wbQ.enq := Wb{index: dest, data: cop.read};
-          else if(copWrite(inst))
-            cop.write := regRead.resp[1];
-          else
-            wbQ.enq := Wb{index: dest, data: tagged Valid res};
-        end
-      end
+      pcQ.deq.justFinish;
+  endrule
+
+  rule r4;
+    if(pcQ.rdy && instQ.rdy && (epoch != currEpoch || !stall))
+      instQ.deq;
     end
+    else
+      instQ.deq.justFinish;
+  endrule
+
+  let dest = getDest(inst);
+  match {.taken, .branchTarget, .isLinked} = branch(inst, regRead[0].resp, regRead[1].resp, pcPlus4);
+
+  rule r5;
+    if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall && isBranch(inst) && taken)
+      branchPc.data := branchTarget;
+    else
+      branchPc.data.justFinish;
+  endrule
+
+  let res = aluDataAddr(inst, regRead[0].resp, regRead[1].resp);
+
+  rule r6;
+    if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall)
+    begin
+      if(isBranch(inst) && isLinked)
+        wbQ.enq := Wb{index: dest, data: tagged Valid pcPlus4};
+      else if(isLoad(inst))
+        wbQ.enq := Wb{index: dest, data: tagged Invalid};
+      else if(copRead(inst))
+        wbQ.enq := Wb{index: dest, data: cop.read};
+      else
+        wbQ.enq := Wb{index: dest, data: tagged Valid res};
+    end
+    else
+      wbQ.enq.justFinish;
+  endrule
+
+  rule r7;
+    if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall)
+    begin
+      if(isLoad(inst))
+        dataReqQ.enq := tagged Load aluDataAddr(inst, regRead[0].resp, regRead[1].resp);
+      else if(isStore(inst))
+        dataReqQ.enq := tagged Store tuple2(res, regRead[1].resp);
+      else
+        dataReqQ.enq.justFinish;
+    end
+    else
+      dataReqQ.enq.justFinish;
+  endrule
+
+  rule r8;
+    if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall && copWrite(inst))
+      cop.write.data := regRead[1].resp;
+    else
+      cop.write.data.justFinish;
+  endrule
+
+  rule r9;
+    specCycleDone;
   endrule
 endpartition
 
@@ -119,7 +159,7 @@ function Bool isRegWrite(Inst inst);
     'b010000:
       case (inst[25:21])
         'b00100:
-          ret = Fasle;
+          ret = False;
       endcase
   endcase
   return ret;
@@ -153,7 +193,7 @@ function Data aluDataAddr(Inst inst, Data src1, Data src2);
   SData simm = unpack(imm);
   Int#(5) shamt = unpack(inst[10:6]);
   Int#(5) rshamt = unpack(src1[4:0]);
-  Data ret;
+  Data ret = ?;
   case (inst[31:26])
     'b100011, 'b101011:
       ret = src1 + imm;
@@ -203,13 +243,14 @@ function Data aluDataAddr(Inst inst, Data src1, Data src2);
           ret = (src1 < src2)? 1: 0;
       endcase
   endcase
+  return ret;
 endfunction
 
-function Tuple2#(Bool /* taken */, VAddr /* branchPc */, Bool /* link */) branch(Inst inst, Data src1, Data src2, VAddr pcPlus4);
+function Tuple3#(Bool /* taken */, VAddr /* branchPc */, Bool /* link */) branch(Inst inst, Data src1, Data src2, VAddr pcPlus4);
   Data  imm = signExtend(inst[15:0]);
   SData ssrc1 = unpack(src1);
   VAddr branchTarget = pcPlus4 + (imm << 2);
-  Data ret;
+  Tuple3#(Bool, VAddr, Bool) ret = tuple3(?, ?, ?);
   case (inst[31:26])
     'b000000:
       case (inst[5:0])
@@ -238,4 +279,5 @@ function Tuple2#(Bool /* taken */, VAddr /* branchPc */, Bool /* link */) branch
           ret = tuple3(src1[31] == 0, (src1[31] == 0)? branchTarget: pcPlus4, False);
       endcase
   endcase
+  return ret;
 endfunction
