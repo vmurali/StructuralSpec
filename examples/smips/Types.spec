@@ -1,7 +1,8 @@
 typedef Bit#(32) VAddr;
 typedef Bit#(32) Inst;
 typedef Bit#(32) Data;
-typedef Bit#(5) RegIndex;
+typedef 5 RegIndexSz;
+typedef Bit#(RegIndexSz) RegIndex;
 typedef Int#(32) SData;
 
 typedef struct {

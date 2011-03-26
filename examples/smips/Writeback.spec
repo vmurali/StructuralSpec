@@ -6,8 +6,8 @@ include RegFile;
 port Writeback;
   Reverse GuardedAction#(Wb) wb;
   OutputEn#(RegIndex) wbIndex;
-  FifoDeq#(Data) data;
-  RegWrite#(TLog#(SizeOf#(RegIndex)), Data) regWrite;
+  FifoDeq#(Data) dataQ;
+  RegWrite#(RegIndexSz, Data) regWrite;
 endport
 
 partition mkWriteback implements Writeback;
@@ -16,24 +16,44 @@ partition mkWriteback implements Writeback;
   mkConnection(asIfc(wb), wbQ.enq);
 
   rule r1;
-    wbIndex := wbQ.deq.index;
-    if(wbQ.deq.data matches tagged Valid .d)
-    begin
-      regWrite := tuple2(wbQ.deq.index, d);
-      wbQ.deq.en;
-    end
+    if(wbQ.deq.rdy)
+      wbIndex.data := wbQ.deq.first.index;
+   else
+      wbIndex.data.justFinish;
   endrule
 
   rule r2;
-    if(wbQ.deq.data matches tagged Invalid)
+    if(wbQ.deq.rdy)
     begin
-      regWrite := tuple2(wb.deq.index, data);
-      wbQ.deq.en;
-      data.deq;
+      if(wbQ.deq.first.data matches tagged Valid .d)
+        regWrite.write.data := tuple2(wbQ.deq.first.index, d);
+      else if(dataQ.rdy)
+        regWrite.write.data := tuple2(wbQ.deq.first.index, dataQ.first);
+      else
+        regWrite.write.data.justFinish;
     end
+    else
+      regWrite.write.data.justFinish;
   endrule
 
   rule r3;
-    specCycleDone;
+    if(wbQ.deq.rdy)
+    begin
+      if(wbQ.deq.first.data matches tagged Valid .*)
+        wbQ.deq.deq;
+      else if(dataQ.rdy)
+        wbQ.deq.deq;
+      else
+        wbQ.deq.deq.justFinish;
+    end
+    else
+      wbQ.deq.deq.justFinish;
+  endrule
+
+  rule r4;
+    if(wbQ.deq.rdy && !isValid(wbQ.deq.first.data) && dataQ.rdy)
+      dataQ.deq;
+    else
+      dataQ.deq.justFinish;
   endrule
 endpartition

@@ -13,11 +13,24 @@ partition mkFetch implements Fetch;
   Reg#(Bool) epoch <- mkRegU;
 
   rule r1;
-    instReqQ := pc;
-    pcQ := tuple2(pc + 4, epoch);
+    if(instReqQ.rdy && pcQ.rdy)
+      instReqQ.data := pc;
+    else
+      instReqQ.data.justFinish;
   endrule
 
   rule r2;
+    if(instReqQ.rdy && pcQ.rdy)
+      pcQ.data := tuple2(pc + 4, epoch);
+    else
+      pcQ.data.justFinish;
+  endrule
+
+  rule r3;
+    currEpoch := epoch;
+  endrule
+
+  rule r4;
     if(branchPc.en)
     begin
       pc <= branchPc;
@@ -25,8 +38,5 @@ partition mkFetch implements Fetch;
     end
     else
       pc <= pc + 4;
-    currEpoch := epoch;
-
-    specCycleOutputDone;
   endrule
 endpartition
