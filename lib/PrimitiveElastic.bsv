@@ -89,7 +89,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
                                  usedInCarry:
                                  usedInDirect;
 
-  Maybe#(t)          dataIn  = dataValid || justFinishIn || specCycleDoneIn?
+  Maybe#(t)          dataIn  = dataValid || justFinishIn?
                                  tagged Valid dataWire:
                                  tagged Invalid;
 
@@ -144,14 +144,8 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method Action specCycleInputDone = noAction;
 
-      method Action specCycleOutputDone() if(suppliedReg || usedReg); //suppliedReg || canAcceptOut
+      method Action specCycleOutputDone if(isSuppliedOut);
         specCycleDoneIn.send;
-
-        if(!suppliedReg)
-        begin
-          if(enValid)
-            en.justFinish;
-        end
       endmethod
 
       method Action connected = carryWire.send;
@@ -260,7 +254,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
                                     usedInCarry:
                                     usedInDirect;
 
-  Maybe#(Bool)          dataIn  = dataValid || justFinishIn || specCycleDoneIn?
+  Maybe#(Bool)          dataIn  = dataValid || justFinishIn?
                                     tagged Valid dataWire:
                                     tagged Invalid;
 
@@ -315,14 +309,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method Action specCycleInputDone = noAction;
 
-      method Action specCycleOutputDone() if(suppliedReg || usedReg); //suppliedReg || canAcceptOut
+      method Action specCycleOutputDone() if(isSuppliedOut);
         specCycleDoneIn.send;
-
-        if(!suppliedReg)
-        begin
-          if(enValid)
-            en.justFinish;
-        end
       endmethod
 
       method Action connected = carryWire.send;
