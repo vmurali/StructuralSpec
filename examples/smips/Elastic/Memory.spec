@@ -31,14 +31,14 @@ partition mkMemory implements Memory;
 
   rule r4;
     if(dataReqQ.first.data matches tagged Store {.addr, .data})
-      regs.write[0].data := tuple2(truncate(addr), data);
+      regs.write[0].data := tuple2(truncate(addr>>2), data);
     else
       regs.write[0].data.justFinish;
   endrule
 
   rule r5;
     if(dataReqQ.first.data matches tagged Load .addr &&& dataQ.rdy)
-      regs.read[1].req := truncate(addr);
+      regs.read[1].req := truncate(addr>>2);
     else
       regs.read[1].req.justFinish;
   endrule

@@ -17,10 +17,10 @@ partition mkMemory implements Memory;
   rule r2;
     case (dataReqQ.first) matches
       tagged Store {.addr, .data}:
-        regs.write[0].data := tuple2(truncate(addr), data);
+        regs.write[0].data := tuple2(truncate(addr>>2), data);
       tagged Load .addr:
         begin
-          regs.read[1].req := truncate(addr);
+          regs.read[1].req := truncate(addr>>2);
           dataQ.data := regs.read[1].resp;
         end
     endcase
