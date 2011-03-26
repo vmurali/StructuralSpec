@@ -37,12 +37,11 @@ partition mkExecute implements Execute;
 
   match {.pcPlus4, .epoch} = pcQ.first;
 
-  let stall = (isSrcValid(inst)[0] && wbIndex.en && wbIndex.data == req1 || isSrcValid(inst)[1] && wbIndex.en && wbIndex.data == reg2));
+  let stall = (isSrcValid(inst)[0] && wbIndex.en && wbIndex.data == reg1 || isSrcValid(inst)[1] && wbIndex.en && wbIndex.data == reg2);
 
   rule r3;
-    if(pcQ.rdy && instQ.rdy && (epoch != currEpoch || !stall)
+    if(pcQ.rdy && instQ.rdy && (epoch != currEpoch || !stall))
       pcQ.deq;
-    end
     else
       pcQ.deq.justFinish;
   endrule
@@ -50,7 +49,6 @@ partition mkExecute implements Execute;
   rule r4;
     if(pcQ.rdy && instQ.rdy && (epoch != currEpoch || !stall))
       instQ.deq;
-    end
     else
       instQ.deq.justFinish;
   endrule
@@ -71,30 +69,30 @@ partition mkExecute implements Execute;
     if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall)
     begin
       if(isBranch(inst) && isLinked)
-        wbQ.enq := Wb{index: dest, data: tagged Valid pcPlus4};
+        wbQ.data := Wb{index: dest, data: tagged Valid pcPlus4};
       else if(isLoad(inst))
-        wbQ.enq := Wb{index: dest, data: tagged Invalid};
+        wbQ.data := Wb{index: dest, data: tagged Invalid};
       else if(copRead(inst))
-        wbQ.enq := Wb{index: dest, data: cop.read};
+        wbQ.data := Wb{index: dest, data: tagged Valid (cop.read)};
       else
-        wbQ.enq := Wb{index: dest, data: tagged Valid res};
+        wbQ.data := Wb{index: dest, data: tagged Valid res};
     end
     else
-      wbQ.enq.justFinish;
+      wbQ.data.justFinish;
   endrule
 
   rule r7;
     if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall)
     begin
       if(isLoad(inst))
-        dataReqQ.enq := tagged Load aluDataAddr(inst, regRead[0].resp, regRead[1].resp);
+        dataReqQ.data := tagged Load aluDataAddr(inst, regRead[0].resp, regRead[1].resp);
       else if(isStore(inst))
-        dataReqQ.enq := tagged Store tuple2(res, regRead[1].resp);
+        dataReqQ.data := tagged Store tuple2(res, regRead[1].resp);
       else
-        dataReqQ.enq.justFinish;
+        dataReqQ.data.justFinish;
     end
     else
-      dataReqQ.enq.justFinish;
+      dataReqQ.data.justFinish;
   endrule
 
   rule r8;
