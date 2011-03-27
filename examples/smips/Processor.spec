@@ -10,6 +10,7 @@ include RegistersPort;
 include Registers;
 include MemoryPort;
 include Memory;
+include Cop;
 
 port Processor;
 endport
@@ -20,6 +21,7 @@ partition mkProcessor implements Processor;
   Execute                    execute <- mkExecute;
   Writeback                       wb <- mkWriteback;
 
+  Cop                            cop <- mkCop;
   Registers                     regs <- mkRegisters;
   Memory                         mem <- mkMemory;
 
@@ -42,6 +44,7 @@ partition mkProcessor implements Processor;
   mkConnection(execute.regRead, regs.read);
   mkConnection(execute.wbQ, wb.wb);
   mkConnection(execute.wbIndex, wb.wbIndex);
+  mkConnection(execute.cop, cop);
 
   mkConnection(wb.dataQ, dataQ.deq);
   mkConnection(wb.regWrite, regs.write);

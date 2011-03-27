@@ -15,6 +15,7 @@ partition mkMemory implements Memory;
   endrule
 
   rule r2;
+    dataReqQ.deq;
     case (dataReqQ.first) matches
       tagged Store {.addr, .data}:
         regs.write[0].data := tuple2(truncate(addr>>2), data);

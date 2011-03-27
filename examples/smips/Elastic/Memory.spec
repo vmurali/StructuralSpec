@@ -30,6 +30,15 @@ partition mkMemory implements Memory;
   endrule
 
   rule r4;
+    if(dataReqQ.first.data matches tagged Store .*)
+      dataReqQ.deq;
+    else if(dataReqQ.first.data matches tagged Load .* &&& dataQ.rdy)
+      dataReqQ.deq;
+    else
+      dataReqQ.deq.justFinish;
+  endrule
+
+  rule r4;
     if(dataReqQ.first.data matches tagged Store {.addr, .data})
       regs.write[0].data := tuple2(truncate(addr>>2), data);
     else

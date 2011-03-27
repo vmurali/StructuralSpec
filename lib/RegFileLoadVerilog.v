@@ -49,7 +49,7 @@ module mkRegFileLoadVerilog_(clk, rst_n, readReq, readResp, writeEn, writeIndex,
       integer i;
       for(i = 0; i < writes; i=i+1)
         if(writeEn[i])
-          arr[writeIndex[i]] <= writeData[((i+1)*width)-:width];
+          arr[writeIndex[((i+1)*n-1)-:n]] <= writeData[((i+1)*width-1)-:width];
     end
   end
 endmodule

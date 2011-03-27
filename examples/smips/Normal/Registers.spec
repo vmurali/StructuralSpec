@@ -12,9 +12,11 @@ partition mkRegisters implements Registers;
     begin
       regs.read[i].req := read[i].req;
 
-      read[i].resp := tpl_1(write.data) == read[i].req?
-                        tpl_2(write.data):
-                        regs.read[i].resp;
+      read[i].resp := read[i].req == 0?
+                        0:
+                        tpl_1(write.data) == read[i].req?
+                          tpl_2(write.data):
+                          regs.read[i].resp;
     end
 
     if(write.en && tpl_1(write.data) != 0)

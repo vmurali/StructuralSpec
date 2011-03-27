@@ -13,13 +13,15 @@ port Execute;
   Reverse OutputEn#(RegIndex) wbIndex;
   Input#(Bool) currEpoch;
   OutputEn#(VAddr) branchPc;
-  Cop cop;
+  Reverse Cop cop;
 endport
 
 function Vector#(2, Bool) isSrcValid(Inst inst);
-  Vector#(2, Bool) ret = replicate(True);
+  Vector#(2, Bool) ret = newVector;
+  ret[0] = inst[25:21] != 0;
+  ret[1] = inst[20:16] != 0;
   case (inst[31:26])
-    'b100011, 'b101011, 'b001001, 'b001010, 'b001011, 'b001100, 'b001101, 'b001110:
+    'b100011, 'b001001, 'b001010, 'b001011, 'b001100, 'b001101, 'b001110:
       ret[1] = False;
     'b001111, 'b000010, 'b000011:
       ret = replicate(False);
@@ -46,7 +48,7 @@ endfunction
 function RegIndex getDest(Inst inst);
   RegIndex ret = inst[15:11];
   case (inst[31:26])
-    'b001001, 'b001010, 'b001011, 'b001100, 'b001101, 'b001110, 'b001111, 'b010000:
+    'b100011, 'b001001, 'b001010, 'b001011, 'b001100, 'b001101, 'b001110, 'b001111, 'b010000:
       ret = inst[20:16];
     'b000011:
       ret = 31;
