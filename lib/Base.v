@@ -22,7 +22,7 @@ module mkReg(clk, rst_n, in, out, en);
   input en, clk, rst_n;
 
   initial
-    out = {((width+1))/2{2'b10}};
+    out = init;
 
   always @(posedge clk)
   begin

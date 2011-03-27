@@ -52,7 +52,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
   Pulse     carry <- mkPulse;
   Wire#(t) carryW <- mkWire;
 
-  Wire#(t)    out  = carry?
+  t       dataOut  = carry?
                        carryW:
                        w;
 
@@ -72,7 +72,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
     endinterface,
     interface Output;
       method t _read() if(g2);
-        return out;
+        return dataOut;
       endmethod
     endinterface);
 endmodule
@@ -122,7 +122,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
   Pulse  carry <- mkPulse;
   Pulse carryW <- mkPulse;
 
-  Bool     out  = carry?
+  Bool dataOut  = carry?
                     carryW:
                     w;
 
@@ -136,11 +136,13 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method Action connected = carry.send;
 
-      method Action carryWrite = carryW.send;
+      method Action carryWrite();
+        carryW.send;
+      endmethod
     endinterface,
     interface OutputPulse;
       method Bool _read() if(g2);
-        return w;
+        return dataOut;
       endmethod
     endinterface);
 endmodule

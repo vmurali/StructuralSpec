@@ -4,12 +4,16 @@ include FetchPort;
 
 (* synthesize *)
 partition mkFetch implements Fetch;
-  Reg#(VAddr)   pc <- mkReg(0);
+  Reg#(VAddr)   pc <- mkReg('h1000);
   Reg#(Bool) epoch <- mkRegU;
+
+  Pulse      fired <- mkPulse;
 
   rule r1;
     instReqQ.data := pc;
     pcQ.data := tuple2(pc + 4, epoch);
+
+    fired.send;
   endrule
 
   rule r2;
@@ -20,7 +24,7 @@ partition mkFetch implements Fetch;
       pc <= branchPc;
       epoch <= !epoch;
     end
-    else
+    else if(fired)
       pc <= pc + 4;
   endrule
 endpartition

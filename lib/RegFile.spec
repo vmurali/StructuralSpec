@@ -19,10 +19,14 @@ endport
 partition mkRegFileLoad#(String file, Bool binary) implements RegFile#(reads, writes, n, t) provisos(Bits#(t, tSz));
   RegFileLoadVerilog_#(reads, writes, n, t) regFile <- mkRegFileLoadVerilog_(file, binary);
 
-  Vector#(reads, Bit#(n)) req = newVector;
-  for(Integer i = 0; i < valueOf(reads); i = i + 1)
-    req[i] = read[i].req;
-  Vector#(reads, t) resp = regFile.read(req);
+  Wire#(Vector#(reads, t)) resp <- mkWire;
+
+  rule r0;
+    Vector#(reads, Bit#(n)) req = newVector;
+    for(Integer i = 0; i < valueOf(reads); i = i + 1)
+      req[i] = read[i].req;
+    resp <= regFile.read(req);
+  endrule
 
   for(Integer i = 0; i < valueOf(reads); i = i + 1)
   begin
@@ -31,9 +35,9 @@ partition mkRegFileLoad#(String file, Bool binary) implements RegFile#(reads, wr
     endrule
   end
 
-  Vector#(writes, Bool) enables;
-  Vector#(writes, Bit#(n)) index;
-  Vector#(writes, t) data;
+  Vector#(writes, Bool) enables = newVector;
+  Vector#(writes, Bit#(n)) index = newVector;
+  Vector#(writes, t) data = newVector;
   for(Integer i = 0; i < valueOf(writes); i = i + 1)
   begin
     enables[i] = write[i].en;

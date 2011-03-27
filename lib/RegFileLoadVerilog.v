@@ -1,10 +1,10 @@
 module mkRegFileLoadVerilog_(clk, rst_n, readReq, readResp, writeEn, writeIndex, writeData, dummy);
-  parameter reads = 1;
+  parameter reads = 2;
   parameter writes = 1;
-  parameter width = 1;
-  parameter n = 1;
-  parameter size = 1;
-  parameter file = "";
+  parameter width = 32;
+  parameter n = 5;
+  parameter size = 32;
+  parameter file = "memory.vmh";
   parameter binary = 0;
 
   input clk, rst_n, dummy;
@@ -29,7 +29,9 @@ module mkRegFileLoadVerilog_(clk, rst_n, readReq, readResp, writeEn, writeIndex,
   begin: star
     integer i;
     for(i = 0; i < reads; i=i+1)
-      readResp[((i+1)*width-1)-:width] = arr[readReq[i]];
+    begin
+      readResp[((i+1)*width-1)-:width] = arr[readReq[((i+1)*n-1)-:n]];
+    end
   end
 
   always@(posedge clk)

@@ -29,6 +29,6 @@ module mkRegFileLoadVerilog_#(String file, Bool binary)(RegFileLoadVerilog_#(rea
   schedule write C write;
 
   default_clock ck(clk);
-  default_reset rt(rst_n);
+  default_reset rt(rst_n) clocked_by(ck);
 endmodule
 

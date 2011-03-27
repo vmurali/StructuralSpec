@@ -4,7 +4,7 @@ include FetchPort;
 
 (* synthesize *)
 partition mkFetch implements Fetch;
-  Reg#(VAddr)   pc <- mkReg(0);
+  Reg#(VAddr)   pc <- mkReg('h1000);
   Reg#(Bool) epoch <- mkRegU;
 
   rule r1;
@@ -31,7 +31,7 @@ partition mkFetch implements Fetch;
       pc <= branchPc;
       epoch <= !epoch;
     end
-    else
+    else if(instReqQ.rdy && pcQ.rdy)
       pc <= pc + 4;
   endrule
 

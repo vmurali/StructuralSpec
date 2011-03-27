@@ -9,7 +9,7 @@ partition mkMemory implements Memory;
   RegFile#(2, 1, 20, Data) regs <- mkRegFileLoad("memory.vmh", False);
 
   rule r1;
-    regs.read[0].req := truncate(instReqQ.first);
+    regs.read[0].req := truncate(instReqQ.first>>2);
     instReqQ.deq;
     instQ.data := regs.read[0].resp;
   endrule

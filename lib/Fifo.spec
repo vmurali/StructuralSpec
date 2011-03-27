@@ -16,6 +16,9 @@ partition mkLFifo implements Fifo#(n, t) provisos(Bits#(t, tSz));
   Reg#(Bit#(TAdd#(TLog#(n), 1))) head <- mkReg(0);
   Reg#(Bit#(TAdd#(TLog#(n), 1))) tail <- mkReg(0);
 
+  let actualHead = head >= fromInteger(valueOf(n))? head - fromInteger(valueOf(n)): head;
+  let actualTail = tail >= fromInteger(valueOf(n))? tail - fromInteger(valueOf(n)): tail;
+
   rule r1;
     enq.rdy := head != tail + fromInteger(valueOf(n)) || deq.deq;
   endrule
@@ -25,7 +28,7 @@ partition mkLFifo implements Fifo#(n, t) provisos(Bits#(t, tSz));
   endrule
 
   rule r3;
-    deq.first := regs[tail];
+    deq.first := regs[actualTail];
   endrule
 
   rule r4;
@@ -35,7 +38,7 @@ partition mkLFifo implements Fifo#(n, t) provisos(Bits#(t, tSz));
     if(enq.en)
     begin
       let tempRegs = regs;
-      tempRegs[head] = (tpl_1(asIfc(mod_))).enq;
+      tempRegs[actualHead] = (tpl_1(asIfc(mod_))).enq;
       regs <= tempRegs;
 
       head <= head + 1;
