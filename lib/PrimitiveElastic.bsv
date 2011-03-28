@@ -26,6 +26,7 @@ interface Output#(type t);
 
   method Action connected;
   method Action specCycleDoneCarry;
+  method t rawRead;
 endinterface
 
 instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
@@ -42,7 +43,7 @@ instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
 
     rule r3;
       if(b.isValid)
-        a.validWrite(b);
+        a.validWrite(b.rawRead);
     endrule
   endmodule
 endinstance
@@ -81,7 +82,6 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
   Pulse           dataValid <- mkPulse;
   Wire#(t)         dataWire <- mkWire;
-  Pulse        justFinishIn <- mkPulse;
   Pulse     specCycleDoneIn <- mkPulse;
   Pulse        usedInDirect <- mkPulse;
   Pulse         usedInCarry <- mkPulse;
@@ -89,7 +89,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
                                  usedInCarry:
                                  usedInDirect;
 
-  Maybe#(t)          dataIn  = dataValid || justFinishIn?
+  Maybe#(t)          dataIn  = dataValid?
                                  tagged Valid dataWire:
                                  tagged Invalid;
 
@@ -132,7 +132,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
       endmethod
 
       method Action justFinish() if(canAcceptOut);
-        justFinishIn.send;
+        dataValid.send;
 
         if(enValid)
           en.justFinish;
@@ -177,9 +177,9 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method Action connected = carry2Wire.send;
 
-      method Action specCycleDoneCarry if(isValid(dataOut));
-        usedInCarry.send;
-      endmethod
+      method Action specCycleDoneCarry = usedInCarry.send;
+
+      method t rawRead = validValue(dataOut);
     endinterface);
 endmodule
 
@@ -212,7 +212,7 @@ instance Connectable#(OutputPulse_, OutputPulse);
 
     rule r3;
       if(b.isValid)
-        a.validWrite(b);
+        a.validWrite(b.rawRead);
     endrule
   endmodule
 endinstance
@@ -245,7 +245,6 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
   Pulse              dataValid <- mkPulse;
   Pulse               dataWire <- mkPulse;
-  Pulse           justFinishIn <- mkPulse;
   Pulse        specCycleDoneIn <- mkPulse;
   Pulse           usedInDirect <- mkPulse;
   Pulse            usedInCarry <- mkPulse;
@@ -254,7 +253,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
                                     usedInCarry:
                                     usedInDirect;
 
-  Maybe#(Bool)          dataIn  = dataValid || justFinishIn?
+  Maybe#(Bool)          dataIn  = dataValid?
                                     tagged Valid dataWire:
                                     tagged Invalid;
 
@@ -297,7 +296,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
       endmethod
 
       method Action justFinish() if(canAcceptOut);
-        justFinishIn.send;
+        dataValid.send;
 
         if(enValid)
           en.justFinish;
@@ -342,8 +341,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method Action connected = carry2Wire.send;
 
-      method Action specCycleDoneCarry if(isValid(dataOut));
-        usedInCarry.send;
-      endmethod
+      method Action specCycleDoneCarry = usedInCarry.send;
+
+      method Bool rawRead = validValue(dataOut);
     endinterface);
 endmodule
