@@ -53,4 +53,8 @@ partition mkProcessor implements Processor;
   mkConnection(mem.instQ, instQ.enq);
   mkConnection(mem.dataReqQ, dataReqQ.deq);
   mkConnection(mem.dataQ, dataQ.enq);
+
+  rule r1;
+    specCycleDone;
+  endrule
 endpartition

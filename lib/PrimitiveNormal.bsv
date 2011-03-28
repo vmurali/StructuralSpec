@@ -5,21 +5,25 @@ interface Output_#(type t);
   method Action _write(t x);
   method Action connected;
   method Action carryWrite(t x);
+  method Action specCycleInputDone;
+  method Action specCycleOutputDone;
 endinterface
 
 interface Output#(type t);
   method t _read();
+  method Action specCycleInputDone;
+  method Action specCycleOutputDone;
 endinterface
 
 instance Sync_#(Output#(t));
-  function Action _specCycleInputDone(Output#(t) x) = noAction;
-  function Action _specCycleOutputDone(Output#(t) x) = noAction;
+  function Action _specCycleInputDone(Output#(t) x) = x.specCycleInputDone;
+  function Action _specCycleOutputDone(Output#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output#(t) x) = True;
 endinstance
 
 instance Sync_#(Output_#(t));
-  function Action _specCycleInputDone(Output_#(t) x) = noAction;
-  function Action _specCycleOutputDone(Output_#(t) x) = noAction;
+  function Action _specCycleInputDone(Output_#(t) x) = x.specCycleInputDone;
+  function Action _specCycleOutputDone(Output_#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output_#(t) x) = True;
 endinstance
 
@@ -56,6 +60,11 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
                        carryW:
                        w;
 
+  Pulse    dummy1 <- mkPulse;
+  Pulse    dummy2 <- mkPulse;
+  Pulse    dummy3 <- mkPulse;
+  Pulse    dummy4 <- mkPulse;
+
   return tuple2(
     interface Output_;
       method Action _write(t x) if(g1);
@@ -69,11 +78,19 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
       method Action carryWrite(t x);
         carryW <= x;
       endmethod
+
+      method Action specCycleInputDone = dummy1.send;
+
+      method Action specCycleOutputDone = dummy2.send;
     endinterface,
     interface Output;
       method t _read() if(g2);
         return dataOut;
       endmethod
+
+      method Action specCycleInputDone = dummy3.send;
+
+      method Action specCycleOutputDone = dummy4.send;
     endinterface);
 endmodule
 
@@ -81,11 +98,13 @@ interface OutputPulse_;
   method Action _read();
   method Action connected;
   method Action carryWrite;
+  method Action specCycleInputDone;
+  method Action specCycleOutputDone;
 endinterface
 
 instance Sync_#(OutputPulse_);
-  function Action _specCycleInputDone(OutputPulse_ x) = noAction;
-  function Action _specCycleOutputDone(OutputPulse_ x) = noAction;
+  function Action _specCycleInputDone(OutputPulse_ x) = x.specCycleInputDone;
+  function Action _specCycleOutputDone(OutputPulse_ x) = x.specCycleOutputDone;
   function Bool _isSupplied(OutputPulse_ x) = True;
 endinstance
 
@@ -126,6 +145,11 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
                     carryW:
                     w;
 
+  Pulse dummy1 <- mkPulse;
+  Pulse dummy2 <- mkPulse;
+  Pulse dummy3 <- mkPulse;
+  Pulse dummy4 <- mkPulse;
+
   return tuple2(
     interface OutputPulse_;
       method Action _read() if(g1);
@@ -139,10 +163,18 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
       method Action carryWrite();
         carryW.send;
       endmethod
+
+      method Action specCycleInputDone = dummy1.send;
+
+      method Action specCycleOutputDone = dummy2.send;
     endinterface,
     interface OutputPulse;
       method Bool _read() if(g2);
         return dataOut;
       endmethod
+
+      method Action specCycleInputDone = dummy3.send;
+
+      method Action specCycleOutputDone = dummy4.send;
     endinterface);
 endmodule

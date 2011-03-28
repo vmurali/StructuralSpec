@@ -35,4 +35,8 @@ partition mkCop implements Cop;
     if(finishReg != 0)
       $finish(truncate(finishReg));
   endrule
+
+  rule r4;
+    specCycleDone;
+  endrule
 endpartition
