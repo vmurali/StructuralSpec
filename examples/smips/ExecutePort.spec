@@ -94,6 +94,8 @@ endfunction
 function Bool copRead(Inst inst)  = inst[31:26] == 'b010000 && inst[25:21] == 'b00000;
 function Bool copWrite(Inst inst) = inst[31:26] == 'b010000 && inst[25:21] == 'b00100;
 
+function RegIndex copReg(Inst inst) = inst[15:11];
+
 function Data aluDataAddr(Inst inst, Data src1, Data src2);
   SData ssrc1 = unpack(src1);
   SData ssrc2 = unpack(src2);

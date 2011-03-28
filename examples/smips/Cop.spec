@@ -2,27 +2,37 @@ include Library;
 include Types;
 
 port Cop;
-  Reverse OutputEn#(Data) write;
+  Reverse OutputEn#(Tuple2#(RegIndex, Data)) write;
   Output#(Data) read;
 endport
 
 (* synthesize *)
 partition mkCop implements Cop;
-  Reg#(Maybe#(Data)) error <- mkRegU;
+  Reg#(Data) finishReg <- mkReg(0);
+  Reg#(Data)  statsReg <- mkReg(0);
 
   rule r1;
     if(write.en)
     begin
-      if(write.data == 1)
-        $display("Passed");
+      if(tpl_1(write.data) == 21)
+      begin
+        if(tpl_2(write.data) == 1)
+          $display("Passed");
+        else
+          $display("Failed");
+        finishReg <= tpl_2(write.data);
+      end
       else
-        $display("Failed");
-      error <= tagged Valid (write.data);
+        statsReg <= tpl_2(write.data);
     end
   endrule
 
   rule r2;
-    if(error matches tagged Valid .e)
-      $finish(truncate(e));
+    read := statsReg;
+  endrule
+
+  rule r3;
+    if(finishReg != 0)
+      $finish(truncate(finishReg));
   endrule
 endpartition

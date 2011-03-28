@@ -87,7 +87,7 @@ partition mkExecute implements Execute;
 
   rule r8;
     if(pcQ.rdy && instQ.rdy && (epoch == currEpoch) && !stall && copWrite(inst))
-      cop.write.data := regRead[1].resp;
+      cop.write.data := tuple2(copReg(inst), regRead[1].resp);
     else
       cop.write.data.justFinish;
   endrule

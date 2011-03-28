@@ -52,7 +52,7 @@ partition mkExecute implements Execute;
           else if(copRead(inst))
             wbQ.data := Wb{index: dest, data: tagged Valid (cop.read)};
           else if(copWrite(inst))
-            cop.write := regRead[1].resp;
+            cop.write.data := tuple2(copReg(inst), regRead[1].resp);
           else
             wbQ.data := Wb{index: dest, data: tagged Valid res};
         end

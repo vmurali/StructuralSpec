@@ -11,6 +11,6 @@ typedef struct {
 } Wb deriving (Bits, Eq);
 
 typedef union tagged {
-  Data Load;
+  VAddr Load;
   Tuple2#(VAddr, Data) Store;
 } Mem deriving (Bits, Eq);
