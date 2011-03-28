@@ -5,12 +5,14 @@ interface Output_#(type t);
   method Action _write(t x);
   method Action connected;
   method Action carryWrite(t x);
+  method Action justFinish;
   method Action specCycleInputDone;
   method Action specCycleOutputDone;
 endinterface
 
 interface Output#(type t);
   method t _read();
+  method Action justFinish;
   method Action specCycleInputDone;
   method Action specCycleOutputDone;
 endinterface
@@ -79,6 +81,8 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
         carryW <= x;
       endmethod
 
+      method Action justFinish = noAction;
+
       method Action specCycleInputDone = dummy1.send;
 
       method Action specCycleOutputDone = dummy2.send;
@@ -87,6 +91,8 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
       method t _read() if(g2);
         return dataOut;
       endmethod
+
+      method Action justFinish = noAction;
 
       method Action specCycleInputDone = dummy3.send;
 
@@ -98,6 +104,7 @@ interface OutputPulse_;
   method Action _read();
   method Action connected;
   method Action carryWrite;
+  method Action justFinish;
   method Action specCycleInputDone;
   method Action specCycleOutputDone;
 endinterface
@@ -164,6 +171,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
         carryW.send;
       endmethod
 
+      method Action justFinish = noAction;
+
       method Action specCycleInputDone = dummy1.send;
 
       method Action specCycleOutputDone = dummy2.send;
@@ -172,6 +181,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
       method Bool _read() if(g2);
         return dataOut;
       endmethod
+
+      method Action justFinish = noAction;
 
       method Action specCycleInputDone = dummy3.send;
 

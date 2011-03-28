@@ -10,7 +10,7 @@ partition mkMemory implements Memory;
 
   rule r1;
     if(instReqQ.rdy && instQ.rdy)
-      regs.read[0].req := truncate(instReqQ.first);
+      regs.read[0].req := truncate(instReqQ.first>>2);
     else
       regs.read[0].req.justFinish;
   endrule
