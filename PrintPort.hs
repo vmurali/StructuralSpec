@@ -127,6 +127,7 @@ printPort (Port name args oldFields) =
      concatMap showRevField fields ++
      extrasField ++
   "endinterface\n\n" ++
+  (if null args then "(* synthesize *)\n" else "") ++
   "module _" ++ name ++ "(Tuple2#(" ++ name ++ "_" ++ printJustArgs args ++ ", " ++ name ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
      concatMap showFieldInst fields ++
   "  return tuple2(\n" ++

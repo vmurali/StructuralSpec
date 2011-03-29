@@ -144,7 +144,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method Action specCycleInputDone = noAction;
 
-      method Action specCycleOutputDone if(isSuppliedOut);
+      method Action specCycleOutputDone if(carryWire || isSuppliedOut);
         specCycleDoneIn.send;
       endmethod
 
@@ -155,7 +155,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
         dataOutDataCarry <= x;
       endmethod
 
-      method Bool used = usedIn;
+      method Bool used = usedInDirect;
     endinterface,
 
     interface Output;
@@ -167,7 +167,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method canFinish = isValid(dataOut);
 
-      method Action specCycleInputDone if(isValid(dataOut));
+      method Action specCycleInputDone if(carry2Wire || isValid(dataOut));
         usedInDirect.send;
       endmethod
 
@@ -308,7 +308,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method Action specCycleInputDone = noAction;
 
-      method Action specCycleOutputDone() if(isSuppliedOut);
+      method Action specCycleOutputDone() if(carryWire || isSuppliedOut);
         specCycleDoneIn.send;
       endmethod
 
@@ -319,7 +319,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
         dataOutDataCarry <= x;
       endmethod
 
-      method Bool used = usedIn;
+      method Bool used = usedInDirect;
     endinterface,
 
     interface OutputPulse;
@@ -331,7 +331,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method canFinish = isValid(dataOut);
 
-      method Action specCycleInputDone if(isValid(dataOut));
+      method Action specCycleInputDone if(carry2Wire || isValid(dataOut));
         usedInDirect.send;
       endmethod
 

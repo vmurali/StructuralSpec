@@ -12,14 +12,17 @@ partition mkWriteback implements Writeback;
 
   rule r1;
     wbIndex.data := wbQ.deq.index;
+  endrule
+
+  rule r2;
     if(wbQ.deq.data matches tagged Valid .d)
     begin
-      regWrite := tuple2(wbQ.deq.index, d);
+      regWrite.data := tuple2(wbQ.deq.index, d);
       wbQ.deq.deq;
     end
     else
     begin
-      regWrite := tuple2(wbQ.deq.index, dataQ.first);
+      regWrite.data := tuple2(wbQ.deq.index, dataQ.first);
       wbQ.deq.deq;
       dataQ.deq;
     end

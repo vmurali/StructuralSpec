@@ -13,41 +13,47 @@ partition mkWriteback implements Writeback;
   rule r1;
     if(wbQ.deq.rdy)
       wbIndex.data := wbQ.deq.first.index;
-   else
+    else
       wbIndex.data.justFinish;
   endrule
 
+  let syncFiresR2 = wbQ.deq.rdy &&
+                    (wbQ.deq.data matches tagged Valid .d?
+                       wbQ.deq.rdy:
+                       wbQ.deq.rdy && dataQ.rdy);
+
   rule r2;
-    if(wbQ.deq.rdy)
+    if(syncFiresR2)
     begin
       if(wbQ.deq.first.data matches tagged Valid .d)
         regWrite.data := tuple2(wbQ.deq.first.index, d);
-      else if(dataQ.rdy)
-        regWrite.data := tuple2(wbQ.deq.first.index, dataQ.first);
       else
-        regWrite.data.justFinish;
+        regWrite.data := tuple2(wbQ.deq.first.index, dataQ.first);
     end
     else
       regWrite.data.justFinish;
   endrule
 
   rule r3;
-    if(wbQ.deq.rdy)
+    if(syncFiresR2)
     begin
-      if(wbQ.deq.first.data matches tagged Valid .*)
-        wbQ.deq.deq;
-      else if(dataQ.rdy)
+      if(wbQ.deq.first.data matches tagged Valid .d)
         wbQ.deq.deq;
       else
-        wbQ.deq.deq.justFinish;
+        wbQ.deq.deq;
     end
     else
       wbQ.deq.deq.justFinish;
   endrule
 
   rule r4;
-    if(wbQ.deq.rdy && !isValid(wbQ.deq.first.data) && dataQ.rdy)
-      dataQ.deq;
+    if(syncFiresR2)
+    begin
+      if(wbQ.deq.first.data matches tagged Valid .d)
+        dataQ.deq.justFinish;
+      else
+        dataQ.deq;
+    end
     else
       dataQ.deq.justFinish;
   endrule

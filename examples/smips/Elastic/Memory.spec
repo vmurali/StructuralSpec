@@ -29,32 +29,64 @@ partition mkMemory implements Memory;
       instQ.data.justFinish;
   endrule
 
+  let syncFiresR2 = dataReqQ.rdy &&
+                    (dataReqQ.first matches tagged Store .*?
+                       True:
+                    (dataReqQ.first matches tagged Load .*?
+                       dataQ.rdy:
+                    True));
+
   rule r4;
-    if(dataReqQ.first matches tagged Store .*)
-      dataReqQ.deq;
-    else if(dataReqQ.first matches tagged Load .* &&& dataQ.rdy)
+    if(syncFiresR2)
       dataReqQ.deq;
     else
       dataReqQ.deq.justFinish;
   endrule
 
   rule r5;
-    if(dataReqQ.first matches tagged Store {.addr, .data})
-      regs.write[0].data := tuple2(truncate(addr>>2), data);
+    if(syncFiresR2)
+    begin
+      case (dataReqQ.first) matches
+        tagged Store {.addr, .data}:
+          regs.write[0].data := tuple2(truncate(addr>>2), data);
+        tagged Load .addr:
+          regs.write[0].data.justFinish;
+        default:
+          regs.write[0].data.justFinish;
+      endcase
+    end
     else
       regs.write[0].data.justFinish;
   endrule
 
   rule r6;
-    if(dataReqQ.first matches tagged Load .addr &&& dataQ.rdy)
-      regs.read[1].req := truncate(addr>>2);
+    if(syncFiresR2)
+    begin
+      case (dataReqQ.first) matches
+        tagged Store {.addr, .data}:
+          regs.read[1].req.justFinish;
+        tagged Load .addr:
+          regs.read[1].req := truncate(addr>>2);
+        default:
+          regs.read[1].req.justFinish;
+      endcase
+    end
     else
       regs.read[1].req.justFinish;
   endrule
 
   rule r7;
-    if(dataReqQ.first matches tagged Load .addr &&& dataQ.rdy)
-      dataQ.data := regs.read[1].resp;
+    if(syncFiresR2)
+    begin
+      case (dataReqQ.first) matches
+        tagged Store {.addr, .data}:
+          dataQ.data.justFinish;
+        tagged Load .addr:
+          dataQ.data := regs.read[1].resp;
+        default:
+          dataQ.data.justFinish;
+      endcase
+    end
     else
       dataQ.data.justFinish;
   endrule
