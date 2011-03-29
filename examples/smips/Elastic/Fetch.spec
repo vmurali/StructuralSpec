@@ -34,13 +34,16 @@ partition mkFetch implements Fetch;
   endrule
 
   rule r4;
-    if(branchPc.en)
+    if(delay)
     begin
-      pc <= branchPc;
-      epoch <= !epoch;
+      if(branchPc.en)
+      begin
+        pc <= branchPc;
+        epoch <= !epoch;
+      end
+      else if(instReqQ.rdy && pcQ.rdy)
+        pc <= pc + 4;
     end
-    else if(instReqQ.rdy && pcQ.rdy)
-      pc <= pc + 4;
   endrule
 
   rule r5;

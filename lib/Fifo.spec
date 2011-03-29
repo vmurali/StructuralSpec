@@ -38,7 +38,7 @@ partition mkLFifo implements Fifo#(n, t) provisos(Bits#(t, tSz));
     if(enq.en)
     begin
       let tempRegs = regs;
-      tempRegs[actualHead] = (tpl_1(asIfc(mod_))).enq;
+      tempRegs[actualHead] = enq.data;
       regs <= tempRegs;
 
       head <= head + 1;

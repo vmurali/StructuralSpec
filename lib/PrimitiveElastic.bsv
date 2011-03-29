@@ -162,7 +162,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
         dataOutDataCarry <= x;
       endmethod
 
-      method Bool used = usedInDirect;
+      method Bool used = usedIn;
     endinterface,
 
     interface Output;
@@ -333,7 +333,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
         dataOutDataCarry <= x;
       endmethod
 
-      method Bool used = usedInDirect;
+      method Bool used = usedIn;
     endinterface,
 
     interface OutputPulse;
