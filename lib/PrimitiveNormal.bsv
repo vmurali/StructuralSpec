@@ -21,12 +21,14 @@ instance Sync_#(Output#(t));
   function Action _specCycleInputDone(Output#(t) x) = x.specCycleInputDone;
   function Action _specCycleOutputDone(Output#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output#(t) x) = True;
+  function Bool _isAvailable(Output#(t) x) = True;
 endinstance
 
 instance Sync_#(Output_#(t));
   function Action _specCycleInputDone(Output_#(t) x) = x.specCycleInputDone;
   function Action _specCycleOutputDone(Output_#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output_#(t) x) = True;
+  function Bool _isAvailable(Output_#(t) x) = True;
 endinstance
 
 instance Connectable#(Output_#(t), Output#(t));
@@ -113,6 +115,7 @@ instance Sync_#(OutputPulse_);
   function Action _specCycleInputDone(OutputPulse_ x) = x.specCycleInputDone;
   function Action _specCycleOutputDone(OutputPulse_ x) = x.specCycleOutputDone;
   function Bool _isSupplied(OutputPulse_ x) = True;
+  function Bool _isAvailable(OutputPulse_ x) = True;
 endinstance
 
 typedef Output#(Bool) OutputPulse;

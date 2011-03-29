@@ -95,7 +95,7 @@ showConn num field =
   assign str = "      method " ++ str ++ " = (tpl_" ++ num ++ "(asIfc(" ++ fieldName field ++ "_)))." ++ str ++ ";\n"
 
 ----------------------------------------------------------------------------------
-extrasField = "  method Action specCycleInputDone();\n  method Action specCycleOutputDone();\n  method Bool isSupplied();\n"
+extrasField = "  method Action specCycleInputDone();\n  method Action specCycleOutputDone();\n  method Bool isSupplied();\n  method Bool isAvailable();\n"
 
 extrasMethods num fields = 
   "      method Action specCycleInputDone();\n" ++
@@ -104,18 +104,21 @@ extrasMethods num fields =
   "      method Action specCycleOutputDone();\n" ++
            concatMap (\x -> "        _specCycleOutputDone(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)));\n") (map fieldName fields) ++
   "      endmethod\n" ++
-  "      method Bool isSupplied = True " ++ (concatMap ((\x -> " && _isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
+  "      method Bool isSupplied = True " ++ (concatMap ((\x -> " && _isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n" ++
+  "      method Bool isAvailable = True " ++ (concatMap ((\x -> " && _isAvailable(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
 
 extrasInstances name args =
   "instance Sync_#(" ++ name ++ printJustArgs args ++ ");\n" ++
   "  function Action _specCycleInputDone(" ++ name ++ printJustArgs args ++ " x) = x.specCycleInputDone;\n" ++
   "  function Action _specCycleOutputDone(" ++ name ++ printJustArgs args ++ " x) = x.specCycleOutputDone;\n" ++
   "  function Bool _isSupplied(" ++ name ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
+  "  function Bool _isAvailable(" ++ name ++ printJustArgs args ++ " x) = x.isAvailable;\n" ++
   "endinstance\n\n" ++
   "instance Sync_#(" ++ name ++ "_" ++ printJustArgs args ++ ");\n" ++
   "  function Action _specCycleInputDone(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.specCycleInputDone;\n" ++
   "  function Action _specCycleOutputDone(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.specCycleOutputDone;\n" ++
   "  function Bool _isSupplied(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
+  "  function Bool _isAvailable(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.isAvailable;\n" ++
   "endinstance\n\n"
 ------------------------------------------------------------------------------------------------------
 printPort (Port name args oldFields) =

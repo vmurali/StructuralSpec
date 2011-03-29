@@ -4,12 +4,14 @@ typeclass Sync_#(type t);
   function Action _specCycleInputDone(t x);
   function Action _specCycleOutputDone(t x);
   function Bool _isSupplied(t x);
+  function Bool _isAvailable(t x);
 endtypeclass
 
 instance Sync_#(Vector#(num, t)) provisos(Sync_#(t));
   function Action _specCycleInputDone(Vector#(num, t) xs) = joinActions(map(_specCycleInputDone, xs));
   function Action _specCycleOutputDone(Vector#(num, t) xs) = joinActions(map(_specCycleOutputDone, xs));
   function Bool _isSupplied(Vector#(num, t) xs) = foldl(\&& , True, map(_isSupplied, xs));
+  function Bool _isAvailable(Vector#(num, t) xs) = foldl(\&& , True, map(_isAvailable, xs));
 endinstance
 
 interface Reg#(type t);
@@ -21,6 +23,7 @@ instance Sync_#(Reg#(t));
   function Action _specCycleInputDone(Reg#(t) x) = noAction;
   function Action _specCycleOutputDone(Reg#(t) x) = noAction;
   function Bool _isSupplied(Reg#(t) x) = True;
+  function Bool _isAvailable(Reg#(t) x) = True;
 endinstance
 
 import "BVI" mkReg =
@@ -69,6 +72,7 @@ instance Sync_#(Pulse);
   function Action _specCycleInputDone(Pulse x) = noAction;
   function Action _specCycleOutputDone(Pulse x) = noAction;
   function Bool _isSupplied(Pulse x) = True;
+  function Bool _isAvailable(Pulse x) = True;
 endinstance
 
 import "BVI" mkPulse =

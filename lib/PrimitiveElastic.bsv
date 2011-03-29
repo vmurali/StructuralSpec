@@ -10,6 +10,8 @@ interface Output_#(type t);
   method Action specCycleInputDone;
   method Action specCycleOutputDone;
 
+  method Bool isAvailable;
+
   method Action connected;
   method Action validWrite(t x);
   method Bool used;
@@ -18,6 +20,7 @@ endinterface
 interface Output#(type t);
   method t _read;
   method Bool isValid;
+  method Bool isAvailable;
   method Bool canFinish;
   method Action specCycleInputDone;
   method Action specCycleOutputDone;
@@ -58,12 +61,14 @@ instance Sync_#(Output#(t));
   function Action _specCycleInputDone(Output#(t) x) = x.specCycleInputDone;
   function Action _specCycleOutputDone(Output#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output#(t) x) = x.isSupplied;
+  function Bool _isAvailable(Output#(t) x) = x.isAvailable;
 endinstance
 
 instance Sync_#(Output_#(t));
   function Action _specCycleInputDone(Output_#(t) x) = x.specCycleInputDone;
   function Action _specCycleOutputDone(Output_#(t) x) = x.specCycleOutputDone;
   function Bool _isSupplied(Output_#(t) x) = x.isSupplied;
+  function Bool _isAvailable(Output_#(t) x) = x.isAvailable;
 endinstance
 
 module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bits#(t, tSz));
@@ -148,6 +153,8 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
         specCycleDoneIn.send;
       endmethod
 
+      method isAvailable = True;
+
       method Action connected = carryWire.send;
 
       method Action validWrite(t x);
@@ -175,6 +182,8 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method isSupplied = True;
 
+      method isAvailable = isValid(dataOut);
+
       method Action connected = carry2Wire.send;
 
       method Action specCycleDoneCarry = usedInCarry.send;
@@ -190,6 +199,8 @@ interface OutputPulse_;
   method Bool isSupplied();
   method Action specCycleInputDone();
   method Action specCycleOutputDone();
+
+  method Bool isAvailable;
 
   method Action connected;
   method Action validWrite(Bool x);
@@ -227,6 +238,7 @@ instance Sync_#(OutputPulse_);
   function Action _specCycleInputDone(OutputPulse_ x) = x.specCycleInputDone;
   function Action _specCycleOutputDone(OutputPulse_ x) = x.specCycleOutputDone;
   function Bool _isSupplied(OutputPulse_ x) = x.isSupplied;
+  function Bool _isAvailable(OutputPulse_ x) = x.isAvailable;
 endinstance
 
 module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
@@ -312,6 +324,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
         specCycleDoneIn.send;
       endmethod
 
+      method isAvailable = True;
+
       method Action connected = carryWire.send;
 
       method Action validWrite(Bool x);
@@ -338,6 +352,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
       method Action specCycleOutputDone = noAction;
 
       method isSupplied = True;
+
+      method isAvailable = isValid(dataOut);
 
       method Action connected = carry2Wire.send;
 

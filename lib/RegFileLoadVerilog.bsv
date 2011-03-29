@@ -8,6 +8,7 @@ endinterface
 
 instance Sync_#(RegFileLoadVerilog_#(reads, writes, n, t));
   function Bool _isSupplied(x) = True;
+  function Bool _isAvailable(x) = True;
   function Action _specCycleInputDone(x) = noAction;
   function Action _specCycleOutputDone(x) = noAction;
 endinstance

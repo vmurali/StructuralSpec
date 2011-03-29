@@ -7,6 +7,8 @@ partition mkFetch implements Fetch;
   Reg#(VAddr)   pc <- mkReg('h1000);
   Reg#(Bool) epoch <- mkRegU;
 
+  Reg#(Bool) delay <- mkReg(False);
+
   rule r1;
     if(instReqQ.rdy && pcQ.rdy)
       instReqQ.data := pc;
@@ -22,7 +24,13 @@ partition mkFetch implements Fetch;
   endrule
 
   rule r3;
-    currEpoch := epoch;
+    if(!delay)
+      delay <= True;
+    else
+    begin
+      delay <= False;
+      currEpoch := epoch;
+    end
   endrule
 
   rule r4;
