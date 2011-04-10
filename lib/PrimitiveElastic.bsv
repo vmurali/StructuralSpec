@@ -82,7 +82,6 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
                                  tagged Invalid;
 
   Reg#(Maybe#(t))   dataReg <- mkReg(tagged Invalid);
-  Reg#(Bool)        usedReg <- mkReg(True);
   Reg#(Bool)    suppliedReg <- mkReg(False);
 
   Pulse           dataValid <- mkPulse;
@@ -98,7 +97,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
                                  tagged Valid dataWire:
                                  tagged Invalid;
 
-  Bool         canAcceptOut  = !suppliedReg && usedReg;
+  Bool         canAcceptOut  = !suppliedReg && !isValid(dataReg);
 
   Bool        isSuppliedOut  = suppliedReg || dataValid;
 
@@ -114,11 +113,6 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
       dataReg <= tagged Invalid;
     else if(dataIn matches tagged Valid .d)
       dataReg <= tagged Valid d;
-
-    if(usedIn)
-      usedReg <= True;
-    else if(dataIn matches tagged Valid .*)
-      usedReg <= False;
 
     if(specCycleDoneIn)
       suppliedReg <= False;
@@ -252,7 +246,6 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
                                     tagged Invalid;
 
   Reg#(Maybe#(Bool))   dataReg <- mkReg(tagged Invalid);
-  Reg#(Bool)           usedReg <- mkReg(True);
   Reg#(Bool)       suppliedReg <- mkReg(False);
 
   Pulse              dataValid <- mkPulse;
@@ -269,7 +262,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
                                     tagged Valid dataWire:
                                     tagged Invalid;
 
-  Bool            canAcceptOut  = !suppliedReg && usedReg;
+  Bool            canAcceptOut  = !suppliedReg && !isValid(dataReg);
 
   Bool           isSuppliedOut  = suppliedReg || dataValid;
 
@@ -285,11 +278,6 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
       dataReg <= tagged Invalid;
     else if(dataIn matches tagged Valid .d)
       dataReg <= tagged Valid d;
-
-    if(usedIn)
-      usedReg <= True;
-    else if(dataIn matches tagged Valid .*)
-      usedReg <= False;
 
     if(specCycleDoneIn)
       suppliedReg <= False;
