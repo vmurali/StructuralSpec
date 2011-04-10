@@ -93,11 +93,11 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
                                  usedInCarry:
                                  usedInDirect;
 
-  Maybe#(t)          dataIn  = dataValid?
+  Bool         canAcceptOut  = !suppliedReg && !isValid(dataReg);
+
+  Maybe#(t)          dataIn  = dataValid && canAcceptOut?
                                  tagged Valid dataWire:
                                  tagged Invalid;
-
-  Bool         canAcceptOut  = !suppliedReg && !isValid(dataReg);
 
   Bool        isSuppliedOut  = suppliedReg || dataValid;
 
@@ -122,7 +122,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
   return tuple2(
     interface Output_;
-      method Action _write(t x) if(g1 && canAcceptOut);
+      method Action _write(t x) if(g1);
         dataValid.send;
         dataWire <= x;
 
@@ -258,11 +258,11 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
                                     usedInCarry:
                                     usedInDirect;
 
-  Maybe#(Bool)          dataIn  = dataValid?
+  Bool            canAcceptOut  = !suppliedReg && !isValid(dataReg);
+
+  Maybe#(Bool)          dataIn  = dataValid && canAcceptOut?
                                     tagged Valid dataWire:
                                     tagged Invalid;
-
-  Bool            canAcceptOut  = !suppliedReg && !isValid(dataReg);
 
   Bool           isSuppliedOut  = suppliedReg || dataValid;
 
@@ -287,7 +287,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
   return tuple2(
     interface OutputPulse_;
-      method Action _read if(g1 && canAcceptOut);
+      method Action _read if(g1);
         dataValid.send;
         dataWire.send;
 
