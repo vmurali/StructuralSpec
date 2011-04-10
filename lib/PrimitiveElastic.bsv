@@ -95,17 +95,17 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
   Bool         canAcceptOut  = !suppliedReg && !isValid(dataReg);
 
-  Maybe#(t)          dataIn  = dataValid?
+  Maybe#(t)          dataIn  = dataValid && canAcceptOut?
                                  tagged Valid dataWire:
                                  tagged Invalid;
 
-  Bool        isSuppliedOut  = suppliedReg || dataValid;
+  Bool        isSuppliedOut  = suppliedReg || isValid(dataIn);
 
   Maybe#(t)         dataOut  = carryWire?
                                  dataOutCarry:
-                                 case (dataReg) matches
-                                   Invalid : dataIn;
-                                   default : dataReg;
+                                 case (dataIn) matches
+                                   tagged Valid .* : dataIn;
+                                   default         : dataReg;
                                  endcase;
 
   rule r(!carryWire);
@@ -122,7 +122,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
   return tuple2(
     interface Output_;
-      method Action _write(t x) if(g1 && canAcceptOut);
+      method Action _write(t x) if(g1);
         dataValid.send;
         dataWire <= x;
 
@@ -130,7 +130,7 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
           en;
       endmethod
 
-      method Action justFinish if(canAcceptOut);
+      method Action justFinish;
         dataValid.send;
 
         if(enValid)
@@ -260,17 +260,17 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
   Bool            canAcceptOut  = !suppliedReg && !isValid(dataReg);
 
-  Maybe#(Bool)          dataIn  = dataValid?
+  Maybe#(Bool)          dataIn  = dataValid && canAcceptOut?
                                     tagged Valid dataWire:
                                     tagged Invalid;
 
-  Bool           isSuppliedOut  = suppliedReg || dataValid;
+  Bool           isSuppliedOut  = suppliedReg || isValid(dataIn);
 
   Maybe#(Bool)         dataOut  = carryWire?
                                     dataOutCarry:
-                                    case (dataReg) matches
-                                      Invalid : dataIn;
-                                      default : dataReg;
+                                    case (dataIn) matches
+                                      tagged Valid .* : dataIn;
+                                      default         : dataReg;
                                     endcase;
 
   rule r(!carryWire);
@@ -287,7 +287,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
   return tuple2(
     interface OutputPulse_;
-      method Action _read if(g1 && canAcceptOut);
+      method Action _read if(g1);
         dataValid.send;
         dataWire.send;
 
@@ -295,7 +295,7 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
           en;
       endmethod
 
-      method Action justFinish if(canAcceptOut);
+      method Action justFinish;
         dataValid.send;
 
         if(enValid)
