@@ -13,23 +13,22 @@ interface Output_#(type t);
   method Bool isAvailable;
 
   method Action connected;
-  method Action validWrite(t x);
-  method Bool used;
+  method Action carryWrite(t x);
+  method Bool carryInputUsed;
 endinterface
 
 interface Output#(type t);
   method t _read;
   method Bool isValid;
   method Bool isAvailable;
-  method Bool canFinish;
   method Action specCycleInputDone;
   method Action specCycleOutputDone;
 
   method Bool isSupplied;
 
   method Action connected;
-  method Action specCycleDoneCarry;
-  method t rawRead;
+  method t carryRead;
+  method Action carryInputUsed;
 endinterface
 
 instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
@@ -40,13 +39,13 @@ instance Connectable#(Output_#(t), Output#(t)) provisos(Bits#(t, tSz));
     endrule
 
     rule r2;
-      if(a.used)
-        b.specCycleDoneCarry;
+      if(a.carryInputUsed)
+        b.carryInputUsed;
     endrule
 
     rule r3;
       if(b.isValid)
-        a.validWrite(b.rawRead);
+        a.carryWrite(b.carryRead);
     endrule
   endmodule
 endinstance
@@ -72,13 +71,14 @@ instance Sync_#(Output_#(t));
 endinstance
 
 module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bits#(t, tSz));
-  Pulse           carryWire <- mkPulse;
-  Pulse          carry2Wire <- mkPulse;
-  Pulse   dataOutValidCarry <- mkPulse;
-  Wire#(t) dataOutDataCarry <- mkWire;
+  Pulse     connectedWriter <- mkPulse;
+  Pulse     connectedReader <- mkPulse;
 
-  Maybe#(t)    dataOutCarry  = dataOutValidCarry?
-                                 tagged Valid dataOutDataCarry:
+  Pulse          validCarry <- mkPulse;
+  Wire#(t)        dataCarry <- mkWire;
+
+  Maybe#(t)    dataOutCarry  = validCarry?
+                                 tagged Valid dataCarry:
                                  tagged Invalid;
 
   Reg#(Maybe#(t))   dataReg <- mkReg(tagged Invalid);
@@ -86,35 +86,37 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
   Pulse           dataValid <- mkPulse;
   Wire#(t)         dataWire <- mkWire;
-  Pulse     specCycleDoneIn <- mkPulse;
-  Pulse        usedInDirect <- mkPulse;
-  Pulse         usedInCarry <- mkPulse;
-  Bool               usedIn  = carry2Wire?
-                                 usedInCarry:
-                                 usedInDirect;
 
-  Bool         canAcceptOut  = !suppliedReg && !isValid(dataReg);
+  Pulse          outputDone <- mkPulse;
 
-  Maybe#(t)          dataIn  = dataValid && canAcceptOut?
+  Pulse     inputUsedDirect <- mkPulse;
+  Pulse     _inputUsedCarry <- mkPulse;
+  Bool            inputUsed  = connectedReader?
+                                 _inputUsedCarry:
+                                 inputUsedDirect;
+
+  Bool           _canAccept  = !suppliedReg && !isValid(dataReg);
+
+  Maybe#(t)          dataIn  = dataValid && _canAccept?
                                  tagged Valid dataWire:
                                  tagged Invalid;
 
-  Bool        isSuppliedOut  = suppliedReg || isValid(dataIn);
+  Bool          _isSupplied  = suppliedReg || isValid(dataIn);
 
-  Maybe#(t)         dataOut  = carryWire?
+  Maybe#(t)         dataOut  = connectedWriter?
                                  dataOutCarry:
                                  case (dataIn) matches
                                    tagged Valid .* : dataIn;
                                    default         : dataReg;
                                  endcase;
 
-  rule r(!carryWire);
-    if(usedIn)
+  rule r(!connectedWriter);
+    if(inputUsed)
       dataReg <= tagged Invalid;
-    else if(dataIn matches tagged Valid .d)
-      dataReg <= tagged Valid d;
+    else if(dataIn matches tagged Valid .*)
+      dataReg <= dataIn;
 
-    if(specCycleDoneIn)
+    if(outputDone)
       suppliedReg <= False;
     else if(dataIn matches tagged Valid .*)
       suppliedReg <= True;
@@ -137,26 +139,26 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
           en.justFinish;
       endmethod
 
-      method canAccept = canAcceptOut;
+      method canAccept = _canAccept;
 
-      method isSupplied = isSuppliedOut;
+      method isSupplied = _isSupplied;
 
       method Action specCycleInputDone = noAction;
 
-      method Action specCycleOutputDone if(carryWire || isSuppliedOut);
-        specCycleDoneIn.send;
+      method Action specCycleOutputDone if(connectedWriter || _isSupplied);
+        outputDone.send;
       endmethod
 
       method isAvailable = True;
 
-      method Action connected = carryWire.send;
+      method Action connected = connectedWriter.send;
 
-      method Action validWrite(t x);
-        dataOutValidCarry.send;
-        dataOutDataCarry <= x;
+      method Action carryWrite(t x);
+        validCarry.send;
+        dataCarry <= x;
       endmethod
 
-      method Bool used = usedIn;
+      method Bool carryInputUsed = inputUsed;
     endinterface,
 
     interface Output;
@@ -166,10 +168,8 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method isValid = isValid(dataOut);
 
-      method canFinish = isValid(dataOut);
-
-      method Action specCycleInputDone if(carry2Wire || isValid(dataOut));
-        usedInDirect.send;
+      method Action specCycleInputDone if(connectedReader || isValid(dataOut));
+        inputUsedDirect.send;
       endmethod
 
       method Action specCycleOutputDone = noAction;
@@ -178,27 +178,27 @@ module _Output#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Output_
 
       method isAvailable = isValid(dataOut);
 
-      method Action connected = carry2Wire.send;
+      method Action connected = connectedReader.send;
 
-      method Action specCycleDoneCarry = usedInCarry.send;
+      method Action carryInputUsed = _inputUsedCarry.send;
 
-      method t rawRead = validValue(dataOut);
+      method t carryRead = validValue(dataOut);
     endinterface);
 endmodule
 
 interface OutputPulse_;
   method Action _read;
-  method Action justFinish();
-  method Bool canAccept();
-  method Bool isSupplied();
-  method Action specCycleInputDone();
-  method Action specCycleOutputDone();
+  method Action justFinish;
+  method Bool canAccept;
+  method Bool isSupplied;
+  method Action specCycleInputDone;
+  method Action specCycleOutputDone;
 
   method Bool isAvailable;
 
   method Action connected;
-  method Action validWrite(Bool x);
-  method Bool used;
+  method Action carryWrite(Bool x);
+  method Bool carryInputUsed;
 endinterface
 
 typedef Output#(Bool) OutputPulse;
@@ -211,13 +211,13 @@ instance Connectable#(OutputPulse_, OutputPulse);
     endrule
 
     rule r2;
-      if(a.used)
-        b.specCycleDoneCarry;
+      if(a.carryInputUsed)
+        b.carryInputUsed;
     endrule
 
     rule r3;
       if(b.isValid)
-        a.validWrite(b.rawRead);
+        a.carryWrite(b.carryRead);
     endrule
   endmodule
 endinstance
@@ -236,50 +236,52 @@ instance Sync_#(OutputPulse_);
 endinstance
 
 module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
-  Pulse              carryWire <- mkPulse;
-  Pulse             carry2Wire <- mkPulse;
-  Pulse      dataOutValidCarry <- mkPulse;
-  Wire#(Bool) dataOutDataCarry <- mkWire;
+  Pulse     connectedWriter <- mkPulse;
+  Pulse     connectedReader <- mkPulse;
 
-  Maybe#(Bool)    dataOutCarry  = dataOutValidCarry?
-                                    tagged Valid dataOutDataCarry:
-                                    tagged Invalid;
+  Pulse          validCarry <- mkPulse;
+  Wire#(Bool)     dataCarry <- mkWire;
 
-  Reg#(Maybe#(Bool))   dataReg <- mkReg(tagged Invalid);
-  Reg#(Bool)       suppliedReg <- mkReg(False);
+  Maybe#(Bool) dataOutCarry  = validCarry?
+                                 tagged Valid dataCarry:
+                                 tagged Invalid;
 
-  Pulse              dataValid <- mkPulse;
-  Pulse               dataWire <- mkPulse;
-  Pulse        specCycleDoneIn <- mkPulse;
-  Pulse           usedInDirect <- mkPulse;
-  Pulse            usedInCarry <- mkPulse;
+  Reg#(Maybe#(Bool))dataReg <- mkReg(tagged Invalid);
+  Reg#(Bool)    suppliedReg <- mkReg(False);
 
-  Bool                  usedIn  = carry2Wire?
-                                    usedInCarry:
-                                    usedInDirect;
+  Pulse           dataValid <- mkPulse;
+  Pulse            dataWire <- mkPulse;
 
-  Bool            canAcceptOut  = !suppliedReg && !isValid(dataReg);
+  Pulse          outputDone <- mkPulse;
 
-  Maybe#(Bool)          dataIn  = dataValid && canAcceptOut?
-                                    tagged Valid dataWire:
-                                    tagged Invalid;
+  Pulse     inputUsedDirect <- mkPulse;
+  Pulse     _inputUsedCarry <- mkPulse;
+  Bool            inputUsed  = connectedReader?
+                                 _inputUsedCarry:
+                                 inputUsedDirect;
 
-  Bool           isSuppliedOut  = suppliedReg || isValid(dataIn);
+  Bool           _canAccept  = !suppliedReg && !isValid(dataReg);
 
-  Maybe#(Bool)         dataOut  = carryWire?
-                                    dataOutCarry:
-                                    case (dataIn) matches
-                                      tagged Valid .* : dataIn;
-                                      default         : dataReg;
-                                    endcase;
+  Maybe#(Bool)       dataIn  = dataValid && _canAccept?
+                                 tagged Valid dataWire:
+                                 tagged Invalid;
 
-  rule r(!carryWire);
-    if(usedIn)
+  Bool          _isSupplied  = suppliedReg || isValid(dataIn);
+
+  Maybe#(Bool)      dataOut  = connectedWriter?
+                                 dataOutCarry:
+                                 case (dataIn) matches
+                                   tagged Valid .* : dataIn;
+                                   default         : dataReg;
+                                 endcase;
+
+  rule r(!connectedWriter);
+    if(inputUsed)
       dataReg <= tagged Invalid;
-    else if(dataIn matches tagged Valid .d)
-      dataReg <= tagged Valid d;
+    else if(dataIn matches tagged Valid .*)
+      dataReg <= dataIn;
 
-    if(specCycleDoneIn)
+    if(outputDone)
       suppliedReg <= False;
     else if(dataIn matches tagged Valid .*)
       suppliedReg <= True;
@@ -302,26 +304,26 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
           en.justFinish;
       endmethod
 
-      method canAccept = canAcceptOut;
+      method canAccept = _canAccept;
 
-      method isSupplied = isSuppliedOut;
+      method isSupplied = _isSupplied;
 
       method Action specCycleInputDone = noAction;
 
-      method Action specCycleOutputDone() if(carryWire || isSuppliedOut);
-        specCycleDoneIn.send;
+      method Action specCycleOutputDone if(connectedWriter || _isSupplied);
+        outputDone.send;
       endmethod
 
       method isAvailable = True;
 
-      method Action connected = carryWire.send;
+      method Action connected = connectedWriter.send;
 
-      method Action validWrite(Bool x);
-        dataOutValidCarry.send;
-        dataOutDataCarry <= x;
+      method Action carryWrite(Bool x);
+        validCarry.send;
+        dataCarry <= x;
       endmethod
 
-      method Bool used = usedIn;
+      method Bool carryInputUsed = inputUsed;
     endinterface,
 
     interface OutputPulse;
@@ -331,10 +333,8 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method isValid = isValid(dataOut);
 
-      method canFinish = isValid(dataOut);
-
-      method Action specCycleInputDone if(carry2Wire || isValid(dataOut));
-        usedInDirect.send;
+      method Action specCycleInputDone if(connectedReader || isValid(dataOut));
+        inputUsedDirect.send;
       endmethod
 
       method Action specCycleOutputDone = noAction;
@@ -343,10 +343,10 @@ module _OutputPulse#(Bool enValid, OutputPulse_ en, Bool g1, Bool g2)(Tuple2#(Ou
 
       method isAvailable = isValid(dataOut);
 
-      method Action connected = carry2Wire.send;
+      method Action connected = connectedReader.send;
 
-      method Action specCycleDoneCarry = usedInCarry.send;
+      method Action carryInputUsed = _inputUsedCarry.send;
 
-      method Bool rawRead = validValue(dataOut);
+      method Bool carryRead = validValue(dataOut);
     endinterface);
 endmodule
