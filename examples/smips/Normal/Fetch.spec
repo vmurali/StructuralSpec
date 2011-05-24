@@ -9,14 +9,14 @@ partition mkFetch implements Fetch;
 
   Pulse      fired <- mkPulse;
 
-  rule r1;
+  atomic r1;
     instReqQ.data := pc;
     pcQ.data := tuple2(pc + 4, epoch);
 
     fired.send;
-  endrule
+  endatomic
 
-  rule r2;
+  atomic r2;
     currEpoch := epoch;
 
     if(branchPc.en)
@@ -26,5 +26,5 @@ partition mkFetch implements Fetch;
     end
     else if(fired)
       pc <= pc + 4;
-  endrule
+  endatomic
 endpartition

@@ -10,11 +10,11 @@ partition mkWriteback implements Writeback;
 
   mkConnection(wb, wbQ.enq);
 
-  rule r1;
+  atomic r1;
     wbIndex.data := wbQ.deq.index;
-  endrule
+  endatomic
 
-  rule r2;
+  atomic r2;
     if(wbQ.deq.data matches tagged Valid .d)
     begin
       regWrite.data := tuple2(wbQ.deq.index, d);
@@ -26,5 +26,5 @@ partition mkWriteback implements Writeback;
       wbQ.deq.deq;
       dataQ.deq;
     end
-  endrule
+  endatomic
 endpartition

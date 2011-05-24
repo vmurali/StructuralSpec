@@ -8,13 +8,13 @@ include Fifo;
 partition mkMemory implements Memory;
   RegFile#(2, 1, 20, Data) regs <- mkRegFileLoad("memory.vmh", False);
 
-  rule r1;
+  atomic r1;
     regs.read[0].req := truncate(instReqQ.first>>2);
     instReqQ.deq;
     instQ.data := regs.read[0].resp;
-  endrule
+  endatomic
 
-  rule r2;
+  atomic r2;
     dataReqQ.deq;
     case (dataReqQ.first) matches
       tagged Store {.addr, .data}:
@@ -25,5 +25,5 @@ partition mkMemory implements Memory;
           dataQ.data := regs.read[1].resp;
         end
     endcase
-  endrule
+  endatomic
 endpartition

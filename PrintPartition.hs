@@ -17,12 +17,13 @@ nonWordNonDot = "([^A-Za-z0-9_\\.]|^)"
 prefixPartition body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWord)) body ("\\1(tpl_1(asIfc(mod_)))." ++ field ++ "\\2")
  where
 
-modifyBody body portName filePorts = (replaceConnection . replaceDone . replaceArrow) $ foldl prefixPartition body (map (\x -> fieldName x) $ getFields portName filePorts)
+modifyBody body portName filePorts = (replaceAtomic . replaceEndAtomic . replaceConnection . replaceDone . replaceArrow) $ foldl prefixPartition body (map (\x -> fieldName x) $ getFields portName filePorts)
  where
   replaceArrow str = subRegex (mkRegexWithOpts "[ \n\t]*:=([^;]*);" False True) str "._write(\\1);"
   replaceDone str = subRegex (mkRegex (nonWordNonDot ++ "specCycleDone[ \n\t]*;[ \t]*\n" ++ nonWord)) str ("\\1(tpl_1(asIfc(mod_))).specCycleInputDone;\n    (tpl_1(asIfc(mod_))).specCycleOutputDone;\n" ++ instancesDone body)
+  replaceAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])atomic([ \t\n])") False True) str "\\1rule\\2"
+  replaceEndAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])endatomic([ \t\n])") False True) str "\\1endrule\\2"
   replaceConnection str = subRegex (mkRegexWithOpts "mkConnection[ \n\t]*\\(([^,]*),([^)]*)\\)" False True) str "mkConnection(asIfc(\\1), asIfc(\\2))"
-  --replaceConnection str = subRegex (mkRegexWithOpts "mkConnection[ \n\t]*\\(([^,]*),([^;]*)\\)[ \n\t]*;" False True) str "mkConnection(asIfc(\\1), asIfc(\\2));"
 
 instancesDone body = concatMap showDone instanceLines
  where

@@ -12,12 +12,12 @@ partition mkExecute implements Execute;
   let reg2 = inst[20:16];
   match {.pcPlus4, .epoch} = pcQ.first;
 
-  rule r1;
+  atomic r1;
     regRead[0].req := reg1;
     regRead[1].req := reg2;
-  endrule
+  endatomic
 
-  rule r2;
+  atomic r2;
     if(epoch != currEpoch)
     begin
       pcQ.deq;
@@ -58,5 +58,5 @@ partition mkExecute implements Execute;
         end
       end
     end
-  endrule
+  endatomic
 endpartition

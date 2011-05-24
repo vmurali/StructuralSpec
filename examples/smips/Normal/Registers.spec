@@ -7,7 +7,7 @@ include RegistersPort;
 partition mkRegisters implements Registers;
   RegFile#(2, 1, RegIndexSz, Data) regs <- mkRegFile(0);
 
-  rule r1;
+  atomic r1;
     for(Integer i = 0; i < 2; i = i + 1)
     begin
       regs.read[i].req := read[i].req;
@@ -21,5 +21,5 @@ partition mkRegisters implements Registers;
 
     if(write.en && tpl_1(write.data) != 0)
       regs.write[0].data := write.data;
-  endrule
+  endatomic
 endpartition
