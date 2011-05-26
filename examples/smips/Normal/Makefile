@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-ROOT = /home/vmurali/StructuralSpec
+ROOT = $(HOME)/StructuralSpec
 
 all:
 	mkdir -p bsv

@@ -1,5 +1,11 @@
 include Library;
 
+port FifoEnq#(type t);
+  Input#(Bool) rdy;
+  OutputPulse en Guard(rdy);
+  Output#(t) data En(en) Guard(rdy);
+endport
+
 port FifoDeq#(type t);
   Input#(Bool) rdy;
   Default Input#(t) first Guard(rdy);

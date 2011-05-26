@@ -3,6 +3,11 @@ port OutputEn#(type t);
   Default Output#(t) data En(en);
 endport
 
+port ConditionalOutput#(type t);
+  OutputPulse en;
+  Default Output#(t) data En(en);
+endport
+
 port GuardedAction#(type t);
   OutputPulse en;
   Input#(Bool) rdy;

@@ -155,6 +155,7 @@ printPort (Port name args oldFields) =
   "endinstance\n\n" ++
   extrasInstances name args
  where
-  fields = map removeInput oldFields
+  fields = map (removeConditionalInput . removeInput) oldFields
    where
     removeInput field = if fieldType field == "Input" then field{fieldType = "Output", fieldReverse = not $ fieldReverse field} else field
+    removeConditionalInput field = if fieldType field == "ConditionalInput" then field{fieldType = "ConditionalOutput", fieldReverse = not $ fieldReverse field} else field
