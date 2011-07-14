@@ -17,13 +17,39 @@ endport
 
 (* synthesize *)
 partition mkProcessor implements Processor;
+  Core core <- mkCore;
+  Rest rest <- mkRest;
+
+  mkConnection(core.cop, rest.cop);
+  mkConnection(core.mem, rest.mem);
+endpartition
+
+port Rest;
+  Cop cop;
+  Memory mem;
+endport
+
+(* synthesize *)
+partition mkRest implements Rest;
+  Memory memLocal <- mkMemory;
+  Cop    copLocal <- mkCop;
+
+  mkConnection(cop, copLocal);
+  mkConnection(mem, memLocal);
+endpartition
+
+port Core;
+  Reverse Cop cop;
+  Reverse Memory mem;
+endport
+
+(* synthesize *)
+partition mkCore implements Core;
   Fetch                        fetch <- mkFetch;
   Execute                    execute <- mkExecute;
   Writeback                       wb <- mkWriteback;
 
-  Cop                            cop <- mkCop;
   Registers                     regs <- mkRegisters;
-  Memory                         mem <- mkMemory;
 
   Fifo#(1, Tuple2#(VAddr, Bool)) pcQ <- mkLFifo;
 

@@ -1,6 +1,6 @@
 .PHONY: all clean
 
-ROOT = $(HOME)/StructuralSpec
+ROOT = $(HOME)/crap/StructuralSpec
 
 all:
 	mkdir -p bsv
