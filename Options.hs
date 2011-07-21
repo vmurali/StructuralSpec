@@ -10,12 +10,14 @@ data Options = Options
   { optIncludes :: [String]
   , optOutDir   :: String
   , optFile     :: String
+  , optForce    :: Bool
   }
 
 defaultOptions = Options
   { optIncludes = ["."]
   , optOutDir = "."
   , optFile = ""
+  , optForce = False
   }
 
 splitColon str = splitRegex (mkRegex ":") str
@@ -28,6 +30,9 @@ options =
   , Option ['o'] ["outdir"]
       (ReqArg (\out opts -> createDirectoryIfMissing True out >> return opts{optOutDir = out}) "")
       "Output directory"
+  , Option ['f'] ["force"]
+      (NoArg (\opts -> return opts {optForce = True}))
+      "Force recompile"
   , Option ['h'] ["help"]
       (NoArg (\_ -> do{prg <- getProgName; hPutStrLn stderr (usageInfo prg options); exitWith ExitSuccess}))
       "Show help"

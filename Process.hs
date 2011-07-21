@@ -1,11 +1,12 @@
 module Process(process) where
 
-import Text.ParserCombinators.Parsec.Prim
+import Text.ParserCombinators.Parsec
 import System.Directory
 import System.IO
 import System.Exit
 import Data.List
 import Data.Maybe
+import Control.Monad
 
 import Lexer
 import Preprocess
@@ -25,8 +26,8 @@ getFilePath file foundPathIO newPath = do
         then (return . Just) newF
         else return Nothing
 
-process options seenPortsIO file = do
-  seenPorts <- seenPortsIO
+process options seenPortsAliasesIO file = do
+  seenPortsAliases <- seenPortsAliasesIO
   filePath <- foldl (getFilePath file) (return Nothing) $ optIncludes options
   case filePath of
     Nothing -> do
@@ -39,11 +40,17 @@ process options seenPortsIO file = do
           print err
           exitFailure
         Right elements -> do
-          let imports = [x | Include x <- elements, isNothing (find (\(file, _) -> x == file) seenPorts)]
+          let imports = [x | Include x <- elements, isNothing (find (\(file, _) -> x == file) seenPortsAliases)]
           let ports = [x | x@(Port {}) <- elements]
-          newPorts <- foldl (process options) (return $ (file, ports):seenPorts) imports
-          let fullPortsList = (file, ports):newPorts
-          writeFile (outPath ++ ".bsv") $ printFile fullPortsList elements
-          return fullPortsList
-  where
-    outPath = optOutDir options ++ "/" ++ file
+          newPortsAliases <- foldl (process options) (return $ (file, ports):seenPortsAliases) imports
+          let fullPortsAliasesList = (file, ports):newPortsAliases
+          let bsvName = optOutDir options ++ "/" ++ file ++ ".bsv"
+          let writeBsv = writeFile bsvName $ printFile fullPortsAliasesList elements
+          bsvExists <- doesFileExist bsvName
+          if bsvExists
+            then do
+              specModTime <- getModificationTime name
+              bsvModTime <- getModificationTime bsvName
+              when (specModTime >= bsvModTime || optForce options) writeBsv
+            else writeBsv
+          return fullPortsAliasesList

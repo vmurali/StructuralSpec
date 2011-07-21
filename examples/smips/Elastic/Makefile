@@ -1,16 +1,17 @@
-.PHONY: all clean
-
-ROOT = $(HOME)/crap/StructuralSpec
-
-all:
+%.:
 	mkdir -p bsv
 	mkdir -p bsv/bdir
-	cd bsv; cp -f ../Primitive.bsv .; cd ..
-	cd bsv; cp -f $(ROOT)/lib/*.v .; cd ..
-	$(ROOT)/StructuralSpec -o bsv -i $(ROOT)/lib:.. Processor.spec
-	cd bsv; bsc -u -verilog -bdir bdir -keep-fires -p +:$(ROOT)/lib:../.. -aggressive-conditions -Werror -g mkProcessor Processor.bsv +RTS -K1000m; cd ..
-	cd bsv; bsc -u -verilog -bdir bdir -keep-fires -p +:$(ROOT)/lib:../.. -aggressive-conditions -e mkProcessor *.v; cd ..
-	mv bsv/a.out .
+	ln -f -t bsv Primitive.bsv
+	ln -f -t bsv ${STRUCTURALSPEC_HOME}/lib/*.v
+	StructuralSpec -o bsv -i ${STRUCTURALSPEC_HOME}/lib:.. $*.spec
+	cd bsv && bsc -u -verilog -bdir bdir -p +:${STRUCTURALSPEC_HOME}/lib -aggressive-conditions -Werror -v95 -steps-warn-interval 100000000 $*.bsv +RTS -K1000m
+
+%: %.
+	cd bsv && bsc -u -verilog -bdir bdir -p +:${STRUCTURALSPEC_HOME}/lib -aggressive-conditions -Werror -v95 -e mk$* *.v
 
 clean:
 	rm -rf bsv a.out
+
+.PHONY: clean
+
+.DEFAULT_GOAL := Processor

@@ -6,7 +6,7 @@ include Fifo;
 
 (* synthesize *)
 partition mkMemory implements Memory;
-  RegFile#(2, 1, 20, Data) regs <- mkRegFileLoad("memory.vmh", False);
+  RegFile#(2, 1, 20, Data) regs <- mkRegFileLoad("../memory.vmh", False);
 
   rule r1;
     if(instReqQ.rdy && instQ.rdy)
