@@ -25,13 +25,9 @@ defn = P.LanguageDef {
                       , "endport"
                       , "partition"
                       , "endpartition"
-                      , "implements"
-                      , "En"
-                      , "EnRev"
                       , "Guard"
                       , "GuardRev"
                       , "Reverse"
-                      , "Default"
                       ],
 
   P.caseSensitive   = True
@@ -46,6 +42,7 @@ identifier = P.identifier lexer
 lexeme     = P.lexeme lexer
 reserved   = P.reserved lexer    
 reservedOp = P.reservedOp lexer
+parens     = P.parens lexer
 
 parensBalanced = do
   char '('
@@ -58,7 +55,7 @@ parensBalanced = do
 
 parensBalancedPrefixed prefix p =
   (do
-     try p
+     try $ lexeme p
      xs <- lexeme parensBalanced
      return $ prefix ++ xs
   ) <|> return ""
@@ -74,3 +71,5 @@ manyTill1 p e = do
     _  -> return xs
 
 betweenParens p = between (lexeme $ char '(') (lexeme $ char ')') p
+
+parseProvisos = parensBalancedPrefixed "provisos" $ reserved "provisos"

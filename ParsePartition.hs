@@ -1,8 +1,6 @@
 module ParsePartition(parsePartition) where
 
-import Text.ParserCombinators.Parsec.Char
-import Text.ParserCombinators.Parsec.Combinator
-import Text.ParserCombinators.Parsec.Prim
+import Text.ParserCombinators.Parsec
 
 import DataTypes
 import Lexer
@@ -14,12 +12,11 @@ parsePartition = do
 
 parseHeader = do
   try $ reserved "partition"
-  name <- identifier
-  args <- parseParams
-  reserved "implements"
   implementName <- identifier
   implementArgs <- parseParams
-  provisos <- parensBalancedPrefixed "provisos" $ reserved "provisos"
+  name <- identifier
+  args <- parseParams
+  provisos <- parseProvisos
   char ';'
   return Partition
          { partitionName = name

@@ -1,8 +1,12 @@
 module PrintPort(printPort) where
 
 import Data.List
+import Data.Maybe
 
 import DataTypes
+import SearchPort
+
+import System.IO
 
 -----------------------------------------------------------------------
 
@@ -40,122 +44,83 @@ repVectors field = showIndices ++ fieldType field ++ ubarForNormal field ++ (if 
  where
   showIndices = concatMap (\x -> "Vector#(" ++ x ++ ", ") $ fieldIndices field
 
-showField field =
-  "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n" ++
-  if fieldDefault field
-    then
-      if not $ fieldReverse field
-        then "  method Action _write(" ++ fieldArgs field ++ " x);\n"
-        else "  method " ++ fieldArgs field ++ " _read();\n"
-    else ""
+showField field = "  interface " ++ repVectors field ++ " " ++ fieldName field ++ ";\n"
 
 showRevField field = showField field {fieldReverse = not $ fieldReverse field}
 -----------------------------------------------------------------------------------
 
-showFieldInst field = "  " ++ typeTuple ++ fieldName field ++ ubarForRev field ++ "_ <- " ++ concatRepLen "replicateTupleM(" ++ "_" ++ fieldType field ++ params ++ (repLen field) ')' ++ ";\n" ++
-                      if rev then "  " ++ typeTupleRev ++ fieldName field ++ "_ = tuple2(tpl_2(asIfc(" ++ fieldName field ++ "__)), tpl_1(asIfc(" ++ fieldName field ++ "__)));\n" else ""
+showFieldInst fileName p filePortsAliases field = do
+  fieldPortName <- if (fieldType field == "Output" || fieldType field == "OutputPulse" || fieldType field == "ConditionalOutput" ||
+                       fieldType field == "OutputNormal" || fieldType field == "OutputPulseNormal" || fieldType field == "ConditionalOutputNormal")
+                      then return $ fieldType field
+                      else case (searchPort (fieldType field) filePortsAliases) of
+                             Just x  -> return $ portName x
+                             Nothing -> do
+                               hPutStrLn stderr $ "Can not find Field " ++ fieldType field ++ " of Port " ++ p ++ " in File " ++ fileName ++ ".spec"
+                               return undefined
+  let params = if (fieldPortName == "Output" || fieldPortName == "OutputPulse" || fieldPortName == "ConditionalOutput" ||
+                   fieldPortName == "OutputNormal" || fieldPortName == "OutputPulseNormal" || fieldPortName == "ConditionalOutputNormal")
+                 then "(" ++
+                   (if fieldReverse field
+                      then g2 ++ ", " ++ g1
+                      else g1 ++ ", " ++ g2)
+                   ++ ")"
+                 else ""
+  return $
+    "  " ++ typeTuple ++ fieldName field ++ ubarForRev field ++ "_ <- " ++ concatRepLen "replicateTupleM(" ++ "_" ++ fieldPortName ++ params ++ (repLen field) ')' ++ ";\n" ++
+    if fieldReverse field then "  " ++ typeTupleRev ++ fieldName field ++ "_ = tuple2(tpl_2(asIfc(" ++ fieldName field ++ "__)), tpl_1(asIfc(" ++ fieldName field ++ "__)));\n" else ""
  where
   concatRepLen = concat . (repLen field)
   typeTupleNormal   = "Tuple2#(" ++ repVectors field ++ ", " ++ repVectors field{fieldReverse = not $ fieldReverse field} ++ ") "
   typeTupleReversed = "Tuple2#(" ++ repVectors field{fieldReverse = not $ fieldReverse field} ++ ", " ++ repVectors field ++ ") "
-  typeTuple = if rev then typeTupleReversed else typeTupleNormal
-  typeTupleRev = if rev then typeTupleNormal else typeTupleReversed
-  rev = fieldReverse field
-  enStr = if fieldEn field /= []
-            then "True, tpl_1(asIfc(" ++ fieldEn field ++ "_))"
-            else
-              if fieldEnRev field /= []
-                then "True, tpl_2(asIfc(" ++ fieldEnRev field ++ "_))"
-                else "False, ?"
-  g1 = if fieldGuard field /= []
+  typeTuple = if fieldReverse field then typeTupleReversed else typeTupleNormal
+  typeTupleRev = if fieldReverse field then typeTupleNormal else typeTupleReversed
+  g1 = if fieldGuard field /= ""
          then "(tpl_1(asIfc(" ++ fieldGuard field ++ "_)))._read"
          else "True"
-  g2 = if fieldGuardRev field /= []
+  g2 = if fieldGuardRev field /= ""
          then "(tpl_2(asIfc(" ++ fieldGuardRev field ++ "_)))._read"
          else "True"
-  params = if (fieldType field == "Output" || fieldType field == "OutputPulse")
-             then "(" ++ enStr ++ ", " ++
-               (if rev
-                  then g2 ++ ", " ++ g1
-                  else g1 ++ ", " ++ g2)
-               ++ ")"
-             else ""
-  
 ----------------------------------------------------------------------------------
-
-showConn num field =
-  "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(asIfc(" ++ fieldName field ++ "_));\n" ++
-  if fieldDefault field
-    then
-      if (fieldReverse field) /= (num == "1")
-        then assign "_write"
-        else assign "_read"
-    else ""
- where
-  assign str = "      method " ++ str ++ " = (tpl_" ++ num ++ "(asIfc(" ++ fieldName field ++ "_)))." ++ str ++ ";\n"
-
+showConn num field = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(asIfc(" ++ fieldName field ++ "_));\n"
+---------------------------------------------------------------------------------
+mkConnection field = "    mkConnection(asIfc(a." ++ fieldName field ++ "), asIfc(b." ++ fieldName field ++ "));\n"
 ----------------------------------------------------------------------------------
-extrasField = "  method Action specCycleInputDone();\n  method Action specCycleOutputDone();\n  method Bool isSupplied();\n  method Bool isAvailable();\n"
-
-extrasMethods num fields = 
-  "      method Action specCycleInputDone();\n" ++
-           concatMap (\x -> "        _specCycleInputDone(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)));\n") (map fieldName fields) ++
-  "      endmethod\n" ++
-  "      method Action specCycleOutputDone();\n" ++
-           concatMap (\x -> "        _specCycleOutputDone(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)));\n") (map fieldName fields) ++
-  "      endmethod\n" ++
-  "      method Bool isSupplied = True " ++ (concatMap ((\x -> " && _isSupplied(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n" ++
-  "      method Bool isAvailable = True " ++ (concatMap ((\x -> " && _isAvailable(tpl_" ++ num ++ "(asIfc(" ++ x ++ "_)))") . fieldName) fields) ++ ";\n"
-
-extrasInstances name args =
-  "instance Sync_#(" ++ name ++ printJustArgs args ++ ");\n" ++
-  "  function Action _specCycleInputDone(" ++ name ++ printJustArgs args ++ " x) = x.specCycleInputDone;\n" ++
-  "  function Action _specCycleOutputDone(" ++ name ++ printJustArgs args ++ " x) = x.specCycleOutputDone;\n" ++
-  "  function Bool _isSupplied(" ++ name ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
-  "  function Bool _isAvailable(" ++ name ++ printJustArgs args ++ " x) = x.isAvailable;\n" ++
-  "endinstance\n\n" ++
-  "instance Sync_#(" ++ name ++ "_" ++ printJustArgs args ++ ");\n" ++
-  "  function Action _specCycleInputDone(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.specCycleInputDone;\n" ++
-  "  function Action _specCycleOutputDone(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.specCycleOutputDone;\n" ++
-  "  function Bool _isSupplied(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.isSupplied;\n" ++
-  "  function Bool _isAvailable(" ++ name ++ "_" ++ printJustArgs args ++ " x) = x.isAvailable;\n" ++
-  "endinstance\n\n"
-------------------------------------------------------------------------------------------------------
-printPort (Port name args oldFields) =
-  "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
-     concatMap showField fields ++
-     extrasField ++
-  "endinterface\n\n" ++
-  "interface " ++ name ++ printKindArgs args ++ ";\n" ++
-     concatMap showRevField fields ++
-     extrasField ++
-  "endinterface\n\n" ++
-  (if null args then "(* synthesize *)\n" else "") ++
-  "module _" ++ name ++ "(Tuple2#(" ++ name ++ "_" ++ printJustArgs args ++ ", " ++ name ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
-     concatMap showFieldInst fields ++
-  "  return tuple2(\n" ++
-  "    interface " ++ name ++ "_;\n" ++
-         concatMap (showConn "1") fields ++
-         extrasMethods "1" fields ++
-  "    endinterface,\n" ++
-  "    interface " ++ name ++ ";\n" ++
-         concatMap (showConn "2") fields ++
-         extrasMethods "2" fields ++
-  "    endinterface);\n" ++
-  "endmodule\n\n" ++
-  "instance Connectable#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ") " ++ printProvisosArgs args ++ ";\n" ++
-  "  module mkConnection#(" ++ name ++ printJustArgs args ++ " a, " ++ name ++ "_" ++ printJustArgs args ++ " b)();\n" ++
-       concatMap (\x -> "    mkConnection(asIfc(a." ++ x ++ "), asIfc(b." ++ x ++ "));\n") (map fieldName fields) ++
-  "  endmodule\n" ++
-  "endinstance\n\n" ++
-  "instance Connectable#(" ++ name ++ "_" ++ printJustArgs args ++ ", " ++ name ++ printJustArgs args ++ ") " ++ printProvisosArgs args ++ ";\n" ++
-  "  module mkConnection#(" ++ name ++ "_" ++ printJustArgs args ++ " a, " ++ name ++ printJustArgs args ++ " b)();\n" ++
-       concatMap (\x -> "    mkConnection(asIfc(a." ++ x ++ "), asIfc(b." ++ x ++ "));\n") (map fieldName fields) ++
-  "  endmodule\n" ++
-  "endinstance\n\n" ++
-  extrasInstances name args
- where
-  fields = map (removeConditionalInput . removeInput) oldFields
-   where
-    removeInput field = if fieldType field == "Input" then field{fieldType = "Output", fieldReverse = not $ fieldReverse field} else field
-    removeConditionalInput field = if fieldType field == "ConditionalInput" then field{fieldType = "ConditionalOutput", fieldReverse = not $ fieldReverse field} else field
+printPort file filePortsAliases (Port name args oldFields) = do
+  fieldInsts <- foldl (\m1 field -> do{x <- m1; y <- showFieldInst file name filePortsAliases field; return $ x ++ y}) (return []) fields
+  return $
+   "interface " ++ name ++ "_" ++ printKindArgs args ++ ";\n" ++
+      concatMap showField fields ++
+   "endinterface\n\n" ++
+   "interface " ++ name ++ printKindArgs args ++ ";\n" ++
+      concatMap showRevField fields ++
+   "endinterface\n\n" ++
+   "module _" ++ name ++ "(Tuple2#(" ++ name ++ "_" ++ printJustArgs args ++ ", " ++ name ++ printJustArgs args ++ ")) " ++ printProvisosArgs args ++ ";\n" ++
+      fieldInsts ++
+   "  return tuple2(\n" ++
+   "    interface " ++ name ++ "_;\n" ++
+          concatMap (showConn "1") fields ++
+   "    endinterface,\n" ++
+   "    interface " ++ name ++ ";\n" ++
+          concatMap (showConn "2") fields ++
+   "    endinterface);\n" ++
+   "endmodule\n\n" ++
+       "instance Connectable#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ") " ++ printProvisosArgs args ++ ";\n" ++
+       "  module mkConnection#(" ++ name ++ printJustArgs args ++ " a, " ++ name ++ "_" ++ printJustArgs args ++ " b)();\n" ++
+            concatMap mkConnection fields ++
+       "  endmodule\n" ++
+       "endinstance\n\n" ++
+       "instance Connectable#(" ++ name ++ "_" ++ printJustArgs args ++ ", " ++ name ++ printJustArgs args ++ ") " ++ printProvisosArgs args ++ ";\n" ++
+       "  module mkConnection#(" ++ name ++ "_" ++ printJustArgs args ++ " a, " ++ name ++ printJustArgs args ++ " b)();\n" ++
+       "    mkConnection(asIfc(b), asIfc(a));\n" ++
+       "  endmodule\n" ++
+       "endinstance\n\n"
+  where
+   fields = map (removeConditionalInputNormal . removeInputPulseNormal . removeInputNormal . removeConditionalInput . removeInputPulse . removeInput) oldFields
+    where
+     removeInput field = if fieldType field == "Input" then field{fieldType = "Output", fieldReverse = not $ fieldReverse field} else field
+     removeInputPulse field = if fieldType field == "InputPulse" then field{fieldType = "OutputPulse", fieldReverse = not $ fieldReverse field} else field
+     removeConditionalInput field = if fieldType field == "ConditionalInput" then field{fieldType = "ConditionalOutput", fieldReverse = not $ fieldReverse field} else field
+     removeInputNormal field = if fieldType field == "InputNormal" then field{fieldType = "OutputNormal", fieldReverse = not $ fieldReverse field} else field
+     removeInputPulseNormal field = if fieldType field == "InputPulseNormal" then field{fieldType = "OutputPulseNormal", fieldReverse = not $ fieldReverse field} else field
+     removeConditionalInputNormal field = if fieldType field == "ConditionalInputNormal" then field{fieldType = "ConditionalOutputNormal", fieldReverse = not $ fieldReverse field} else field

@@ -1,6 +1,6 @@
 module ParseInclude(parseInclude) where
 
-import Text.ParserCombinators.Parsec.Prim
+import Text.ParserCombinators.Parsec
 
 import Lexer
 import DataTypes

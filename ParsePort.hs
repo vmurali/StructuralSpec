@@ -1,8 +1,6 @@
 module ParsePort(parsePort) where
 
-import Text.ParserCombinators.Parsec.Prim
-import Text.ParserCombinators.Parsec.Combinator
-import Text.ParserCombinators.Parsec.Char
+import Text.ParserCombinators.Parsec
 
 import DataTypes
 import Lexer
@@ -13,7 +11,7 @@ parsePort = do
   args <-
     (do
        (try . lexeme) $ char '#'
-       betweenParens $ sepBy1 parseArg comma
+       parens $ sepBy1 parseArg comma
     ) <|> (return [])
   semi
   fields <- many parseField
@@ -38,26 +36,20 @@ parseArg =
    )
 
 parseField = do
-  deflt <- optional "Default"
   reverse <- optional "Reverse"
   fieldT <- identifier
   args <- parensBalancedPrefixed "" $ char '#'
   indices <- parseIndices
   name <- identifier
-  en <- parseAttribute "En"
-  enRev <- parseAttribute "EnRev"
   guard <- parseAttribute "Guard"
   guardRev <- parseAttribute "GuardRev"
   semi
   return Field
-    { fieldDefault = deflt
-    , fieldReverse = reverse
+    { fieldReverse = reverse
     , fieldType = fieldT
     , fieldArgs = args
     , fieldIndices = indices
     , fieldName = name
-    , fieldEn = en
-    , fieldEnRev = enRev
     , fieldGuard = guard
     , fieldGuardRev = guardRev
     }
@@ -71,5 +63,5 @@ parseField = do
 parseAttribute str =
   ( do 
       try $ reserved str
-      betweenParens identifier
+      parens identifier
   ) <|> return []

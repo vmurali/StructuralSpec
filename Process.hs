@@ -40,12 +40,13 @@ process options seenPortsAliasesIO file = do
           print err
           exitFailure
         Right elements -> do
-          let imports = [x | Include x <- elements, isNothing (find (\(file, _) -> x == file) seenPortsAliases)]
+          let imports = [x | Include x <- elements, isNothing (find (\(file, _, _) -> x == file) seenPortsAliases)]
           let ports = [x | x@(Port {}) <- elements]
-          newPortsAliases <- foldl (process options) (return $ (file, ports):seenPortsAliases) imports
-          let fullPortsAliasesList = (file, ports):newPortsAliases
+          let aliases = [x | x@(Alias {}) <- elements]
+          fullPortsAliasesList <- foldl (process options) (return $ (file, ports, aliases):seenPortsAliases) imports
           let bsvName = optOutDir options ++ "/" ++ file ++ ".bsv"
-          let writeBsv = writeFile bsvName $ printFile fullPortsAliasesList elements
+          output <- printFile file fullPortsAliasesList elements
+          let writeBsv = writeFile bsvName output
           bsvExists <- doesFileExist bsvName
           if bsvExists
             then do

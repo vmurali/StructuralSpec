@@ -1,77 +1,72 @@
 include Library;
 
-import RegFileLoadVerilog::*;
+import RegFileVerilog::*;
 
-port RegRead#(numeric type n, type t);
-  Output#(Bit#(n)) req;
+port RegFileRead#(numeric type size, type t);
+  ConditionalOutput#(Index#(size)) req;
   Input#(t) resp;
 endport
 
-port RegWrite#(numeric type n, type t);
-  Default OutputEn#(Tuple2#(Bit#(n), t)) write;
+typedef struct {
+  Index#(size) index;
+  t data;
+} RegFileWrite#(numeric type size, type t) deriving (Bits, Eq);
+
+port RegFile#(numeric type reads, numeric type writes, numeric type size, type t);
+  Reverse RegFileRead#(size, t)[reads] read;
+  Reverse ConditionalOutput#(RegFileWrite#(size, t))[writes] write;
 endport
 
-port RegFile#(numeric type reads, numeric type writes, numeric type n, type t);
-  Reverse RegRead#(n, t)[reads] read;
-  Reverse OutputEn#(Tuple2#(Bit#(n), t))[writes] write;
-endport
+partition RegFile#(reads, writes, size, t) mkRegFileFunc#(function t init(Integer i)) provisos(Bits#(t, tSz));
+  Reg#(Vector#(size, t)) regFileReg <- mkReg(genWith(init));
 
-partition mkRegFileLoad#(String file, Bool binary) implements RegFile#(reads, writes, n, t) provisos(Bits#(t, tSz));
-  RegFileLoadVerilog_#(reads, writes, n, t) regFile <- mkRegFileLoadVerilog_(file, binary);
-
-  Wire#(Vector#(reads, t)) resp <- mkWire;
-
-  rule r0;
-    Vector#(reads, Bit#(n)) req = newVector;
+  atomic a;
+    Vector#(size, t) regFile = regFileReg;
     for(Integer i = 0; i < valueOf(reads); i = i + 1)
-      req[i] = read[i].req;
-    resp <= regFile.read(req);
-  endrule
-
-  for(Integer i = 0; i < valueOf(reads); i = i + 1)
-  begin
-    rule r1;
-      read[i].resp := resp[i];
-    endrule
-  end
-
-  Vector#(writes, Bool) enables = newVector;
-  Vector#(writes, Bit#(n)) index = newVector;
-  Vector#(writes, t) data = newVector;
-  for(Integer i = 0; i < valueOf(writes); i = i + 1)
-  begin
-    enables[i] = write[i].en;
-    index[i] = tpl_1(write[i].data);
-    data[i] = tpl_2(write[i].data);
-  end
-
-  rule r2;
-    regFile.write(enables, index, data);
-  endrule
-
-  rule r3;
-    specCycleDone;
-  endrule
-endpartition
-
-partition mkRegFile#(t init) implements RegFile#(reads, writes, n, t) provisos(Bits#(t, tSz));
-  Reg#(Vector#(TExp#(n), t)) regs <- mkReg(replicate(init));
-
-  for(Integer i = 0; i < valueOf(reads); i = i + 1)
-  begin
-    rule r1;
-      read[i].resp := regs[read[i].req];
-    endrule
-  end
-
-  rule r2;
-    Vector#(TExp#(n), t) tempRegs = regs;
+      read[i].resp := regFile[read[i].req];
     for(Integer i = 0; i < valueOf(writes); i = i + 1)
-      tempRegs[tpl_1(write[i])] = tpl_2(write[i]);
-    regs <= tempRegs;
-  endrule
-
-  rule r3;
-    specCycleDone;
-  endrule
+      if(write[i].en)
+        regFile[write[i].index] = write[i].data;
+    regFileReg <= regFile;
+  endatomic
 endpartition
+
+partinst RegFile#(reads, writes, size, t) mkRegFile#(t init) provisos(Bits#(t, tSz)) = mkRegFileFunc(constFn(init));
+
+partition RegFile#(reads, writes, size, t) mkMultiplePorts#(function _m__#(RegFile#(1, 1, size, t)) mkSingle()) provisos(Bits#(t, tSz));
+  Vector#(writes, Vector#(reads, RegFile#(1, 1, size, t))) rf <- replicateM(replicateM(mkSingle));
+  Reg#(Vector#(size, Index#(writes))) whichReg <- mkReg(replicate(0));
+
+  atomic a;
+    Vector#(size, Index#(writes)) which = whichReg;
+    for(Integer i = 0; i < valueOf(reads); i = i + 1)
+    begin
+      rf[valueOf(writes) > 1? which[read[i].req] : 0][i].read[0].req := read[i].req;
+      read[i].resp := rf[valueOf(writes) > 1? which[read[i].req] : 0][i].read[0].resp;
+    end
+    for(Integer i = 0; i < valueOf(writes); i = i + 1)
+      if(write[i].en)
+      begin
+        which[write[i].index] = fromInteger(i);
+        for(Integer j = 0; j < valueOf(reads); j = j + 1)
+          rf[i][j].write[0] := write[i];
+      end
+    whichReg <= which;
+  endatomic
+endpartition
+
+partition RegFile#(1, 1, size, t) mkRegFileLoadSingle#(Integer mode, String file) provisos(Bits#(t, tSz));
+  RegFileVerilog_#(size, t) rf <- mkRegFileVerilogLoad(mode, file);
+
+  atomic a;
+    read[0].resp := rf.read(read[0].req);
+    if(write[0].en)
+      rf.write(write[0].index, write[0].data);
+  endatomic
+endpartition
+
+partinst RegFile#(reads, writes, size, t) mkRegFileU provisos(Bits#(t, tSz)) = mkMultiplePorts(mkRegFileLoadSingle(0, ""));
+
+partinst RegFile#(reads, writes, size, t) mkRegFileBinary#(String file) provisos(Bits#(t, tSz)) = mkMultiplePorts(mkRegFileLoadSingle(1, file));
+
+partinst RegFile#(reads, writes, size, t) mkRegFileVmh#(String file) provisos(Bits#(t, tSz)) = mkMultiplePorts(mkRegFileLoadSingle(2, file));

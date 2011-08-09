@@ -3,6 +3,5 @@ StructuralSpec
 lib/*.bi
 lib/*.bo
 lib/a.out
-Library.bsv
-examples/smips/Normal/bsv
-examples/smips/Elastic/bsv
+examples/smips/bsv
+examples/testingMulti/bsv

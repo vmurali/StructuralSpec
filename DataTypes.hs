@@ -1,14 +1,11 @@
 module DataTypes where
 
 data Field = Field
-  { fieldDefault::Bool
-  , fieldReverse::Bool
+  { fieldReverse::Bool
   , fieldType::String
   , fieldArgs::String
   , fieldIndices::[String]
   , fieldName::String
-  , fieldEn::String
-  , fieldEnRev::String
   , fieldGuard::String
   , fieldGuardRev::String
   }
@@ -27,6 +24,20 @@ data Element = Port
     , implementArgs::String
     , partitionProvisos::String
     , partitionBody::String
+    }
+  | Instance
+    { instanceName::String
+    , instanceArgs::String
+    , instanceImplName::String
+    , instanceImplArgs::String
+    , instanceProvisos::String
+    , instanceExpr::String
+    }
+  | Alias
+    { aliasName::String
+    , aliasParams::String
+    , aliasPort::String
+    , aliasPortParams::String
     }
   | Include String
   | Generic String

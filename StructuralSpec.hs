@@ -5,7 +5,7 @@ import Options
 import Process
 
 removeSpec str = subRegex (mkRegex "\\.spec$") str ""
-removePrefix str = subRegex (mkRegex "^[^A-Z]*") str ""
+removePrefix str = subRegex (mkRegex "^.*\\/") str ""
 
 main = do
   args <- getArgs

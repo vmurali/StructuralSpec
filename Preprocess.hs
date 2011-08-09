@@ -1,9 +1,6 @@
 module Preprocess(preprocess) where
 
-import Text.ParserCombinators.Parsec.Char
-import Text.ParserCombinators.Parsec.Combinator
-import Text.ParserCombinators.Parsec.Prim
-import Text.Regex
+import Text.ParserCombinators.Parsec
 
 lineComment = do
   string "//"
@@ -15,7 +12,7 @@ blockComment = do
 
 removeComment =
   (try $ do{eof; return ""})
-   <|> (try $ do{lineComment; removeComment})
+   <|> (try $ do{lineComment; xs <- removeComment; return $ '\n':xs})
    <|> (try $ do{blockComment; removeComment})
    <|> do{x <- anyChar; xs <- removeComment; return $ x:xs}
 

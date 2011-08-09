@@ -1,18 +1,18 @@
-include Library;
+include LibraryNormal;
 
-include RegFile;
+include RegFileNormal;
 
-port Fifo#(numeric type n, type t);
-  Reverse FifoEnq#(t) enq;
-  Reverse FifoDeq#(t) deq;
+port FifoNormal#(numeric type n, type t);
+  Reverse FifoEnqNormal#(t) enq;
+  Reverse FifoDeqNormal#(t) deq;
 endport
 
-partition Fifo#(n, t) mkLFifo provisos(Bits#(t, tSz));
-  RegFile#(1, 1, n, t) regs <- mkRegFileU;
+partition FifoNormal#(n, t) mkLFifoNormal provisos(Bits#(t, tSz));
+  RegFileNormal#(1, 1, n, t) regs <- mkRegFileUNormal;
 
-  Reg#(Index#(n)) head <- mkReg(0);
-  Reg#(Index#(n)) tail <- mkReg(0);
-  Reg#(NumElems#(n)) numElems <- mkReg(0);
+  RegNormal#(Index#(n)) head <- mkRegNormal(0);
+  RegNormal#(Index#(n)) tail <- mkRegNormal(0);
+  RegNormal#(NumElems#(n)) numElems <- mkRegNormal(0);
 
   atomic a;
     enq.notFull := numElems != fromInteger(valueOf(n)) || deq.deq;
@@ -26,7 +26,7 @@ partition Fifo#(n, t) mkLFifo provisos(Bits#(t, tSz));
 
     if(enq.enq.en)
     begin
-      regs.write[0] := RegFileWrite{index: head, data: enq.enq};
+      regs.write[0] := RegFileWriteNormal{index: head, data: enq.enq};
       head <= moduloIncr(head);
     end
 
@@ -35,12 +35,12 @@ partition Fifo#(n, t) mkLFifo provisos(Bits#(t, tSz));
   endatomic
 endpartition
 
-partition Fifo#(n, t) mkFifo provisos(Bits#(t, tSz));
-  RegFile#(1, 1, n, t) regs <- mkRegFileU;
+partition FifoNormal#(n, t) mkFifoNormal provisos(Bits#(t, tSz));
+  RegFileNormal#(1, 1, n, t) regs <- mkRegFileUNormal;
 
-  Reg#(Index#(n)) head <- mkReg(0);
-  Reg#(Index#(n)) tail <- mkReg(0);
-  Reg#(NumElems#(n)) numElems <- mkReg(0);
+  RegNormal#(Index#(n)) head <- mkRegNormal(0);
+  RegNormal#(Index#(n)) tail <- mkRegNormal(0);
+  RegNormal#(NumElems#(n)) numElems <- mkRegNormal(0);
 
   atomic a;
     enq.notFull := numElems != fromInteger(valueOf(n));
@@ -54,7 +54,7 @@ partition Fifo#(n, t) mkFifo provisos(Bits#(t, tSz));
 
     if(enq.enq.en)
     begin
-      regs.write[0] := RegFileWrite{index: head, data: enq.enq};
+      regs.write[0] := RegFileWriteNormal{index: head, data: enq.enq};
       head <= moduloIncr(head);
     end
 
@@ -63,12 +63,12 @@ partition Fifo#(n, t) mkFifo provisos(Bits#(t, tSz));
   endatomic
 endpartition
 
-partition Fifo#(n, t) mkBypassFifo provisos(Bits#(t, tSz));
-  RegFile#(1, 1, n, t) regs <- mkRegFileU;
+partition FifoNormal#(n, t) mkBypassFifoNormal provisos(Bits#(t, tSz));
+  RegFileNormal#(1, 1, n, t) regs <- mkRegFileUNormal;
 
-  Reg#(Index#(n)) head <- mkReg(0);
-  Reg#(Index#(n)) tail <- mkReg(0);
-  Reg#(NumElems#(n)) numElems <- mkReg(0);
+  RegNormal#(Index#(n)) head <- mkRegNormal(0);
+  RegNormal#(Index#(n)) tail <- mkRegNormal(0);
+  RegNormal#(NumElems#(n)) numElems <- mkRegNormal(0);
 
   atomic a;
     enq.notFull := numElems != fromInteger(valueOf(n));
@@ -82,7 +82,7 @@ partition Fifo#(n, t) mkBypassFifo provisos(Bits#(t, tSz));
 
     if(enq.enq.en)
     begin
-      regs.write[0] := RegFileWrite{index: head, data: enq.enq};
+      regs.write[0] := RegFileWriteNormal{index: head, data: enq.enq};
       head <= moduloIncr(head);
     end
 
