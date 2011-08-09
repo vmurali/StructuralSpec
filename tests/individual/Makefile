@@ -14,8 +14,8 @@
 	cd bsv/single && bsc -u -verilog -e mk$* *.v
 
 clean:
-	rm -rf bsv memory.vmh
+	rm -rf bsv
 
 .PHONY: clean
 
-.DEFAULT_GOAL := Processor
+.DEFAULT_GOAL :=

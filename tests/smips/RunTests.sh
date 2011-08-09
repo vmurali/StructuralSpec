@@ -1,11 +1,21 @@
 #!/bin/bash
 
-for file in tests/*
+if [ -z "$1" ]
+then
+  LIB=single
+else
+  LIB=$1
+fi
+
+cd bsv && for file in ../programs/*
 do
   ln -sf ${file} ./memory.vmh
-  if [[ ${file} == tests/smips* ]]
+  if [[ ${file} == ../programs/smips* ]]
   then
     echo ${file}
-    cd bsv && ./a.out && cd ../
+    cd ${LIB} && ./a.out && cd ..
   fi
 done
+rm memory.vmh
+
+echo $LIB

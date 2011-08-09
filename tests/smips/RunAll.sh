@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./RunTests.sh
-./RunBmarks.sh
+./RunTests.sh $1
+./RunBmarks.sh $1
