@@ -9,7 +9,7 @@
 	cd bsv && bsc -u -verilog -bdir bdir -p +:${STRUCTURALSPEC_HOME}/lib:${STRUCTURALSPEC_HOME}/lib/multi -aggressive-conditions -v95 -e mk$* *.v
 
 clean:
-	rm -rf bsv a.out
+	rm -rf bsv memory.vmh
 
 .PHONY: clean
 
