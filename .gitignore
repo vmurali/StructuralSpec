@@ -1,7 +1,4 @@
 build
 StructuralSpec
-lib/*.bi
-lib/*.bo
-lib/a.out
-examples/smips/bsv
-examples/smipsNormal/bsv
+tests/*/bsv
+tests/*/memory.vmh
