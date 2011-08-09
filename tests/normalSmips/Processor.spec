@@ -26,20 +26,17 @@ partinst FifoNormal#(4, Data) mkDataQ = mkLFifoNormal;
 
 (* synthesize *)
 partition Core mkCore;
-  Fetch                        fetch <- mkFetch;
-  Execute                    execute <- mkExecute;
-  Writeback                       wb <- mkWriteback;
+  let    fetch <- mkFetch;
+  let  execute <- mkExecute;
+  let       wb <- mkWriteback;
+  let      cop <- mkCop;
+  let     regs <- mkRegisters;
 
-  Cop                            cop <- mkCop;
-  Registers                     regs <- mkRegisters;
-
-  FifoNormal#(3, PcQ)                  pcQ <- mkPcQ;
-
-  FifoNormal#(6, VAddr)           instReqQ <- mkInstReqQ;
-  FifoNormal#(2, Inst)               instQ <- mkInstQ;
-
-  FifoNormal#(1, Mem)             dataReqQ <- mkDataReqQ;
-  FifoNormal#(4, Data)               dataQ <- mkDataQ;
+  let      pcQ <- mkPcQ;
+  let instReqQ <- mkInstReqQ;
+  let    instQ <- mkInstQ;
+  let dataReqQ <- mkDataReqQ;
+  let    dataQ <- mkDataQ;
 
   mkConnection(fetch.currEpoch, execute.currEpoch);
   mkConnection(fetch.pcQ, pcQ.enq);
@@ -65,8 +62,8 @@ endpartition
 
 (* synthesize *)
 partition EmptyNormal mkProcessor;
-  Core   core <- mkCore;
-  Memory  mem <- mkMemory;
+  let core <- mkCore;
+  let  mem <- mkMemory;
 
   mkConnection(core.mem, mem);
 endpartition
