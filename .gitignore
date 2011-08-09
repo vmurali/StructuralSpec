@@ -4,4 +4,4 @@ lib/*.bi
 lib/*.bo
 lib/a.out
 examples/smips/bsv
-examples/testingMulti/bsv
+examples/smipsNormal/bsv
