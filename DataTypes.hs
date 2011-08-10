@@ -6,8 +6,8 @@ data Field = Field
   , fieldArgs::String
   , fieldIndices::[String]
   , fieldName::String
-  , fieldGuard::String
-  , fieldGuardRev::String
+  , fieldWriteGuard::String
+  , fieldReadGuard::String
   }
 
 data PortArg = Type String | Num String

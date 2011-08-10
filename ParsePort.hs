@@ -41,8 +41,8 @@ parseField = do
   args <- parensBalancedPrefixed "" $ char '#'
   indices <- parseIndices
   name <- identifier
-  guard <- parseAttribute "Guard"
-  guardRev <- parseAttribute "GuardRev"
+  writeGuard <- parseAttribute "WriteGuard"
+  readGuard <- parseAttribute "ReadGuard"
   semi
   return Field
     { fieldReverse = reverse
@@ -50,8 +50,8 @@ parseField = do
     , fieldArgs = args
     , fieldIndices = indices
     , fieldName = name
-    , fieldGuard = guard
-    , fieldGuardRev = guardRev
+    , fieldWriteGuard = writeGuard
+    , fieldReadGuard = readGuard
     }
   where
     optional str =

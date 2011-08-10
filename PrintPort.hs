@@ -37,7 +37,6 @@ printProvisosArgs args = if null args then "" else "provisos(" ++ (intercalate "
 ---------------------------------------
 
 ubarForNormal field = if fieldReverse field then "" else "_"
-ubarForRev field = if fieldReverse field then "_" else ""
 ------------------------------------------------------------------------
 
 repVectors field = showIndices ++ fieldType field ++ ubarForNormal field ++ (if fieldArgs field /= [] then "#" else "") ++ fieldArgs field ++ (repLen field) ')'
@@ -60,29 +59,25 @@ showFieldInst fileName p filePortsAliases field = do
                                return undefined
   let params = if (fieldPortName == "Output" || fieldPortName == "OutputPulse" || fieldPortName == "ConditionalOutput" ||
                    fieldPortName == "OutputNormal" || fieldPortName == "OutputPulseNormal" || fieldPortName == "ConditionalOutputNormal")
-                 then "(" ++
-                   (if fieldReverse field
-                      then g2 ++ ", " ++ g1
-                      else g1 ++ ", " ++ g2)
-                   ++ ")"
+                 then "(" ++ g1 ++ ", " ++ g2 ++ ")"
                  else ""
   return $
-    "  " ++ typeTuple ++ fieldName field ++ ubarForRev field ++ "_ <- " ++ concatRepLen "replicateTupleM(" ++ "_" ++ fieldPortName ++ params ++ (repLen field) ')' ++ ";\n" ++
-    if fieldReverse field then "  " ++ typeTupleRev ++ fieldName field ++ "_ = tuple2(tpl_2(asIfc(" ++ fieldName field ++ "__)), tpl_1(asIfc(" ++ fieldName field ++ "__)));\n" else ""
+    "  " ++ typeTuple ++ fieldName field ++ "_ <- " ++ concatRepLen "replicateTupleM(" ++ "_" ++ fieldPortName ++ params ++ (repLen field) ')' ++ ";\n"
  where
   concatRepLen = concat . (repLen field)
   typeTupleNormal   = "Tuple2#(" ++ repVectors field ++ ", " ++ repVectors field{fieldReverse = not $ fieldReverse field} ++ ") "
   typeTupleReversed = "Tuple2#(" ++ repVectors field{fieldReverse = not $ fieldReverse field} ++ ", " ++ repVectors field ++ ") "
   typeTuple = if fieldReverse field then typeTupleReversed else typeTupleNormal
-  typeTupleRev = if fieldReverse field then typeTupleNormal else typeTupleReversed
-  g1 = if fieldGuard field /= ""
-         then "(tpl_1(asIfc(" ++ fieldGuard field ++ "_)))._read"
+  g1 = if fieldWriteGuard field /= ""
+         then "(tpl_2(asIfc(" ++ fieldWriteGuard field ++ "_)))._read"
          else "True"
-  g2 = if fieldGuardRev field /= ""
-         then "(tpl_2(asIfc(" ++ fieldGuardRev field ++ "_)))._read"
+  g2 = if fieldReadGuard field /= ""
+         then "(tpl_2(asIfc(" ++ fieldReadGuard field ++ "_)))._read"
          else "True"
 ----------------------------------------------------------------------------------
-showConn num field = "      interface " ++ fieldName field ++ " = tpl_" ++ num ++ "(asIfc(" ++ fieldName field ++ "_));\n"
+showConn num field = "      interface " ++ fieldName field ++ " = tpl_" ++ realNum ++ "(asIfc(" ++ fieldName field ++ "_));\n"
+ where
+  realNum = if fieldReverse field then show (3-num) else show num
 ---------------------------------------------------------------------------------
 mkConnection field = "    mkConnection(asIfc(a." ++ fieldName field ++ "), asIfc(b." ++ fieldName field ++ "));\n"
 ----------------------------------------------------------------------------------
@@ -99,10 +94,10 @@ printPort file filePortsAliases (Port name args oldFields) = do
       fieldInsts ++
    "  return tuple2(\n" ++
    "    interface " ++ name ++ "_;\n" ++
-          concatMap (showConn "1") fields ++
+          concatMap (showConn 1) fields ++
    "    endinterface,\n" ++
    "    interface " ++ name ++ ";\n" ++
-          concatMap (showConn "2") fields ++
+          concatMap (showConn 2) fields ++
    "    endinterface);\n" ++
    "endmodule\n\n" ++
        "instance Connectable#(" ++ name ++ printJustArgs args ++ ", " ++ name ++ "_" ++ printJustArgs args ++ ") " ++ printProvisosArgs args ++ ";\n" ++
