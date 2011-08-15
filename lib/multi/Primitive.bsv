@@ -257,21 +257,37 @@ endmodule
 
 
 
-(* always_enabled *)
+
+(* always_ready *)
 interface OutputNormal_#(type t);
   (* always_enabled, prefix = "" *) method Action write((* port = "WRITE" *)t x);
+  (* enable = "WRITE_VALID" *) method Action valid;
+  (* result = "WRITE_CONSUMED" *) method Bool consumed;
 endinterface
 
 (* always_ready *)
 interface OutputNormal#(type t);
   (* result = "READ" *) method t _read;
+  (* result = "READ_VALID" *) method Bool valid;
+  (* enable = "READ_CONSUMED" *) method Action consumed;
 endinterface
 
 instance Connectable#(OutputNormal_#(t), OutputNormal#(t));
   module mkConnection#(OutputNormal_#(t) a, OutputNormal#(t) b)();
-    rule c1;
+    //(* preempts = "_safe1, _safe2"*)
+    rule _safe1;
       a.write(b);
     endrule
+
+    //rule _safe2;
+    //  if(b.valid)
+    //    a.valid;
+    //endrule
+
+    //rule _safe3;
+    //  if(a.consumed)
+    //    b.consumed;
+    //endrule
   endmodule
 endinstance
 
@@ -289,28 +305,48 @@ module _OutputNormal#(Bool g1, Bool g2)(Tuple2#(OutputNormal_#(t), OutputNormal#
       method Action write(t x) if(g1);
         dataLocal.write(x);
       endmethod
+
+      method Action valid = noAction;
+
+      method Bool consumed = True;
     endinterface,
 
     interface OutputNormal;
       method t _read if(g2);
         return dataLocal;
       endmethod
+
+      method Bool valid = True;
+
+      method Action consumed = noAction;
     endinterface);
 endmodule
 
 (* always_ready *)
 interface OutputPulseNormal_;
   (* enable = "WRITE" *) method Action _read;
+  (* enable = "WRITE_VALID" *) method Action valid;
+  (* result = "WRITE_CONSUMED" *) method Bool consumed;
 endinterface
 
 typedef OutputNormal#(Bool) OutputPulseNormal;
 
 instance Connectable#(OutputPulseNormal_, OutputPulseNormal);
   module mkConnection#(OutputPulseNormal_ a, OutputPulseNormal b)();
-    rule c3;
-      if(b)
-       a;
+    //(* preempts = "_safe1, _safe2" *)
+    rule _safe1(b);
+      a;
     endrule
+
+    //rule _safe2;
+    //  if(b.valid)
+    //    a.valid;
+    //endrule
+
+    //rule _safe3;
+    //  if(a.consumed)
+    //    b.consumed;
+    //endrule
   endmodule
 endinstance
 
@@ -328,32 +364,58 @@ module _OutputPulseNormal#(Bool g1, Bool g2)(Tuple2#(OutputPulseNormal_, OutputP
       method Action _read if(g1);
         dataLocal.send;
       endmethod
+
+      method Action valid = noAction;
+
+      method Bool consumed = True;
     endinterface,
 
     interface OutputPulseNormal;
       method Bool _read if(g2);
         return dataLocal;
       endmethod
+
+      method Bool valid = True;
+
+      method Action consumed = noAction;
     endinterface);
 endmodule
 
 (* always_ready *)
 interface ConditionalOutputNormal_#(type t);
   (* prefix = "", enable = "EN_WRITE" *) method Action write((* port = "WRITE" *)t x);
+  (* enable = "WRITE_VALID" *) method Action valid;
+  (* enable = "EN_WRITE_VALID" *) method Action en_valid;
+  (* result = "WRITE_CONSUMED" *) method Bool consumed;
+  (* result = "EN_WRITE_CONSUMED" *) method Bool en_consumed;
 endinterface
 
 (* always_ready *)
 interface ConditionalOutputNormal#(type t);
   (* result = "READ" *) method t _read;
   (* result = "EN_READ" *) method Bool en;
+  (* result = "READ_VALID" *) method Bool valid;
+  (* result = "EN_READ_VALID" *) method Bool en_valid;
+  (* enable = "READ_CONSUMED" *) method Action consumed;
+  (* enable = "EN_READ_CONSUMED" *) method Action en_consumed;
 endinterface
 
 instance Connectable#(ConditionalOutputNormal_#(t), ConditionalOutputNormal#(t));
   module mkConnection#(ConditionalOutputNormal_#(t) a, ConditionalOutputNormal#(t) b)();
-    rule c1;
-      if(b.en)
-        a.write(b);
+    //(* preempts = "_safe1, _safe2" *)
+    rule _safe1(b.en);
+      a.write(b);
     endrule
+
+    //rule _safe2;
+    //  if(b.valid)
+    //    a.valid;
+    //endrule
+
+    //rule _safe3;
+    //  if(a.consumed)
+    //    b.consumed;
+    //endrule
   endmodule
 endinstance
 
@@ -373,6 +435,14 @@ module _ConditionalOutputNormal#(Bool g1, Bool g2)(Tuple2#(ConditionalOutputNorm
         dataLocal.write(x);
         enLocal.send;
       endmethod
+
+      method Action valid = noAction;
+
+      method Action en_valid = noAction;
+
+      method Bool consumed = True;
+
+      method Bool en_consumed = True;
     endinterface,
 
     interface ConditionalOutputNormal;
@@ -383,5 +453,13 @@ module _ConditionalOutputNormal#(Bool g1, Bool g2)(Tuple2#(ConditionalOutputNorm
       method Bool en if(g2);
         return enLocal;
       endmethod
+
+      method Bool valid = True;
+
+      method Bool en_valid = True;
+
+      method Action consumed = noAction;
+
+      method Action en_consumed = noAction;
     endinterface);
 endmodule

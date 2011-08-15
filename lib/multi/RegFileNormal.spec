@@ -1,6 +1,6 @@
-include LibraryNormal;
-
 include Library;
+
+include LibraryNormal;
 
 import RegFileVerilog::*;
 

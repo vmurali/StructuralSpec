@@ -157,16 +157,28 @@ endfunction
 
 (* always_ready *)
 interface WireNormal#(type t);
-  method Action write(t x);
   method t _read;
+  method Action write(t x);
+  method Bool readValid;
+  method Action readConsumed;
+  method Action writeValid;
+  method Bool writeConsumed;
+  method Action writeEnValid;
+  method Bool writeEnConsumed;
 endinterface
 
 import "BVI" mkWireNormal =
 module mkWireNormal(WireNormal#(t)) provisos(Bits#(t, tSz));
   parameter width = valueOf(tSz);
   method OUT_READ _read;
+  method OUT_READ_VALID readValid;
+  method readConsumed() enable(OUT_READ_CONSUMED);
   method write(IN_WRITE) enable(IN_EN_WRITE);
-  schedule _read CF (_read, write);
+  method writeValid() enable(IN_WRITE_VALID);
+  method IN_WRITE_CONSUMED writeConsumed;
+  method writeEnValid() enable(IN_EN_WRITE_VALID);
+  method IN_EN_WRITE_CONSUMED writeEnConsumed;
+  schedule (_read, readValid, readConsumed, writeValid, writeConsumed, writeEnValid, writeEnConsumed) CF (_read, readValid, readConsumed, write, writeValid, writeConsumed, writeEnValid, writeEnConsumed);
   schedule write C write;
   default_clock ck();
   default_reset no_reset;
@@ -177,13 +189,21 @@ endmodule
 interface PulseNormal;
   method Action send;
   method Bool _read;
+  method Action sendValid;
+  method Bool sendConsumed;
+  method Bool readValid;
+  method Action readConsumed;
 endinterface
 
 import "BVI" mkPulseNormal =
 module mkPulseNormal(PulseNormal);
   method OUT_READ _read;
+  method OUT_READ_VALID readValid;
+  method readConsumed() enable(OUT_READ_CONSUMED);
   method send() enable(IN_EN_WRITE);
-  schedule _read CF (_read, send);
+  method sendValid() enable(IN_EN_WRITE_VALID);
+  method IN_EN_WRITE_CONSUMED sendConsumed;
+  schedule (_read, readValid, readConsumed, sendValid, sendConsumed) CF (_read, readValid, readConsumed, send, sendValid, sendConsumed);
   schedule send C send;
   default_clock ck();
   default_reset no_reset;
@@ -194,6 +214,12 @@ endmodule
 interface RegNormal#(type t);
   method t _read;
   method Action _write(t d);
+  method Bool readValid;
+  method Action readConsumed;
+  method Action writeValid;
+  method Bool writeConsumed;
+  method Action writeEnValid;
+  method Bool writeEnConsumed;
 endinterface
 
 import "BVI" mkRegNormal =
@@ -201,8 +227,14 @@ module mkRegNormal#(t init)(RegNormal#(t)) provisos(Bits#(t, tSz));
   parameter width = valueOf(tSz);
   parameter init = pack(init);
   method OUT_READ _read;
-  method _write (IN_WRITE) enable(IN_EN_WRITE);
-  schedule _read CF (_read, _write);
+  method OUT_READ_VALID readValid;
+  method readConsumed() enable(OUT_READ_CONSUMED);
+  method _write(IN_WRITE) enable(IN_EN_WRITE);
+  method writeValid() enable(IN_WRITE_VALID);
+  method IN_WRITE_CONSUMED writeConsumed;
+  method writeEnValid() enable(IN_EN_WRITE_VALID);
+  method IN_EN_WRITE_CONSUMED writeEnConsumed;
+  schedule (_read, readValid, readConsumed, writeValid, writeConsumed, writeEnValid, writeEnConsumed) CF (_read, readValid, readConsumed, _write, writeValid, writeConsumed, writeEnValid, writeEnConsumed);
   schedule _write C _write;
   default_clock ck(CLK);
   default_reset rt(RST_N) clocked_by (ck);
@@ -212,8 +244,14 @@ import "BVI" mkRegUNormal =
 module mkRegUNormal(RegNormal#(t)) provisos(Bits#(t, tSz));
   parameter width = valueOf(tSz);
   method OUT_READ _read;
+  method OUT_READ_VALID readValid;
+  method readConsumed() enable(OUT_READ_CONSUMED);
   method _write (IN_WRITE) enable(IN_EN_WRITE);
-  schedule _read CF (_read, _write);
+  method writeValid() enable(IN_WRITE_VALID);
+  method IN_WRITE_CONSUMED writeConsumed;
+  method writeEnValid() enable(IN_EN_WRITE_VALID);
+  method IN_EN_WRITE_CONSUMED writeEnConsumed;
+  schedule (_read, readValid, readConsumed, writeValid, writeConsumed, writeEnValid, writeEnConsumed) CF (_read, readValid, readConsumed, _write, writeValid, writeConsumed, writeEnValid, writeEnConsumed);
   schedule _write C _write;
   default_clock ck(CLK);
   default_reset no_reset;

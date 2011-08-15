@@ -1,3 +1,5 @@
+include Library;
+
 import RandVerilog::*;
 
 port RandNormal#(t);
