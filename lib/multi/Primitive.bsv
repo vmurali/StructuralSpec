@@ -163,8 +163,8 @@ interface ConditionalOutput#(type t);
   (* result = "EN_READ" *) method Bool en;
   (* result = "READ_VALID" *) method Bool valid;
   (* result = "EN_READ_VALID" *) method Bool en_valid;
-  (* result = "READ_CONSUMED" *) method Action consumed;
-  (* result = "EN_READ_CONSUMED" *) method Action en_consumed;
+  (* enable = "READ_CONSUMED" *) method Action consumed;
+  (* enable = "EN_READ_CONSUMED" *) method Action en_consumed;
 endinterface
 
 instance Connectable#(ConditionalOutput_#(t), ConditionalOutput#(t));
