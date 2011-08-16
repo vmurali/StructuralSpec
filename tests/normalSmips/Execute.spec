@@ -1,7 +1,8 @@
-include LibraryNormal;
+include Library;
 include Types;
-include RegFile;
+include RegFileNormal;
 include Cop;
+include FifoNormal;
 
 port Execute;
   FifoDeqNormal#(PcQ) pcQ;

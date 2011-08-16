@@ -1,6 +1,7 @@
 include Library;
 include Types;
 include RegFile;
+include Fifo;
 
 port Memory;
   FifoDeq#(VAddr) instReqQ;

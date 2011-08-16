@@ -1,7 +1,5 @@
 include Library;
 
-include LibraryNormal;
-
 include RegFileNormal;
 
 port MultiFifoFillNormal#(numeric type fillsNum, type t);

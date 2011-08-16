@@ -1,5 +1,4 @@
-include LibraryNormal;
-
+include Library;
 include FifoNormal;
 include Types;
 include Fetch;
@@ -61,7 +60,7 @@ partition Core mkCore;
 endpartition
 
 (* synthesize *)
-partition EmptyNormal mkProcessor;
+partition Empty mkProcessor;
   let core <- mkCore;
   let  mem <- mkMemory;
 

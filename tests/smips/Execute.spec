@@ -2,6 +2,7 @@ include Library;
 include Types;
 include RegFile;
 include Cop;
+include Fifo;
 
 port Execute;
   FifoDeq#(PcQ) pcQ;

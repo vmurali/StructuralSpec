@@ -1,14 +1,3 @@
-port FifoEnq#(type t);
-  Input#(Bool) notFull;
-  ConditionalOutput#(t) enq WriteGuard(notFull);
-endport
-
-port FifoDeq#(type t);
-  Input#(Bool) notEmpty;
-  Input#(t) first ReadGuard(notEmpty);
-  OutputPulse deq WriteGuard(notEmpty);
-endport
-
 port Empty;
 endport
 

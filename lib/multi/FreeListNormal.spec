@@ -1,7 +1,5 @@
 include Library;
 
-include LibraryNormal;
-
 include MultiFifoNormal;
 
 port FreeListAllocateNormal#(numeric type n, numeric type allocs);

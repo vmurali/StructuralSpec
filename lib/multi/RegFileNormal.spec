@@ -1,7 +1,5 @@
 include Library;
 
-include LibraryNormal;
-
 import RegFileVerilog::*;
 
 port RegFileReadNormal#(numeric type size, type t);

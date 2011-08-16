@@ -1,6 +1,5 @@
 include Library;
 
-include LibraryNormal;
 include FifoNormal;
 
 port InputFifo#(numeric type n, type t);

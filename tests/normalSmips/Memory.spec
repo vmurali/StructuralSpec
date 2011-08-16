@@ -1,6 +1,7 @@
-include LibraryNormal;
+include Library;
 include Types;
 include RegFileNormal;
+include FifoNormal;
 
 port Memory;
   FifoDeqNormal#(VAddr) instReqQ;

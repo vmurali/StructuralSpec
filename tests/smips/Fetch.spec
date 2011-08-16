@@ -1,5 +1,6 @@
 include Library;
 include Types;
+include Fifo;
 
 port Fetch;
   Output#(Bool) currEpoch;

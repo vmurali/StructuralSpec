@@ -1,4 +1,4 @@
-include LibraryNormal;
+include Library;
 include RegFileNormal;
 
 /*****  BRAM ABSTRACTION:   
