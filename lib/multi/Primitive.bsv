@@ -18,20 +18,19 @@ endinterface
 
 instance Connectable#(Output_#(t), Output#(t));
   module mkConnection#(Output_#(t) a, Output#(t) b)();
-    //(* preempts = "_safe1, _safe2"*)
-    rule _safe1;
+    (* preempts = "_safe1, _safe2"*)
+    rule _safe1(b.valid);
       a.write(b);
+      a.valid;
     endrule
 
-    //rule _safe2;
-    //  if(b.valid)
-    //    a.valid;
-    //endrule
+    rule _safe2(b.valid);
+      a.valid;
+    endrule
 
-    //rule _safe3;
-    //  if(a.consumed)
-    //    b.consumed;
-    //endrule
+    rule _safe3(a.consumed);
+      b.consumed;
+    endrule
   endmodule
 endinstance
 
@@ -42,15 +41,14 @@ instance Connectable#(Output#(t), Output_#(t));
 endinstance
 
 module _Output#(Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bits#(t, tSz));
-  Wire#(t) dataLocal <- mkWire;
-  Pulse validLocal <- mkPulse;
-  Pulse consumedLocal <- mkPulse;
+  WireNormal#(t) dataLocal <- mkWireNormal;
+  PulseNormal validLocal <- mkPulseNormal;
+  PulseNormal consumedLocal <- mkPulseNormal;
 
   return tuple2(
     interface Output_;
       method Action write(t x) if(g1);
         dataLocal.write(x);
-        validLocal.send;
       endmethod
 
       method Action valid;
@@ -88,20 +86,19 @@ typedef Output#(Bool) OutputPulse;
 
 instance Connectable#(OutputPulse_, OutputPulse);
   module mkConnection#(OutputPulse_ a, OutputPulse b)();
-    //(* preempts = "_safe1, _safe2" *)
-    rule _safe1(b);
+    (* preempts = "_safe1, _safe2" *)
+    rule _safe1(b.valid && b);
       a;
+      a.valid;
     endrule
 
-    //rule _safe2;
-    //  if(b.valid)
-    //    a.valid;
-    //endrule
+    rule _safe2(b.valid);
+      a.valid;
+    endrule
 
-    //rule _safe3;
-    //  if(a.consumed)
-    //    b.consumed;
-    //endrule
+    rule _safe3(a.consumed);
+      b.consumed;
+    endrule
   endmodule
 endinstance
 
@@ -112,16 +109,15 @@ instance Connectable#(OutputPulse, OutputPulse_);
 endinstance
 
 module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
-  Pulse dataLocal <- mkPulse;
-  Pulse validLocal <- mkPulse;
-  Pulse consumedLocal <- mkPulse;
+  PulseNormal dataLocal <- mkPulseNormal;
+  PulseNormal validLocal <- mkPulseNormal;
+  PulseNormal consumedLocal <- mkPulseNormal;
 
 
   return tuple2(
     interface OutputPulse_;
       method Action _read if(g1);
         dataLocal.send;
-        validLocal.send;
       endmethod
 
       method Action valid;
@@ -169,20 +165,22 @@ endinterface
 
 instance Connectable#(ConditionalOutput_#(t), ConditionalOutput#(t));
   module mkConnection#(ConditionalOutput_#(t) a, ConditionalOutput#(t) b)();
-    //(* preempts = "_safe1, _safe2" *)
-    rule _safe1(b.en);
+    (* preempts = "_safe1, _safe2" *)
+    rule _safe1(b.valid && b.en_valid && b.en);
       a.write(b);
+      a.valid;
+      a.en_valid;
     endrule
 
-    //rule _safe2;
-    //  if(b.valid)
-    //    a.valid;
-    //endrule
+    rule _safe2(b.valid && b.en_valid);
+      a.valid;
+      a.en_valid;
+    endrule
 
-    //rule _safe3;
-    //  if(a.consumed)
-    //    b.consumed;
-    //endrule
+    rule _safe3(a.consumed && a.en_consumed);
+      b.consumed;
+      b.en_consumed;
+    endrule
   endmodule
 endinstance
 
@@ -193,33 +191,30 @@ instance Connectable#(ConditionalOutput#(t), ConditionalOutput_#(t));
 endinstance
 
 module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), ConditionalOutput#(t))) provisos(Bits#(t, tSz));
-  Wire#(t) dataLocal <- mkWire;
-  Pulse enLocal <- mkPulse;
-  Pulse validLocal <- mkPulse;
-  Pulse en_validLocal <- mkPulse;
-  Pulse consumedLocal <- mkPulse;
-  Pulse en_consumedLocal <- mkPulse;
+  WireNormal#(t) dataLocal <- mkWireNormal;
+  PulseNormal enLocal <- mkPulseNormal;
+  PulseNormal validLocal <- mkPulseNormal;
+  PulseNormal en_validLocal <- mkPulseNormal;
+  PulseNormal consumedLocal <- mkPulseNormal;
+  PulseNormal en_consumedLocal <- mkPulseNormal;
 
   return tuple2(
     interface ConditionalOutput_;
       method Action write(t x) if(g1);
         dataLocal.write(x);
         enLocal.send;
-        validLocal.send;
-        en_validLocal.send;
       endmethod
 
       method Action valid;
         validLocal.send;
-        en_validLocal.send;
       endmethod
 
       method Action en_valid;
-        //en_validLocal.send;
+        en_validLocal.send;
       endmethod
 
       method Bool consumed;
-        return consumedLocal && en_consumedLocal;
+        return consumedLocal;
       endmethod
 
       method Bool en_consumed;
@@ -237,7 +232,7 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
       endmethod
 
       method Bool valid;
-        return validLocal && en_validLocal;
+        return validLocal;
       endmethod
 
       method Bool en_valid;
@@ -246,11 +241,10 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
 
       method Action consumed;
         consumedLocal.send;
-        en_consumedLocal.send;
       endmethod
 
       method Action en_consumed;
-        //en_consumedLocal.send;
+        en_consumedLocal.send;
       endmethod
     endinterface);
 endmodule
@@ -283,7 +277,7 @@ instance Connectable#(OutputNormal#(t), OutputNormal_#(t));
 endinstance
 
 module _OutputNormal#(Bool g1, Bool g2)(Tuple2#(OutputNormal_#(t), OutputNormal#(t))) provisos(Bits#(t, tSz));
-  Wire#(t) dataLocal <- mkWire;
+  WireNormal#(t) dataLocal <- mkWireNormal;
 
   return tuple2(
     interface OutputNormal_;
@@ -321,7 +315,7 @@ instance Connectable#(OutputPulseNormal, OutputPulseNormal_);
 endinstance
 
 module _OutputPulseNormal#(Bool g1, Bool g2)(Tuple2#(OutputPulseNormal_, OutputPulseNormal));
-  Pulse dataLocal <- mkPulse;
+  PulseNormal dataLocal <- mkPulseNormal;
 
   return tuple2(
     interface OutputPulseNormal_;
@@ -363,8 +357,8 @@ instance Connectable#(ConditionalOutputNormal#(t), ConditionalOutputNormal_#(t))
 endinstance
 
 module _ConditionalOutputNormal#(Bool g1, Bool g2)(Tuple2#(ConditionalOutputNormal_#(t), ConditionalOutputNormal#(t))) provisos(Bits#(t, tSz));
-  Wire#(t) dataLocal <- mkWire;
-  Pulse enLocal <- mkPulse;
+  WireNormal#(t) dataLocal <- mkWireNormal;
+  PulseNormal enLocal <- mkPulseNormal;
 
   return tuple2(
     interface ConditionalOutputNormal_;

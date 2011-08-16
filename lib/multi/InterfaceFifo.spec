@@ -35,7 +35,10 @@ partition OutputFifo#(n, t) mkOutputGenericFifo#(function _m__#(FifoNormal#(n, t
 
   atomic a;
     if(f.deq.notEmpty)
+    begin
       out := f.deq.first;
+      out.valid;
+    end
     if(f.deq.notEmpty && out.consumed)
       f.deq.deq;
   endatomic
@@ -61,10 +64,11 @@ partition OutputPulseFifo#(n) mkOutputPulseGenericFifo#(function _m__#(FifoNorma
 
   atomic a;
     if(f.deq.notEmpty)
+    begin
       if(f.deq.first)
         out;
-      else
-        out.valid;
+      out.valid;
+    end
     if(f.deq.notEmpty && out.consumed)
       f.deq.deq;
   endatomic
@@ -85,13 +89,18 @@ partition ConditionalInputFifo#(n, t) mkConditionalInputGenericFifo#(function _m
   FifoNormal#(n, Maybe#(t)) f <- mkF;
 
   atomic a;
-    if((in.valid? f.enq.notFull: True))
+    if(((in.valid && in.en_valid)? f.enq.notFull: True))
+    begin
       in.consumed;
-    if(in.valid && f.enq.notFull)
+      in.en_consumed;
+    end
+    if((in.valid && in.en_valid) && f.enq.notFull)
+    begin
       if(in.en)
         f.enq.enq := tagged Valid (in);
       else
         f.enq.enq := tagged Invalid;
+    end
   endatomic
 
   mkConnection(deq, f.deq);
@@ -111,11 +120,13 @@ partition ConditionalOutputFifo#(n, t) mkConditionalOutputGenericFifo#(function 
 
   atomic a;
     if(f.deq.notEmpty)
+    begin
       if(f.deq.first matches tagged Valid .x)
         out := x;
-      else
-        out.valid;
-    if(f.deq.notEmpty && out.consumed)
+      out.valid;
+      out.en_valid;
+    end
+    if(f.deq.notEmpty && (out.consumed && out.en_consumed))
       f.deq.deq;
   endatomic
 
