@@ -45,47 +45,55 @@ module mkReg(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, OUT_READ, 
 
   reg [((width == 0)? 0: width-1):0] data0;
   reg [((width == 0)? 0: width-1):0] data1;
-  reg valid0, done;
-  wire enqCond, consumedCond, inpValid;
+  reg valid0, valid1;
+  reg en0;
+  wire enqCond, inpValid, deqCond;
 
   initial
   begin
     valid0 = 0;
+    valid1 = 1;
     data1 = init;
-    done = 0;
+    en0 = 0;
   end
 
-  assign OUT_READ_VALID = 1;
+  assign OUT_READ_VALID = valid1;
   assign OUT_READ = data1;
   assign inpValid = ((width == 0)? 1: IN_WRITE_VALID) && IN_EN_WRITE_VALID;
-  assign consumedCond = inpValid && !valid0;
-  assign enqCond = consumedCond && IN_EN_WRITE;
-  assign IN_WRITE_CONSUMED = inpValid? !valid0: done;
-  assign IN_EN_WRITE_CONSUMED = inpValid? !valid0: done;
+  assign enqCond = inpValid && !valid0;
+  assign IN_WRITE_CONSUMED = inpValid? !valid0: True;
+  assign IN_EN_WRITE_CONSUMED = inpValid? !valid0: True;
+  assign deqCond = valid1 && ((width == 0)? 1: OUT_READ_CONSUMED);
 
   always@(posedge CLK)
   begin
     if(!RST_N)
     begin
       valid0 <= 0;
+      valid1 <= 1;
       data1 <= init;
-      done <= 0;
+      en0 <= 0;
     end
     else
     begin
-      if(!done && consumedCond)
-        done <= 1;
-      if(enqCond && !((width == 0)? 1: OUT_READ_CONSUMED))
+      if(enqCond && deqCond || enqCond && !deqCond && !valid1)
+      begin
+        valid1 <= 1;
+        if(IN_EN_WRITE)
+          data1 <= IN_WRITE;
+      end
+      else if(enqCond && !deqCond && valid1)
       begin
         valid0 <= 1;
         data0 <= IN_WRITE;
+        en0 <= IN_EN_WRITE;
       end
-      else if(enqCond && ((width == 0)? 1: OUT_READ_CONSUMED))
-        data1 <= IN_WRITE;
-      else if(!enqCond && ((width == 0)? 1: OUT_READ_CONSUMED) && valid0)
+      else if(!enqCond && deqCond)
       begin
+        valid1 <= valid0;
+        if(valid0 && en0)
+          data1 <= data0;
         valid0 <= 0;
-        data1 <= data0;
       end
     end
   end
@@ -105,46 +113,55 @@ module mkRegU(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, OUT_READ,
 
   reg [((width == 0)? 0: width-1):0] data0;
   reg [((width == 0)? 0: width-1):0] data1;
-  reg valid0, done;
-  wire enqCond, consumedCond, inpValid;
+  reg valid0, valid1;
+  reg en0;
+  wire enqCond, inpValid, deqCond;
 
   initial
   begin
     valid0 = 0;
-    done = 0;
+    valid1 = 1;
     data1 = {((width+1))/2{2'b10}};
+    en0 = 0;
   end
 
-  assign OUT_READ_VALID = 1;
+  assign OUT_READ_VALID = valid1;
   assign OUT_READ = data1;
   assign inpValid = ((width == 0)? 1: IN_WRITE_VALID) && IN_EN_WRITE_VALID;
-  assign consumedCond = inpValid && !valid0;
-  assign enqCond = consumedCond && IN_EN_WRITE;
-  assign IN_WRITE_CONSUMED = inpValid? !valid0: done;
-  assign IN_EN_WRITE_CONSUMED = inpValid? !valid0: done;
+  assign enqCond = inpValid && !valid0;
+  assign IN_WRITE_CONSUMED = inpValid? !valid0: True;
+  assign IN_EN_WRITE_CONSUMED = inpValid? !valid0: True;
+  assign deqCond = valid1 && ((width == 0)? 1: OUT_READ_CONSUMED);
 
   always@(posedge CLK)
   begin
     if(!RST_N)
     begin
       valid0 <= 0;
-      done <= 0;
+      valid1 <= 1;
+      data1 <= {((width+1))/2{2'b10}};
+      en0 <= 0;
     end
     else
     begin
-      if(!done && consumedCond)
-        done <= 1;
-      if(enqCond && !((width == 0)? 1: OUT_READ_CONSUMED))
+      if(enqCond && deqCond || enqCond && !deqCond && !valid1)
+      begin
+        valid1 <= 1;
+        if(IN_EN_WRITE)
+          data1 <= IN_WRITE;
+      end
+      else if(enqCond && !deqCond && valid1)
       begin
         valid0 <= 1;
         data0 <= IN_WRITE;
+        en0 <= IN_EN_WRITE;
       end
-      else if(enqCond && ((width == 0)? 1: OUT_READ_CONSUMED))
-        data1 <= IN_WRITE;
-      else if(!enqCond && ((width == 0)? 1: OUT_READ_CONSUMED) && valid0)
+      else if(!enqCond && deqCond)
       begin
+        valid1 <= valid0;
+        if(valid0 && en0)
+          data1 <= data0;
         valid0 <= 0;
-        data1 <= data0;
       end
     end
   end

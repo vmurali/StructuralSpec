@@ -14,7 +14,7 @@ module mkRand32(CLK, REQ_WRITE, REQ_WRITE_VALID, REQ_WRITE_CONSUMED, RESP_READ, 
     randomseed = seed;
 
   assign RESP_READ_VALID = REQ_WRITE_VALID;
-  assign RESP_READ_CONSUMED = REQ_WRITE_CONSUMED;
+  assign REQ_WRITE_CONSUMED = RESP_READ_CONSUMED;
 
   always@(posedge CLK)
   begin
