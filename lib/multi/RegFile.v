@@ -42,9 +42,9 @@ module mkRegFileVerilogLoad(CLK, RST_N,
 
   assign inpValid = ((n == 0)? 1: WRITE_INDEX_WRITE_VALID) && ((width == 0)? 1: WRITE_DATA_WRITE_VALID) && WRITE_EN_WRITE_VALID;
   assign enqCond = inpValid && !valid0;
-  assign WRITE_EN_WRITE_CONSUMED = inpValid? !valid0: True;
-  assign WRITE_INDEX_WRITE_CONSUMED = inpValid? !valid0: True;
-  assign WRITE_DATA_WRITE_CONSUMED = inpValid? !valid0: True;
+  assign WRITE_EN_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
+  assign WRITE_INDEX_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
+  assign WRITE_DATA_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
 
   assign READ_RESP_READ = (en1 && ((n == 0)? 1: index1 == READ_REQ_WRITE))? data1: arr[(n == 0)? 0: READ_REQ_WRITE];
   assign readRespValid = valid1 && ((n == 0)? 1: READ_REQ_WRITE_VALID);
