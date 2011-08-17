@@ -10,4 +10,4 @@ clean:
 
 .PHONY: clean
 
-.DEFAULT_GOAL :=
+.DEFAULT_GOAL := Driver

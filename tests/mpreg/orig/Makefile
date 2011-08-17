@@ -9,13 +9,13 @@
 	mkdir -p bsv/multi
 	cd bsv/single && Convert.sh
 	ln -sf -t bsv/multi ${STRUCTURALSPEC_HOME}/lib/multi/*.v
-	cd bsv/multi && bsc -u -verilog -e mk$* *.v
+	cd bsv/multi && bsc -e mk$* *.v
 	ln -sf -t bsv/single ${STRUCTURALSPEC_HOME}/lib/single/*.v
-	cd bsv/single && bsc -u -verilog -e mk$* *.v
+	cd bsv/single && bsc -e mk$* *.v
 
 clean:
 	rm -rf bsv
 
 .PHONY: clean
 
-.DEFAULT_GOAL :=
+.DEFAULT_GOAL := Driver
