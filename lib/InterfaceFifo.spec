@@ -2,27 +2,20 @@ include Library;
 
 include FifoNormal;
 
-port InputFifo#(numeric type n, type t);
+port InputFifo#(type t);
   Input#(t) in;
   Reverse FifoDeqNormal#(t) deq;
 endport
 
-partition InputFifo#(n, t) mkInputGenericFifo#(function _m__#(FifoNormal#(n, t)) mkF) provisos(Bits#(t, tSz));
-  FifoNormal#(n, t) f <- mkF;
-
+partition InputFifo#(t) mkInputFifo provisos(Bits#(t, tSz));
   atomic a;
-    if((in.valid? f.enq.notFull: True))
+    deq.notEmpty := in.valid;
+    if((in.valid? deq.deq: True))
       in.consumed;
-    if(in.valid && f.enq.notFull)
-      f.enq.enq := in;
+    if(in.valid && deq.deq)
+      deq.first := in;
   endatomic
-
-  mkConnection(deq, f.deq);
 endpartition
-
-partinst InputFifo#(n, t) mkInputFifo provisos(Bits#(t, tSz)) = mkInputGenericFifo(mkFifoNormal);
-partinst InputFifo#(n, t) mkInputLFifo provisos(Bits#(t, tSz)) = mkInputGenericFifo(mkLFifoNormal);
-partinst InputFifo#(n, t) mkInputBypassFifo provisos(Bits#(t, tSz)) = mkInputGenericFifo(mkBypassFifoNormal);
 
 port OutputFifo#(numeric type n, type t);
   Output#(t) out;
@@ -49,9 +42,9 @@ partinst OutputFifo#(n, t) mkOutputFifo provisos(Bits#(t, tSz)) = mkOutputGeneri
 partinst OutputFifo#(n, t) mkOutputLFifo provisos(Bits#(t, tSz)) = mkOutputGenericFifo(mkLFifoNormal);
 partinst OutputFifo#(n, t) mkOutputBypassFifo provisos(Bits#(t, tSz)) = mkOutputGenericFifo(mkBypassFifoNormal);
 
-portalias InputPulseFifo#(numeric type n) = InputFifo#(n, Bool);
+portalias InputPulseFifo = InputFifo#(Bool);
 
-partinst InputPulseFifo#(n) mkInputPulseGenericFifo#(function _m__#(FifoNormal#(n, Bool)) mkF) = mkInputGenericFifo(mkF);
+partinst InputPulseFifo mkInputPulseFifo = mkInputFifo;
 
 port OutputPulseFifo#(numeric type n);
   OutputPulse out;
@@ -79,35 +72,28 @@ partinst OutputPulseFifo#(n) mkOutputPulseFifo = mkOutputPulseGenericFifo(mkFifo
 partinst OutputPulseFifo#(n) mkOutputPulseLFifo = mkOutputPulseGenericFifo(mkLFifoNormal);
 partinst OutputPulseFifo#(n) mkOutputPulseBypassFifo = mkOutputPulseGenericFifo(mkBypassFifoNormal);
 
-port ConditionalInputFifo#(numeric type n, type t);
+port ConditionalInputFifo#(type t);
   ConditionalInput#(t) in;
   Reverse FifoDeqNormal#(Maybe#(t)) deq;
 endport
 
-partition ConditionalInputFifo#(n, t) mkConditionalInputGenericFifo#(function _m__#(FifoNormal#(n, Maybe#(t))) mkF) provisos(Bits#(t, tSz));
-  FifoNormal#(n, Maybe#(t)) f <- mkF;
-
+partition ConditionalInputFifo#(t) mkConditionalInputFifo provisos(Bits#(t, tSz));
   atomic a;
-    if(((in.valid && in.en_valid)? f.enq.notFull: True))
+    deq.notEmpty := in.valid && in.en_valid;
+    if(((in.valid && in.en_valid)? deq.deq: True))
     begin
       in.consumed;
       in.en_consumed;
     end
-    if((in.valid && in.en_valid) && f.enq.notFull)
+    if((in.valid && in.en_valid) && deq.deq)
     begin
       if(in.en)
-        f.enq.enq := tagged Valid (in);
+        deq.first := tagged Valid (in);
       else
-        f.enq.enq := tagged Invalid;
+        deq.first := tagged Invalid;
     end
   endatomic
-
-  mkConnection(deq, f.deq);
 endpartition
-
-partinst ConditionalInputFifo#(n, t) mkConditionalInputFifo provisos(Bits#(t, tSz)) = mkConditionalInputGenericFifo(mkFifoNormal);
-partinst ConditionalInputFifo#(n, t) mkConditionalInputLFifo provisos(Bits#(t, tSz)) = mkConditionalInputGenericFifo(mkLFifoNormal);
-partinst ConditionalInputFifo#(n, t) mkConditionalInputBypassFifo provisos(Bits#(t, tSz)) = mkConditionalInputGenericFifo(mkBypassFifoNormal);
 
 port ConditionalOutputFifo#(numeric type n, type t);
   ConditionalOutput#(t) out;

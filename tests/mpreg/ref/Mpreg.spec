@@ -13,9 +13,9 @@ partition Mpreg#(n,wp,rp,dw)  mkMpreg provisos (Add#(wp, rp, np));
   RegNormal#(Vector#(n,DataT#(dw))) regs <- mkRegNormal(replicate(0));
   RegNormal#(Bit#(8)) localCycle <- mkRegNormal(0);
 
-  Vector#(rp, ConditionalInputFifo#(1, AddrT#(n)))         readReqFifo <- replicateM(mkConditionalInputBypassFifo);
-  Vector#(rp, OutputFifo#(1, DataT#(dw)))                 readRespFifo <- replicateM(mkOutputBypassFifo);
-  Vector#(wp, ConditionalInputFifo#(1, WriteReq#(n, dw))) writeReqFifo <- replicateM(mkConditionalInputBypassFifo);
+  Vector#(rp, ConditionalInputFifo#(AddrT#(n)))         readReqFifo <- replicateM(mkConditionalInputFifo);
+  Vector#(rp, OutputFifo#(1, DataT#(dw)))              readRespFifo <- replicateM(mkOutputBypassFifo);
+  Vector#(wp, ConditionalInputFifo#(WriteReq#(n, dw))) writeReqFifo <- replicateM(mkConditionalInputFifo);
 
   RegNormal#(Vector#(TAdd#(rp, wp), Bool)) done <- mkRegNormal(replicate(False));
 
