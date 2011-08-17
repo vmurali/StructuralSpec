@@ -52,7 +52,7 @@ port UgFifo#(numeric type n, type t);
 endport
 
 partition UgFifo#(n, t) mkGenericUgFifo#(function _m__#(MultiFifo#(n, 1, 1, t)) mkF) provisos(Bits#(t, tSz));
-  MultiUgFifo#(n, 1, 1, t) f <- mkF;
+  MultiFifo#(n, 1, 1, t) f <- mkF;
 
   atomic a;
     enq.notFull := f.enq.numFreeSlots > 0;
