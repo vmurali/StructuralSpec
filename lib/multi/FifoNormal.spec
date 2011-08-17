@@ -1,6 +1,4 @@
-include Library;
-
-include RegFileNormal;
+include MultiFifoNormal;
 
 port FifoEnqNormal#(type t);
   InputNormal#(Bool) notFull;
@@ -18,86 +16,57 @@ port FifoNormal#(numeric type n, type t);
   Reverse FifoDeqNormal#(t) deq;
 endport
 
-partition FifoNormal#(n, t) mkLFifoNormal provisos(Bits#(t, tSz));
-  RegFileNormal#(1, 1, n, t) regs <- mkRegFileUNormal;
-
-  RegNormal#(Index#(n)) head <- mkRegNormal(0);
-  RegNormal#(Index#(n)) tail <- mkRegNormal(0);
-  RegNormal#(NumElems#(n)) numElems <- mkRegNormal(0);
+partition FifoNormal#(n, t) mkGenericFifoNormal#(function _m__#(MultiFifoNormal#(n, 1, 1, t)) mkF) provisos(Bits#(t, tSz));
+  MultiFifoNormal#(n, 1, 1, t) f <- mkF;
 
   atomic a;
-    enq.notFull := numElems != fromInteger(valueOf(n)) || deq.deq;
-    deq.notEmpty := numElems != 0;
-
-    regs.read[0].req := tail;
-    deq.first := regs.read[0].resp;
-
-    if(deq.deq)
-      tail <= moduloIncr(tail);
-
-    if(enq.enq.en)
-    begin
-      regs.write[0] := RegFileWriteNormal{index: head, data: enq.enq};
-      head <= moduloIncr(head);
-    end
-
-    Bit#(2) diff = zeroExtend(pack(enq.enq.en)) - zeroExtend(pack(deq.deq));
-    numElems <= numElems + signExtend(diff);
+    enq.notFull := f.enq.numFreeSlots > 0;
+    deq.notEmpty := f.deq.numFilledSlots > 0;
+    f.deq.numDeqs := deq.deq? 1: 0;
+    deq.first := f.deq.data[0];
   endatomic
+
+  mkConnection(f.enq.data[0], enq.enq);
 endpartition
 
-partition FifoNormal#(n, t) mkFifoNormal provisos(Bits#(t, tSz));
-  RegFileNormal#(1, 1, n, t) regs <- mkRegFileUNormal;
+partinst FifoNormal#(n, t) mkLFifoNormal provisos(Bits#(t, tSz)) = mkGenericFifoNormal(mkMultiLFifoNormal);
 
-  RegNormal#(Index#(n)) head <- mkRegNormal(0);
-  RegNormal#(Index#(n)) tail <- mkRegNormal(0);
-  RegNormal#(NumElems#(n)) numElems <- mkRegNormal(0);
+partinst FifoNormal#(n, t) mkFifoNormal provisos(Bits#(t, tSz)) = mkGenericFifoNormal(mkMultiFifoNormal);
+
+partinst FifoNormal#(n, t) mkBypassFifoNormal provisos(Bits#(t, tSz)) = mkGenericFifoNormal(mkMultiBypassFifoNormal);
+
+port UgFifoEnqNormal#(type t);
+  InputNormal#(Bool) notFull;
+  ConditionalOutputNormal#(t) enq;
+endport
+
+port UgFifoDeqNormal#(type t);
+  InputNormal#(Bool) notEmpty;
+  InputNormal#(t) first;
+  OutputPulseNormal deq;
+endport
+
+port UgFifoNormal#(numeric type n, type t);
+  Reverse UgFifoEnqNormal#(t) enq;
+  Reverse UgFifoDeqNormal#(t) deq;
+endport
+
+partition UgFifoNormal#(n, t) mkGenericUgFifoNormal#(function _m__#(MultiFifoNormal#(n, 1, 1, t)) mkF) provisos(Bits#(t, tSz));
+  MultiFifoNormal#(n, 1, 1, t) f <- mkF;
 
   atomic a;
-    enq.notFull := numElems != fromInteger(valueOf(n));
-    deq.notEmpty := numElems != 0;
-
-    regs.read[0].req := tail;
-    deq.first := regs.read[0].resp;
-
-    if(deq.deq)
-      tail <= moduloIncr(tail);
-
-    if(enq.enq.en)
-    begin
-      regs.write[0] := RegFileWriteNormal{index: head, data: enq.enq};
-      head <= moduloIncr(head);
-    end
-
-    Bit#(2) diff = zeroExtend(pack(enq.enq.en)) - zeroExtend(pack(deq.deq));
-    numElems <= numElems + signExtend(diff);
+    enq.notFull := f.enq.numFreeSlots > 0;
+    deq.notEmpty := f.deq.numFilledSlots > 0;
+    f.deq.numDeqs := deq.deq? 1: 0;
+    deq.first := f.deq.data[0];
   endatomic
+
+  mkConnection(f.enq.data[0], enq.enq);
 endpartition
 
-partition FifoNormal#(n, t) mkBypassFifoNormal provisos(Bits#(t, tSz));
-  RegFileNormal#(1, 1, n, t) regs <- mkRegFileUNormal;
+partinst UgFifoNormal#(n, t) mkLUgFifoNormal provisos(Bits#(t, tSz)) = mkGenericUgFifoNormal(mkMultiLFifoNormal);
 
-  RegNormal#(Index#(n)) head <- mkRegNormal(0);
-  RegNormal#(Index#(n)) tail <- mkRegNormal(0);
-  RegNormal#(NumElems#(n)) numElems <- mkRegNormal(0);
+partinst UgFifoNormal#(n, t) mkUgFifoNormal provisos(Bits#(t, tSz)) = mkGenericUgFifoNormal(mkMultiFifoNormal);
 
-  atomic a;
-    enq.notFull := numElems != fromInteger(valueOf(n));
-    deq.notEmpty := numElems != 0 || enq.enq.en;
+partinst UgFifoNormal#(n, t) mkBypassUgFifoNormal provisos(Bits#(t, tSz)) = mkGenericUgFifoNormal(mkMultiBypassFifoNormal);
 
-    regs.read[0].req := tail;
-    deq.first := (numElems != 0)? regs.read[0].resp: enq.enq;
-
-    if(deq.deq)
-      tail <= moduloIncr(tail);
-
-    if(enq.enq.en)
-    begin
-      regs.write[0] := RegFileWriteNormal{index: head, data: enq.enq};
-      head <= moduloIncr(head);
-    end
-
-    Bit#(2) diff = zeroExtend(pack(enq.enq.en)) - zeroExtend(pack(deq.deq));
-    numElems <= numElems + signExtend(diff);
-  endatomic
-endpartition

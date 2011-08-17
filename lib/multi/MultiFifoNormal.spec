@@ -2,53 +2,122 @@ include Library;
 
 include RegFileNormal;
 
-port MultiFifoFillNormal#(numeric type fillsNum, type t);
-  InputNormal#(NumElems#(fillsNum)) numFreeSlots;
-  ConditionalOutputNormal#(t)[fillsNum] data;
+port MultiFifoEnqNormal#(numeric type n, numeric type enqsNum, type t);
+  InputNormal#(NumElems#(n)) numFreeSlots;
+  ConditionalOutputNormal#(t)[enqsNum] data;
 endport
 
-port MultiFifoRemoveNormal#(numeric type removesNum, type t);
-  InputNormal#(NumElems#(removesNum)) numFilledSlots;
-  ConditionalInputNormal#(t)[removesNum] data;
-  OutputNormal#(NumElems#(removesNum)) numDeqs;
+port MultiFifoDeqNormal#(numeric type n, numeric type deqsNum, type t);
+  InputNormal#(NumElems#(n)) numFilledSlots;
+  ConditionalInputNormal#(t)[deqsNum] data;
+  OutputNormal#(NumElems#(n)) numDeqs;
 endport
 
-port MultiFifoNormal#(numeric type n, numeric type fillsNum, numeric type removesNum, type t);
-  Reverse MultiFifoFillNormal#(fillsNum, t) fill;
-  Reverse MultiFifoRemoveNormal#(removesNum, t) remove;
+port MultiFifoNormal#(numeric type n, numeric type enqsNum, numeric type deqsNum, type t);
+  Reverse MultiFifoEnqNormal#(n, enqsNum, t) enq;
+  Reverse MultiFifoDeqNormal#(n, deqsNum, t) deq;
 endport
 
-partition MultiFifoNormal#(n, fillsNum, removesNum, t) mkMultiFifoNormal provisos(Bits#(t, tSz));
-  RegFileNormal#(removesNum, fillsNum, n, t) rf <- mkRegFileUNormal;
-  RegNormal#(Index#(n))                    head <- mkRegNormal(0);
-  RegNormal#(Index#(n))                    tail <- mkRegNormal(0);
-  RegNormal#(NumElems#(n))             numElems <- mkRegNormal(0);
-
-  function Index#(n) moduloPlus(NumElems#(n) incr, Index#(n) orig) = truncate(zeroExtend(orig) + incr <= (fromInteger(valueOf(n) - 1))? zeroExtend(orig) + incr: (incr - (fromInteger(valueOf(n) - 1) - (zeroExtend(orig) - 1))));
-  function Index#(n) moduloPlus1(Index#(n) orig) = moduloPlus(1, orig);
+partition MultiFifoNormal#(n, enqsNum, deqsNum, t) mkMultiFifoNormal provisos(Bits#(t, tSz));
+  RegFileNormal#(deqsNum, enqsNum, n, t) rf <- mkRegFileUNormal;
+  RegNormal#(Index#(n))                head <- mkRegNormal(0);
+  RegNormal#(Index#(n))                tail <- mkRegNormal(0);
+  RegNormal#(NumElems#(n))         numElems <- mkRegNormal(0);
 
   atomic a;
-    fill.numFreeSlots := truncate(fromInteger(valueOf(n)) - numElems);
-
-    remove.numFilledSlots := truncate(numElems);
-
     NumElems#(n) numEnqs = 0;
-    for(Integer i = 0; i < valueOf(fillsNum); i = i + 1)
-      if(fill.data[i].en)
+    for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
+      if(enq.data[i].en)
       begin
-        rf.write[i] := tuple2(moduloPlus(numEnqs, head), fill.data[i]);
+        rf.write[i] := RegFileWriteNormal{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
-    head <= moduloPlus(numEnqs, head);
+    head <= moduloPlus(valueOf(n), numEnqs, head);
 
-    for(Integer i = 0; i < valueOf(removesNum); i = i + 1)
-      if(fromInteger(i) < numElems)
+    enq.numFreeSlots := fromInteger(valueOf(n)) - numElems;
+
+    NumElems#(n) numFilledSlots = numElems;
+    deq.numFilledSlots := numFilledSlots;
+
+    for(Integer i = 0; i < valueOf(deqsNum); i = i + 1)
+      if(fromInteger(i) < numFilledSlots)
       begin
-        rf.read[i].req := moduloPlus(fromInteger(i), tail);
-        remove.data[i] := rf.read[i].resp;
+        rf.read[i].req := moduloPlus(valueOf(n), fromInteger(i), tail);
+        deq.data[i] := rf.read[i].resp;
       end
-    tail <= moduloPlus(zeroExtend(remove.numDeqs), tail);
+    tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
 
-    numElems <= numElems + numEnqs - zeroExtend(remove.numDeqs);
+    numElems <= numElems + (numEnqs - deq.numDeqs);
+  endatomic
+endpartition
+
+partition MultiFifoNormal#(n, enqsNum, deqsNum, t) mkMultiLFifoNormal provisos(Bits#(t, tSz));
+  RegFileNormal#(deqsNum, enqsNum, n, t) rf <- mkRegFileUNormal;
+  RegNormal#(Index#(n))                head <- mkRegNormal(0);
+  RegNormal#(Index#(n))                tail <- mkRegNormal(0);
+  RegNormal#(NumElems#(n))         numElems <- mkRegNormal(0);
+
+  atomic a;
+    NumElems#(n) numEnqs = 0;
+    for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
+      if(enq.data[i].en)
+      begin
+        rf.write[i] := RegFileWriteNormal{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        numEnqs = numEnqs + 1;
+      end
+    head <= moduloPlus(valueOf(n), numEnqs, head);
+
+    enq.numFreeSlots := fromInteger(valueOf(n)) - numElems + deq.numDeqs;
+
+    NumElems#(n) numFilledSlots = numElems;
+    deq.numFilledSlots := numFilledSlots;
+
+    for(Integer i = 0; i < valueOf(deqsNum); i = i + 1)
+      if(fromInteger(i) < numFilledSlots)
+      begin
+        rf.read[i].req := moduloPlus(valueOf(n), fromInteger(i), tail);
+        deq.data[i] := rf.read[i].resp;
+      end
+    tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
+
+    numElems <= numElems + (numEnqs - deq.numDeqs);
+  endatomic
+endpartition
+
+partition MultiFifoNormal#(n, enqsNum, deqsNum, t) mkMultiBypassFifoNormal provisos(Bits#(t, tSz));
+  RegFileNormal#(deqsNum, enqsNum, n, t) rf <- mkRegFileUNormal;
+  RegNormal#(Index#(n))                head <- mkRegNormal(0);
+  RegNormal#(Index#(n))                tail <- mkRegNormal(0);
+  RegNormal#(NumElems#(n))         numElems <- mkRegNormal(0);
+
+  atomic a;
+    NumElems#(n) numEnqs = 0;
+    for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
+      if(enq.data[i].en)
+      begin
+        rf.write[i] := RegFileWriteNormal{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        numEnqs = numEnqs + 1;
+      end
+    head <= moduloPlus(valueOf(n), numEnqs, head);
+
+    enq.numFreeSlots := fromInteger(valueOf(n)) - numElems;
+
+    NumElems#(n) numFilledSlots = numElems + numEnqs;
+    deq.numFilledSlots := numFilledSlots;
+
+    for(Integer i = 0; i < valueOf(deqsNum); i = i + 1)
+      if(fromInteger(i) < numFilledSlots)
+      begin
+        if(fromInteger(i) < numElems)
+        begin
+          rf.read[i].req := moduloPlus(valueOf(n), fromInteger(i), tail);
+          deq.data[i] := rf.read[i].resp;
+        end
+        else
+          deq.data[i] := enq.data[fromInteger(i) - numElems];
+      end
+    tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
+
+    numElems <= numElems + (numEnqs - deq.numDeqs);
   endatomic
 endpartition
