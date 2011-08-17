@@ -1,6 +1,4 @@
-include Library;
-
-include RegFile;
+include MultiFifo;
 
 port FifoEnq#(type t);
   Input#(Bool) notFull;
@@ -18,86 +16,56 @@ port Fifo#(numeric type n, type t);
   Reverse FifoDeq#(t) deq;
 endport
 
-partition Fifo#(n, t) mkLFifo provisos(Bits#(t, tSz));
-  RegFile#(1, 1, n, t) regs <- mkRegFileU;
-
-  Reg#(Index#(n)) head <- mkReg(0);
-  Reg#(Index#(n)) tail <- mkReg(0);
-  Reg#(NumElems#(n)) numElems <- mkReg(0);
+partition Fifo#(n, t) mkGenericFifo#(function _m__#(MultiFifo#(n, 1, 1, t)) mkF) provisos(Bits#(t, tSz));
+  MultiFifo#(n, 1, 1, t) f <- mkF;
 
   atomic a;
-    enq.notFull := numElems != fromInteger(valueOf(n)) || deq.deq;
-    deq.notEmpty := numElems != 0;
-
-    regs.read[0].req := tail;
-    deq.first := regs.read[0].resp;
-
-    if(deq.deq)
-      tail <= moduloIncr(tail);
-
-    if(enq.enq.en)
-    begin
-      regs.write[0] := RegFileWrite{index: head, data: enq.enq};
-      head <= moduloIncr(head);
-    end
-
-    Bit#(2) diff = zeroExtend(pack(enq.enq.en)) - zeroExtend(pack(deq.deq));
-    numElems <= numElems + signExtend(diff);
+    enq.notFull := f.enq.numFreeSlots > 0;
+    deq.notEmpty := f.deq.numFilledSlots > 0;
+    f.deq.numDeqs := deq.deq? 1: 0;
+    deq.first := f.deq.data[0];
   endatomic
+
+  mkConnection(f.enq.data[0], enq.enq);
 endpartition
 
-partition Fifo#(n, t) mkFifo provisos(Bits#(t, tSz));
-  RegFile#(1, 1, n, t) regs <- mkRegFileU;
+partinst Fifo#(n, t) mkLFifo provisos(Bits#(t, tSz)) = mkGenericFifo(mkMultiLFifo);
 
-  Reg#(Index#(n)) head <- mkReg(0);
-  Reg#(Index#(n)) tail <- mkReg(0);
-  Reg#(NumElems#(n)) numElems <- mkReg(0);
+partinst Fifo#(n, t) mkFifo provisos(Bits#(t, tSz)) = mkGenericFifo(mkMultiFifo);
+
+partinst Fifo#(n, t) mkBypassFifo provisos(Bits#(t, tSz)) = mkGenericFifo(mkMultiBypassFifo);
+
+port UgFifoEnq#(type t);
+  Input#(Bool) notFull;
+  ConditionalOutput#(t) enq;
+endport
+
+port UgFifoDeq#(type t);
+  Input#(Bool) notEmpty;
+  Input#(t) first;
+  OutputPulse deq;
+endport
+
+port UgFifo#(numeric type n, type t);
+  Reverse UgFifoEnq#(t) enq;
+  Reverse UgFifoDeq#(t) deq;
+endport
+
+partition UgFifo#(n, t) mkGenericUgFifo#(function _m__#(MultiFifo#(n, 1, 1, t)) mkF) provisos(Bits#(t, tSz));
+  MultiUgFifo#(n, 1, 1, t) f <- mkF;
 
   atomic a;
-    enq.notFull := numElems != fromInteger(valueOf(n));
-    deq.notEmpty := numElems != 0;
-
-    regs.read[0].req := tail;
-    deq.first := regs.read[0].resp;
-
-    if(deq.deq)
-      tail <= moduloIncr(tail);
-
-    if(enq.enq.en)
-    begin
-      regs.write[0] := RegFileWrite{index: head, data: enq.enq};
-      head <= moduloIncr(head);
-    end
-
-    Bit#(2) diff = zeroExtend(pack(enq.enq.en)) - zeroExtend(pack(deq.deq));
-    numElems <= numElems + signExtend(diff);
+    enq.notFull := f.enq.numFreeSlots > 0;
+    deq.notEmpty := f.deq.numFilledSlots > 0;
+    f.deq.numDeqs := deq.deq? 1: 0;
+    deq.first := f.deq.data[0];
   endatomic
+
+  mkConnection(f.enq.data[0], enq.enq);
 endpartition
 
-partition Fifo#(n, t) mkBypassFifo provisos(Bits#(t, tSz));
-  RegFile#(1, 1, n, t) regs <- mkRegFileU;
+partinst UgFifo#(n, t) mkLUgFifo provisos(Bits#(t, tSz)) = mkGenericUgFifo(mkMultiLFifo);
 
-  Reg#(Index#(n)) head <- mkReg(0);
-  Reg#(Index#(n)) tail <- mkReg(0);
-  Reg#(NumElems#(n)) numElems <- mkReg(0);
+partinst UgFifo#(n, t) mkUgFifo provisos(Bits#(t, tSz)) = mkGenericUgFifo(mkMultiFifo);
 
-  atomic a;
-    enq.notFull := numElems != fromInteger(valueOf(n));
-    deq.notEmpty := numElems != 0 || enq.enq.en;
-
-    regs.read[0].req := tail;
-    deq.first := (numElems != 0)? regs.read[0].resp: enq.enq;
-
-    if(deq.deq)
-      tail <= moduloIncr(tail);
-
-    if(enq.enq.en)
-    begin
-      regs.write[0] := RegFileWrite{index: head, data: enq.enq};
-      head <= moduloIncr(head);
-    end
-
-    Bit#(2) diff = zeroExtend(pack(enq.enq.en)) - zeroExtend(pack(deq.deq));
-    numElems <= numElems + signExtend(diff);
-  endatomic
-endpartition
+partinst UgFifo#(n, t) mkBypassUgFifo provisos(Bits#(t, tSz)) = mkGenericUgFifo(mkMultiBypassFifo);
