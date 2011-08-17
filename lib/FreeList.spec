@@ -3,9 +3,9 @@ include Library;
 include MultiFifo;
 
 port FreeListAllocate#(numeric type n, numeric type allocs);
-  Input#(NumElems#(allocs)) numFreeSlots;
+  Input#(NumElems#(n)) numFreeSlots;
   ConditionalInput#(Index#(n))[allocs] index;
-  Output#(NumElems#(allocs)) allocateNum;
+  Output#(NumElems#(n)) allocateNum;
 endport
 
 port FreeList#(numeric type n, numeric type allocs, numeric type frees);
@@ -21,13 +21,24 @@ partition FreeList#(n, allocs, frees) mkFreeList#(NumElems#(n) allots);
 
   Bool initializedLocal = initializing == fromInteger(valueOf(n));
 
-  mkConnection(allocate.numFreeSlots, f.remove.numFilledSlots);
-  mkConnection(allocate.index, f.remove.data);
-  mkConnection(allocate.allocateNum, f.remove.numDeqs);
+  mkConnection(allocate.numFreeSlots, f.deq.numFilledSlots);
+  mkConnection(allocate.index, f.deq.data);
+  mkConnection(allocate.allocateNum, f.deq.numDeqs);
 
   mkConnection(free, f.fill.data);
 
-  atomic a0;
+  atomic a0(!initializedLocal);
+    initializing <= initializing + 1;
+    f.enq.data[0] := initializing;
+  endatomic
+
+  atomic a1(initializedLocal);
+    for(Integer i = 0; i < valueOf(frees); i = i + 1)
+      if(free[i].en)
+        f.enq.data[i] := free[i];
+  endatomic
+
+  atomic a2;
     initialized := initializedLocal;
   endatomic
 endpartition
