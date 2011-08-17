@@ -29,7 +29,7 @@ partition MultiFifoNormal#(n, enqsNum, deqsNum, t) mkMultiFifoNormal provisos(Bi
     for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
       if(enq.data[i].en)
       begin
-        rf.write[i] := RegFileWriteNormal{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
     head <= moduloPlus(valueOf(n), numEnqs, head);
@@ -62,7 +62,7 @@ partition MultiFifoNormal#(n, enqsNum, deqsNum, t) mkMultiLFifoNormal provisos(B
     for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
       if(enq.data[i].en)
       begin
-        rf.write[i] := RegFileWriteNormal{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
     head <= moduloPlus(valueOf(n), numEnqs, head);
@@ -95,7 +95,7 @@ partition MultiFifoNormal#(n, enqsNum, deqsNum, t) mkMultiBypassFifoNormal provi
     for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
       if(enq.data[i].en)
       begin
-        rf.write[i] := RegFileWriteNormal{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
     head <= moduloPlus(valueOf(n), numEnqs, head);

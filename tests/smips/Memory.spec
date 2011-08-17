@@ -23,8 +23,8 @@ partition Memory mkMemory;
   atomic r2;
     dataReqQ.deq;
     case (dataReqQ.first) matches
-      tagged Store (tagged MemWrite{index: .addr, data:.data}):
-        regs.write[0] := RegWrite{index: truncate(addr>>2), data: data};
+      tagged Store (tagged Pair{fst: .addr, snd:.data}):
+        regs.write[0] := Pair{fst: truncate(addr>>2), snd: data};
       tagged Load .addr:
         begin
           regs.read[1].req := truncate(addr>>2);

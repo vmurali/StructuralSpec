@@ -76,3 +76,8 @@ function Bit#(m) signExtend(Bit#(n) x);
   function Bit#(1) signOrNorm(Integer i) = i < valueOf(n)? x[i]: (valueOf(n) == 0? ?: x[valueOf(n)-1]);
   return pack(genWith(signOrNorm));
 endfunction
+
+typedef struct {
+  t1 fst;
+  t2 snd;
+} Pair#(type t1, type t2) deriving (Bits, Eq);

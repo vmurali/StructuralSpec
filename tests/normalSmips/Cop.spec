@@ -2,7 +2,7 @@ include Library;
 include Types;
 
 port Cop;
-  ConditionalInputNormal#(RegWrite) write;
+  ConditionalInputNormal#(Pair#(RegIndex, Data)) write;
   OutputNormal#(Data) read;
 endport
 
@@ -14,16 +14,16 @@ partition Cop mkCop;
   atomic r1;
     if(write.en)
     begin
-      if(write.index == 21)
+      if(write.fst == 21)
       begin
-        if(write.data == 1)
+        if(write.snd == 1)
           $display("Passed");
         else
           $display("Failed");
-        finishReg <= write.data;
+        finishReg <= write.snd;
       end
       else
-        statsReg <= write.data;
+        statsReg <= write.snd;
     end
   endatomic
 

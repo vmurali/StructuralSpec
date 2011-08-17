@@ -6,7 +6,7 @@ port Writeback;
   Reverse FifoEnq#(Wb) wb;
   ConditionalOutput#(RegIndex) wbIndex;
   FifoDeq#(Data) dataQ;
-  ConditionalOutput#(RegWrite) regWrite;
+  ConditionalOutput#(Pair#(RegIndex, Data)) regWrite;
 endport
 
 (* synthesize *)
@@ -22,12 +22,12 @@ partition Writeback mkWriteback;
   atomic r2;
     if(wbQ.deq.first.data matches tagged Valid .d)
     begin
-      regWrite := RegWrite{index: wbQ.deq.first.index, data: d};
+      regWrite := Pair{fst: wbQ.deq.first.index, snd: d};
       wbQ.deq.deq;
     end
     else
     begin
-      regWrite := RegWrite{index: wbQ.deq.first.index, data: dataQ.first};
+      regWrite := Pair{fst: wbQ.deq.first.index, snd: dataQ.first};
       wbQ.deq.deq;
       dataQ.deq;
     end

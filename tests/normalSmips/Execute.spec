@@ -60,7 +60,7 @@ partition Execute mkExecute;
           end
           else if(isStore(inst))
           begin
-            dataReqQ.enq := tagged Store (MemWrite{index: res, data: regRead[1].resp});
+            dataReqQ.enq := tagged Store (Pair{fst: res, snd: regRead[1].resp});
           end
           else if(copRead(inst))
           begin
@@ -68,7 +68,7 @@ partition Execute mkExecute;
           end
           else if(copWrite(inst))
           begin
-            cop.write := RegWrite{index: copReg(inst), data: regRead[1].resp};
+            cop.write := Pair{fst: copReg(inst), snd: regRead[1].resp};
           end
           else
           begin

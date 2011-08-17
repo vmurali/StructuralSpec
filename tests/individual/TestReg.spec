@@ -1,5 +1,4 @@
 include Library;
-include RegFile;
 
 (* synthesize *)
 partition Empty mkTestReg;

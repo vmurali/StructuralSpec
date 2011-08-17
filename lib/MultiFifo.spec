@@ -29,7 +29,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiFifo provisos(Bits#(t, tSz))
     for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
       if(enq.data[i].en)
       begin
-        rf.write[i] := RegFileWrite{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
     head <= moduloPlus(valueOf(n), numEnqs, head);
@@ -42,7 +42,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiFifo provisos(Bits#(t, tSz))
     for(Integer i = 0; i < valueOf(deqsNum); i = i + 1)
       if(fromInteger(i) < numFilledSlots)
       begin
-        rf.read[i].req := moduloPlus(valueOf(n), fromInteger(i), tail);
+        rf.read[i].req := Index#(n)'(moduloPlus(valueOf(n), fromInteger(i), tail));
         deq.data[i] := rf.read[i].resp;
       end
     tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
@@ -62,7 +62,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiLFifo provisos(Bits#(t, tSz)
     for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
       if(enq.data[i].en)
       begin
-        rf.write[i] := RegFileWrite{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
     head <= moduloPlus(valueOf(n), numEnqs, head);
@@ -75,7 +75,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiLFifo provisos(Bits#(t, tSz)
     for(Integer i = 0; i < valueOf(deqsNum); i = i + 1)
       if(fromInteger(i) < numFilledSlots)
       begin
-        rf.read[i].req := moduloPlus(valueOf(n), fromInteger(i), tail);
+        rf.read[i].req := Index#(n)'(moduloPlus(valueOf(n), fromInteger(i), tail));
         deq.data[i] := rf.read[i].resp;
       end
     tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
@@ -95,7 +95,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiBypassFifo provisos(Bits#(t,
     for(Integer i = 0; i < valueOf(enqsNum); i = i + 1)
       if(enq.data[i].en)
       begin
-        rf.write[i] := RegFileWrite{index: moduloPlus(valueOf(n), numEnqs, head), data: enq.data[i]};
+        rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
     head <= moduloPlus(valueOf(n), numEnqs, head);
@@ -110,7 +110,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiBypassFifo provisos(Bits#(t,
       begin
         if(fromInteger(i) < numElems)
         begin
-          rf.read[i].req := moduloPlus(valueOf(n), fromInteger(i), tail);
+          rf.read[i].req := Index#(n)'(moduloPlus(valueOf(n), fromInteger(i), tail));
           deq.data[i] := rf.read[i].resp;
         end
         else

@@ -4,7 +4,7 @@ include RegFile;
 
 port Registers;
   Reverse RegFileRead#(NumRegs, Data)[2] read;
-  ConditionalInput#(RegWrite) write;
+  ConditionalInput#(Pair#(RegIndex, Data)) write;
 endport
 
 (* synthesize *)
@@ -18,12 +18,12 @@ partition Registers mkRegisters;
 
       read[i].resp := read[i].req == 0?
                         0:
-                        write.en && write.index == read[i].req?
-                          write.data:
+                        write.en && write.fst == read[i].req?
+                          write.snd:
                           regs.read[i].resp;
     end
 
-    if(write.en && write.index != 0)
+    if(write.en && write.fst != 0)
       regs.write[0] := write;
   endatomic
 endpartition

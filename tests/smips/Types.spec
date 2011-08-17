@@ -1,5 +1,3 @@
-include RegFile;
-
 typedef Bit#(32) VAddr;
 typedef Bit#(32) Inst;
 typedef Bit#(32) Data;
@@ -15,13 +13,10 @@ typedef struct {
 
 typedef union tagged {
   VAddr Load;
-  MemWrite Store;
+  Pair#(VAddr, Data) Store;
 } Mem deriving (Bits, Eq);
 
 typedef struct {
   VAddr pc;
   Bool epoch;
 } PcQ deriving (Bits, Eq);
-
-typedef RegFileWrite#(NumRegs, Data) RegWrite;
-typedef RegFileWrite#(TExp#(32), Data) MemWrite;

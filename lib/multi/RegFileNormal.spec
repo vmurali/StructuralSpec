@@ -7,14 +7,9 @@ port RegFileReadNormal#(numeric type size, type t);
   InputNormal#(t) resp;
 endport
 
-typedef struct {
-  Index#(size) index;
-  t data;
-} RegFileWriteNormal#(numeric type size, type t) deriving (Bits, Eq);
-
 port RegFileNormal#(numeric type reads, numeric type writes, numeric type size, type t);
   Reverse RegFileReadNormal#(size, t)[reads] read;
-  Reverse ConditionalOutputNormal#(RegFileWriteNormal#(size, t))[writes] write;
+  Reverse ConditionalOutputNormal#(Pair#(Index#(size), t))[writes] write;
 endport
 
 partition RegFileNormal#(reads, writes, size, t) mkRegFileFuncNormal#(function t init(Integer i)) provisos(Bits#(t, tSz));
@@ -26,7 +21,7 @@ partition RegFileNormal#(reads, writes, size, t) mkRegFileFuncNormal#(function t
       read[i].resp := regFile[read[i].req];
     for(Integer i = 0; i < valueOf(writes); i = i + 1)
       if(write[i].en)
-        regFile[write[i].index] = write[i].data;
+        regFile[write[i].fst] = write[i].snd;
     regFileReg <= regFile;
   endatomic
 endpartition
@@ -47,7 +42,7 @@ partition RegFileNormal#(reads, writes, size, t) mkMultiplePortsNormal#(function
     for(Integer i = 0; i < valueOf(writes); i = i + 1)
       if(write[i].en)
       begin
-        which[write[i].index] = fromInteger(i);
+        which[write[i].fst] = fromInteger(i);
         for(Integer j = 0; j < valueOf(reads); j = j + 1)
           rf[i][j].write[0] := write[i];
       end
@@ -61,7 +56,7 @@ partition RegFileNormal#(1, 1, size, t) mkRegFileLoadSingleNormal#(Integer mode,
   atomic a;
     read[0].resp := rf.read(read[0].req);
     if(write[0].en)
-      rf.write(write[0].index, write[0].data);
+      rf.write(write[0].fst, write[0].snd);
   endatomic
 endpartition
 

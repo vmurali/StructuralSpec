@@ -155,6 +155,11 @@ function Bit#(m) signExtend(Bit#(n) x);
   return pack(genWith(signOrNorm));
 endfunction
 
+typedef struct {
+  t1 fst;
+  t2 snd;
+} Pair#(type t1, type t2) deriving (Bits, Eq);
+
 (* always_ready *)
 interface WireNormal#(type t);
   method t _read;
