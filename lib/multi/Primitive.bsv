@@ -18,10 +18,8 @@ endinterface
 
 instance Connectable#(Output_#(t), Output#(t));
   module mkConnection#(Output_#(t) a, Output#(t) b)();
-    (* preempts = "_safe1, _safe2"*)
-    rule _safe1(b.valid);
+    rule _safe1;
       a.write(b);
-      a.valid;
     endrule
 
     rule _safe2(b.valid);
@@ -86,10 +84,8 @@ typedef Output#(Bool) OutputPulse;
 
 instance Connectable#(OutputPulse_, OutputPulse);
   module mkConnection#(OutputPulse_ a, OutputPulse b)();
-    (* preempts = "_safe1, _safe2" *)
-    rule _safe1(b.valid && b);
+    rule _safe1(b);
       a;
-      a.valid;
     endrule
 
     rule _safe2(b.valid);
@@ -165,20 +161,23 @@ endinterface
 
 instance Connectable#(ConditionalOutput_#(t), ConditionalOutput#(t));
   module mkConnection#(ConditionalOutput_#(t) a, ConditionalOutput#(t) b)();
-    (* preempts = "_safe1, _safe2" *)
-    rule _safe1(b.valid && b.en_valid && b.en);
+    rule _safe1(b.en);
       a.write(b);
-      a.valid;
-      a.en_valid;
     endrule
 
-    rule _safe2(b.valid && b.en_valid);
+    rule _safe2(b.valid);
       a.valid;
-      a.en_valid;
     endrule
 
-    rule _safe3(a.consumed && a.en_consumed);
+    rule _safe3(a.consumed);
       b.consumed;
+    endrule
+
+    rule _safe4(b.en_valid);
+      a.en_valid;
+    endrule
+
+    rule _safe5(a.en_consumed);
       b.en_consumed;
     endrule
   endmodule
