@@ -1,5 +1,4 @@
-include Library;
-include FifoNormal;
+include Fifo;
 include Types;
 include Fetch;
 include Execute;
@@ -13,15 +12,15 @@ port Core;
 endport
 
 (* synthesize *)
-partinst FifoNormal#(3, PcQ) mkPcQ = mkLFifoNormal;
+partinst Fifo#(3, Pair#(VAddr, Bool)) mkPcQ = mkLFifo;
 (* synthesize *)
-partinst FifoNormal#(6, VAddr) mkInstReqQ = mkLFifoNormal;
+partinst Fifo#(6, VAddr) mkInstReqQ = mkLFifo;
 (* synthesize *)
-partinst FifoNormal#(2, Inst) mkInstQ = mkLFifoNormal;
+partinst Fifo#(2, Inst) mkInstQ = mkLFifo;
 (* synthesize *)
-partinst FifoNormal#(1, Mem) mkDataReqQ = mkLFifoNormal;
+partinst Fifo#(1, Mem) mkDataReqQ = mkLFifo;
 (* synthesize *)
-partinst FifoNormal#(4, Data) mkDataQ = mkLFifoNormal;
+partinst Fifo#(4, Data) mkDataQ = mkLFifo;
 
 (* synthesize *)
 partition Core mkCore;
@@ -57,12 +56,4 @@ partition Core mkCore;
   mkConnection(mem.instQ, instQ.enq);
   mkConnection(mem.dataReqQ, dataReqQ.deq);
   mkConnection(mem.dataQ, dataQ.enq);
-endpartition
-
-(* synthesize *)
-partition Empty mkProcessor;
-  let core <- mkCore;
-  let  mem <- mkMemory;
-
-  mkConnection(core.mem, mem);
 endpartition

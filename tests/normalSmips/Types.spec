@@ -1,1 +1,0 @@
-../smips/Types.spec

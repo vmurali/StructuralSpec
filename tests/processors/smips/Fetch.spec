@@ -1,24 +1,24 @@
 include Library;
 include Types;
-include FifoNormal;
+include Fifo;
 
 port Fetch;
-  OutputNormal#(Bool) currEpoch;
-  FifoEnqNormal#(PcQ) pcQ;
-  FifoEnqNormal#(VAddr) instReqQ;
-  ConditionalInputNormal#(VAddr) branchPc;
+  Output#(Bool) currEpoch;
+  FifoEnq#(Pair#(VAddr, Bool)) pcQ;
+  FifoEnq#(VAddr) instReqQ;
+  ConditionalInput#(VAddr) branchPc;
 endport
 
 (* synthesize *)
 partition Fetch mkFetch;
-  RegNormal#(VAddr)   pc <- mkRegNormal('h1000);
-  RegNormal#(Bool) epoch <- mkRegUNormal;
+  Reg#(VAddr)   pc <- mkReg('h1000);
+  Reg#(Bool) epoch <- mkRegU;
 
-  PulseNormal      fired <- mkPulseNormal;
+  Pulse      fired <- mkPulse;
 
   atomic r1;
     instReqQ.enq := pc;
-    pcQ.enq := PcQ{pc: pc+4, epoch: epoch};
+    pcQ.enq := Pair{fst: pc+4, snd: epoch};
 
     fired.send;
   endatomic
