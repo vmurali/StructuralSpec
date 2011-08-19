@@ -1,4 +1,5 @@
 build
 StructuralSpec
 tests/*/bsv
-tests/*/memory.vmh
+tests/processors/*/bsv
+tests/processors/*/memory.vmh
