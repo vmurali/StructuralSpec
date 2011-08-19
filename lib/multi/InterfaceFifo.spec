@@ -10,10 +10,11 @@ endport
 partition InputFifo#(t) mkInputFifo provisos(Bits#(t, tSz));
   atomic a;
     deq.notEmpty := in.valid;
-    if((in.valid? deq.deq: True))
-      in.consumed;
     if(in.valid && deq.deq)
+    begin
+      in.consumed;
       deq.first := in;
+    end
   endatomic
 endpartition
 
@@ -31,7 +32,7 @@ partition OutputFifo#(n, t) mkOutputGenericFifo#(function _m__#(FifoNormal#(n, t
       out := f.deq.first;
       out.valid;
     end
-    if(f.deq.notEmpty && out.consumed)
+    if(out.consumed)
       f.deq.deq;
   endatomic
 
@@ -61,7 +62,7 @@ partition OutputPulseFifo#(n) mkOutputPulseGenericFifo#(function _m__#(FifoNorma
         out;
       out.valid;
     end
-    if(f.deq.notEmpty && out.consumed)
+    if(out.consumed)
       f.deq.deq;
   endatomic
 
@@ -80,7 +81,7 @@ endport
 partition ConditionalInputFifo#(t) mkConditionalInputFifo provisos(Bits#(t, tSz));
   atomic a;
     deq.notEmpty := in.valid && in.en_valid;
-    if(((in.valid && in.en_valid)? deq.deq: True))
+    if(in.valid && in.en_valid && deq.deq)
     begin
       in.consumed;
       in.en_consumed;
@@ -111,7 +112,7 @@ partition ConditionalOutputFifo#(n, t) mkConditionalOutputGenericFifo#(function 
       out.valid;
       out.en_valid;
     end
-    if(f.deq.notEmpty && (out.consumed && out.en_consumed))
+    if(out.consumed && out.en_consumed)
       f.deq.deq;
   endatomic
 

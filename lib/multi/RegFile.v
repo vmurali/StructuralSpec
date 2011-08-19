@@ -29,7 +29,7 @@ module mkRegFileVerilogLoad(CLK, RST_N,
 
   reg [((width == 0)? 0: width-1):0] arr[0:size-1];
 
-  wire enqCond, deqCond, inpValid, readRespValid;
+  wire enqCond, deqCond, inpValid;
 
   reg en0;
   reg [((n == 0)? 0: n-1):0] index0;
@@ -42,15 +42,14 @@ module mkRegFileVerilogLoad(CLK, RST_N,
 
   assign inpValid = ((n == 0)? 1: WRITE_INDEX_WRITE_VALID) && ((width == 0)? 1: WRITE_DATA_WRITE_VALID) && WRITE_EN_WRITE_VALID;
   assign enqCond = inpValid && !valid0;
-  assign WRITE_EN_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
-  assign WRITE_INDEX_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
-  assign WRITE_DATA_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
+  assign WRITE_EN_WRITE_CONSUMED = inpValid && !valid0;
+  assign WRITE_INDEX_WRITE_CONSUMED = inpValid && !valid0;
+  assign WRITE_DATA_WRITE_CONSUMED = inpValid && !valid0;
 
   assign READ_RESP_READ = (en1 && ((n == 0)? 1: index1 == READ_REQ_WRITE))? data1: arr[(n == 0)? 0: READ_REQ_WRITE];
-  assign readRespValid = valid1 && ((n == 0)? 1: READ_REQ_WRITE_VALID);
-  assign READ_RESP_READ_VALID = readRespValid;
+  assign READ_RESP_READ_VALID = valid1 && ((n == 0)? 1: READ_REQ_WRITE_VALID);
   assign READ_REQ_WRITE_CONSUMED = ((width == 0)? 1: READ_RESP_READ_CONSUMED);
-  assign deqCond = readRespValid && ((width == 0)? 1: READ_RESP_READ_CONSUMED);
+  assign deqCond = ((width == 0)? 1: READ_RESP_READ_CONSUMED);
 
   initial
   begin

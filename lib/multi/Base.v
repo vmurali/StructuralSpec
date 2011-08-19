@@ -61,9 +61,9 @@ module mkReg(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, OUT_READ, 
   assign OUT_READ = data1;
   assign inpValid = ((width == 0)? 1: IN_WRITE_VALID) && IN_EN_WRITE_VALID;
   assign enqCond = inpValid && !valid0;
-  assign IN_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
-  assign IN_EN_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
-  assign deqCond = valid1 && ((width == 0)? 1: OUT_READ_CONSUMED);
+  assign IN_WRITE_CONSUMED = inpValid && !valid0;
+  assign IN_EN_WRITE_CONSUMED = inpValid && !valid0;
+  assign deqCond = ((width == 0)? 1: OUT_READ_CONSUMED);
 
   always@(posedge CLK)
   begin
@@ -129,9 +129,9 @@ module mkRegU(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, OUT_READ,
   assign OUT_READ = data1;
   assign inpValid = ((width == 0)? 1: IN_WRITE_VALID) && IN_EN_WRITE_VALID;
   assign enqCond = inpValid && !valid0;
-  assign IN_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
-  assign IN_EN_WRITE_CONSUMED = inpValid? !valid0: 1'b1;
-  assign deqCond = valid1 && ((width == 0)? 1: OUT_READ_CONSUMED);
+  assign IN_WRITE_CONSUMED = inpValid && !valid0;
+  assign IN_EN_WRITE_CONSUMED = inpValid && !valid0;
+  assign deqCond = ((width == 0)? 1: OUT_READ_CONSUMED);
 
   always@(posedge CLK)
   begin
