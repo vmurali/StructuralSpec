@@ -55,8 +55,13 @@ function Vector#(2, RegIndex) getSrcsInst(Inst inst);
         24, 792, 536:
           ret[0] = inst[25:21];
       endcase
-    32, 36:
+    32:
       ret[0] = inst[20:16];
+    36:
+    begin
+      ret[0] = inst[20:16];
+      ret[1] = inst[25:21];
+    end
     11:
       ret[0] = inst[20:16];
   endcase
@@ -135,11 +140,11 @@ function Bit#(4) condWrite(Inst inst, Data src1);
   Data imm = signExtend(inst[15:0]);
   SData simm = unpack(imm);
   SData ssrc1 = unpack(src1);
-  if(simm < ssrc1)
-    return 4'b1000;
-  else if(simm > ssrc1)
-    return 4'b0100;
-  else return 4'b0000;
+  if(ssrc1 < simm)
+    return 4'b0001;
+  else if(ssrc1 > simm)
+    return 4'b0010;
+  else return 4'b0100;
 endfunction
 
 function Bool isWriteLr(Inst inst) = inst[31:26] == 18 && inst[0] == 1;
@@ -154,7 +159,6 @@ function Data aluResultMemAddr(Inst inst, Vector#(2, Data) srcs, VAddr lr);
   case (inst[31:26])
     14:
       ret = src1 + imm;
-
     28:
       ret = src1 & zimm;
     26:
@@ -194,7 +198,7 @@ function Data aluResultMemAddr(Inst inst, Vector#(2, Data) srcs, VAddr lr);
 endfunction
 
 function Tuple2#(Bool /* taken */, VAddr /* branchPc */) branch(Inst inst, Data src1, Data linkReg, Bit#(4) cr, VAddr pc);
-  Data imm = signExtend({inst[15:0], 2'b0});
+  Data imm = signExtend({inst[15:2], 2'b0});
   VAddr branchTarget = pc + imm;
   Bool trueCond = cr[inst[17:16]] == 1;
   Tuple2#(Bool, VAddr) ret = tuple2(?, ?);

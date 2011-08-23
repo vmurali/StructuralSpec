@@ -21,7 +21,6 @@ partition Execute mkExecute;
   Reg#(Bit#(4)) cr0 <- mkReg(0);
 
   atomic a;
-    let pc = pcQ.first.snd;
     let epoch = pcQ.first.fst;
     if(epoch != currEpoch)
     begin
@@ -42,6 +41,7 @@ partition Execute mkExecute;
 
       if(!isStall)
       begin
+        let pc = pcQ.first.snd;
         pcQ.deq;
         instQ.deq;
         let dest = getDest(inst);
@@ -72,7 +72,7 @@ partition Execute mkExecute;
             dataReqQ.enq := tagged Load res;
           end
           else if(isStore(inst))
-            dataReqQ.enq := tagged Store (Pair{fst: res, snd: regRead[1].resp});
+            dataReqQ.enq := tagged Store (Pair{fst: res, snd: regVals[1]});
           else
             wbQ.enq := Pair{fst: dest, snd: tagged Valid res};
         end
