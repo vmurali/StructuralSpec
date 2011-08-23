@@ -1,0 +1,21 @@
+
+basictest:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	38 40 00 01 	li      r2,1
+    1004:	60 00 00 00 	nop
+    1008:	60 00 00 00 	nop
+    100c:	60 00 00 00 	nop
+    1010:	60 00 00 00 	nop
+    1014:	60 00 00 00 	nop
+    1018:	60 00 00 00 	nop
+    101c:	60 00 00 00 	nop
+
+0000000000001020 <pass>:
+pass():
+    1020:	3b e0 0a aa 	li      r31,2730
+    1024:	4b ff ff fc 	b       1020 <pass>

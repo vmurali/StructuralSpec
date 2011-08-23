@@ -1,0 +1,35 @@
+
+bnetest:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	38 40 00 01 	li      r2,1
+    1004:	2c 02 00 00 	cmpwi   r2,0
+    1008:	40 82 00 08 	bne-    1010 <c1>
+    100c:	48 00 00 1c 	b       1028 <fail>
+
+0000000000001010 <c1>:
+c1():
+    1010:	38 40 00 01 	li      r2,1
+    1014:	2c 02 00 01 	cmpwi   r2,1
+    1018:	40 82 00 10 	bne-    1028 <fail>
+    101c:	38 40 00 01 	li      r2,1
+    1020:	2c 02 00 00 	cmpwi   r2,0
+    1024:	40 82 00 0c 	bne-    1030 <pass>
+
+0000000000001028 <fail>:
+fail():
+    1028:	3b e0 0f ff 	li      r31,4095
+    102c:	4b ff ff fc 	b       1028 <fail>
+
+0000000000001030 <pass>:
+pass():
+    1030:	3b e0 0a aa 	li      r31,2730
+    1034:	4b ff ff fc 	b       1030 <pass>
+
+0000000000001038 <_end>:
+_end():
+    1038:	3b e0 0f ff 	li      r31,4095

@@ -1,0 +1,71 @@
+
+lwztest:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	48 00 00 7d 	bl      107c <getbase>
+    1004:	48 00 00 85 	bl      1088 <getbase2>
+    1008:	80 77 00 00 	lwz     r3,0(r23)
+    100c:	2c 03 00 ff 	cmpwi   r3,255
+    1010:	40 82 00 5c 	bne-    106c <fail>
+    1014:	80 77 00 04 	lwz     r3,4(r23)
+    1018:	2c 03 7f 00 	cmpwi   r3,32512
+    101c:	40 82 00 50 	bne-    106c <fail>
+    1020:	80 77 00 08 	lwz     r3,8(r23)
+    1024:	2c 03 0f f0 	cmpwi   r3,4080
+    1028:	40 82 00 44 	bne-    106c <fail>
+    102c:	80 77 00 0c 	lwz     r3,12(r23)
+    1030:	2c 03 70 0f 	cmpwi   r3,28687
+    1034:	40 82 00 38 	bne-    106c <fail>
+    1038:	80 76 ff f0 	lwz     r3,-16(r22)
+    103c:	2c 03 00 ff 	cmpwi   r3,255
+    1040:	40 82 00 2c 	bne-    106c <fail>
+    1044:	80 76 ff f4 	lwz     r3,-12(r22)
+    1048:	2c 03 7f 00 	cmpwi   r3,32512
+    104c:	40 82 00 20 	bne-    106c <fail>
+    1050:	80 76 ff f8 	lwz     r3,-8(r22)
+    1054:	2c 03 0f f0 	cmpwi   r3,4080
+    1058:	40 82 00 14 	bne-    106c <fail>
+    105c:	80 76 ff fc 	lwz     r3,-4(r22)
+    1060:	2c 03 70 0f 	cmpwi   r3,28687
+    1064:	40 82 00 08 	bne-    106c <fail>
+    1068:	48 00 00 0c 	b       1074 <pass>
+
+000000000000106c <fail>:
+fail():
+    106c:	3b e0 0f ff 	li      r31,4095
+    1070:	4b ff ff fc 	b       106c <fail>
+
+0000000000001074 <pass>:
+pass():
+    1074:	3b e0 0a aa 	li      r31,2730
+    1078:	4b ff ff fc 	b       1074 <pass>
+
+000000000000107c <getbase>:
+getbase():
+    107c:	7e c8 02 a6 	mflr    r22
+    1080:	3a d6 00 a0 	addi    r22,r22,160
+    1084:	4e 80 00 20 	blr
+
+0000000000001088 <getbase2>:
+getbase2():
+    1088:	7e e8 02 a6 	mflr    r23
+    108c:	3a f7 00 8c 	addi    r23,r23,140
+    1090:	4e 80 00 20 	blr
+
+0000000000001094 <testdata>:
+testdata():
+    1094:	00 00 00 ff 	.long 0xff
+    1098:	00 00 7f 00 	.long 0x7f00
+    109c:	00 00 0f f0 	.long 0xff0
+    10a0:	00 00 70 0f 	.long 0x700f
+
+00000000000010a4 <strg>:
+strg():
+    10a4:	54 65 73 74 	rlwinm  r5,r3,14,13,26
+    10a8:	20 50 61 73 	subfic  r2,r16,24947
+    10ac:	73 21 21 21 	andi.   r1,r25,8481
+	...

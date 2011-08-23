@@ -1,0 +1,33 @@
+
+additest:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	38 40 00 01 	li      r2,1
+    1004:	38 62 00 01 	addi    r3,r2,1
+    1008:	2c 03 00 02 	cmpwi   r3,2
+    100c:	40 82 00 30 	bne-    103c <fail>
+    1010:	38 40 0f ff 	li      r2,4095
+    1014:	38 62 00 01 	addi    r3,r2,1
+    1018:	2c 03 10 00 	cmpwi   r3,4096
+    101c:	40 82 00 20 	bne-    103c <fail>
+    1020:	38 40 ff ff 	li      r2,-1
+    1024:	38 62 00 01 	addi    r3,r2,1
+    1028:	2c 03 00 00 	cmpwi   r3,0
+    102c:	40 82 00 10 	bne-    103c <fail>
+    1030:	38 40 00 01 	li      r2,1
+    1034:	2c 02 00 01 	cmpwi   r2,1
+    1038:	41 82 00 0c 	beq-    1044 <pass>
+
+000000000000103c <fail>:
+fail():
+    103c:	3b e0 0f ff 	li      r31,4095
+    1040:	4b ff ff fc 	b       103c <fail>
+
+0000000000001044 <pass>:
+pass():
+    1044:	3b e0 0a aa 	li      r31,2730
+    1048:	4b ff ff fc 	b       1044 <pass>

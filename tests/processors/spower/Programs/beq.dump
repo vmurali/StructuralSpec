@@ -1,0 +1,170 @@
+
+temp:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	3b c0 00 02 	li      r30,2
+    1004:	38 40 00 00 	li      r2,0
+    1008:	2c 02 00 00 	cmpwi   r2,0
+    100c:	41 82 00 10 	beq-    101c <c2_test_2>
+    1010:	48 00 01 3c 	b       114c <fail>
+
+0000000000001014 <c1_test_2>:
+c1_test_2():
+    1014:	2c 1e 00 00 	cmpwi   r30,0
+    1018:	40 82 00 10 	bne-    1028 <c3_test_2>
+
+000000000000101c <c2_test_2>:
+c2_test_2():
+    101c:	2c 02 00 00 	cmpwi   r2,0
+    1020:	41 82 ff f4 	beq+    1014 <c1_test_2>
+    1024:	48 00 01 28 	b       114c <fail>
+
+0000000000001028 <c3_test_2>:
+test_3():
+    1028:	3b c0 00 03 	li      r30,3
+    102c:	38 40 00 01 	li      r2,1
+    1030:	2c 02 00 01 	cmpwi   r2,1
+    1034:	41 82 00 10 	beq-    1044 <c2_test_3>
+    1038:	48 00 01 14 	b       114c <fail>
+
+000000000000103c <c1_test_3>:
+c1_test_3():
+    103c:	2c 1e 00 00 	cmpwi   r30,0
+    1040:	40 82 00 10 	bne-    1050 <c3_test_3>
+
+0000000000001044 <c2_test_3>:
+c2_test_3():
+    1044:	2c 02 00 01 	cmpwi   r2,1
+    1048:	41 82 ff f4 	beq+    103c <c1_test_3>
+    104c:	48 00 01 00 	b       114c <fail>
+
+0000000000001050 <c3_test_3>:
+test_4():
+    1050:	3b c0 00 04 	li      r30,4
+    1054:	38 40 ff ff 	li      r2,-1
+    1058:	2c 02 ff ff 	cmpwi   r2,-1
+    105c:	41 82 00 10 	beq-    106c <c2_test_4>
+    1060:	48 00 00 ec 	b       114c <fail>
+
+0000000000001064 <c1_test_4>:
+c1_test_4():
+    1064:	2c 1e 00 00 	cmpwi   r30,0
+    1068:	40 82 00 10 	bne-    1078 <c3_test_4>
+
+000000000000106c <c2_test_4>:
+c2_test_4():
+    106c:	2c 02 ff ff 	cmpwi   r2,-1
+    1070:	41 82 ff f4 	beq+    1064 <c1_test_4>
+    1074:	48 00 00 d8 	b       114c <fail>
+
+0000000000001078 <c3_test_4>:
+test_5():
+    1078:	3b c0 00 05 	li      r30,5
+    107c:	38 40 00 00 	li      r2,0
+    1080:	2c 02 00 01 	cmpwi   r2,1
+    1084:	41 82 00 0c 	beq-    1090 <c1_test_5>
+    1088:	2c 1e 00 00 	cmpwi   r30,0
+    108c:	40 82 00 08 	bne-    1094 <c2_test_5>
+
+0000000000001090 <c1_test_5>:
+c1_test_5():
+    1090:	48 00 00 bc 	b       114c <fail>
+
+0000000000001094 <c2_test_5>:
+c2_test_5():
+    1094:	2c 02 00 01 	cmpwi   r2,1
+    1098:	41 82 ff f8 	beq+    1090 <c1_test_5>
+
+000000000000109c <test_6>:
+test_6():
+    109c:	3b c0 00 06 	li      r30,6
+    10a0:	38 40 00 01 	li      r2,1
+    10a4:	2c 02 00 00 	cmpwi   r2,0
+    10a8:	41 82 00 0c 	beq-    10b4 <c1_test_6>
+    10ac:	2c 1e 00 00 	cmpwi   r30,0
+    10b0:	40 82 00 08 	bne-    10b8 <c2_test_6>
+
+00000000000010b4 <c1_test_6>:
+c1_test_6():
+    10b4:	48 00 00 98 	b       114c <fail>
+
+00000000000010b8 <c2_test_6>:
+c2_test_6():
+    10b8:	2c 02 00 00 	cmpwi   r2,0
+    10bc:	41 82 ff f8 	beq+    10b4 <c1_test_6>
+
+00000000000010c0 <test_7>:
+test_7():
+    10c0:	3b c0 00 07 	li      r30,7
+    10c4:	38 40 ff ff 	li      r2,-1
+    10c8:	2c 02 00 01 	cmpwi   r2,1
+    10cc:	41 82 00 0c 	beq-    10d8 <c1_test_7>
+    10d0:	2c 1e 00 00 	cmpwi   r30,0
+    10d4:	40 82 00 08 	bne-    10dc <c2_test_7>
+
+00000000000010d8 <c1_test_7>:
+c1_test_7():
+    10d8:	48 00 00 74 	b       114c <fail>
+
+00000000000010dc <c2_test_7>:
+c2_test_7():
+    10dc:	2c 02 00 01 	cmpwi   r2,1
+    10e0:	41 82 ff f8 	beq+    10d8 <c1_test_7>
+
+00000000000010e4 <test_8>:
+test_8():
+    10e4:	3b c0 00 08 	li      r30,8
+    10e8:	38 40 00 01 	li      r2,1
+    10ec:	2c 02 ff ff 	cmpwi   r2,-1
+    10f0:	41 82 00 0c 	beq-    10fc <c1_test_8>
+    10f4:	2c 1e 00 00 	cmpwi   r30,0
+    10f8:	40 82 00 08 	bne-    1100 <c2_test_8>
+
+00000000000010fc <c1_test_8>:
+c1_test_8():
+    10fc:	48 00 00 50 	b       114c <fail>
+
+0000000000001100 <c2_test_8>:
+c2_test_8():
+    1100:	2c 02 ff ff 	cmpwi   r2,-1
+    1104:	41 82 ff f8 	beq+    10fc <c1_test_8>
+
+0000000000001108 <test_9>:
+test_9():
+    1108:	3b c0 00 09 	li      r30,9
+    110c:	38 40 00 00 	li      r2,0
+    1110:	2c 02 ff ff 	cmpwi   r2,-1
+    1114:	41 82 00 38 	beq-    114c <fail>
+
+0000000000001118 <test_10>:
+test_10():
+    1118:	3b c0 00 0a 	li      r30,10
+    111c:	38 40 00 00 	li      r2,0
+    1120:	7c 00 02 78 	xor     r0,r0,r0
+    1124:	2c 02 ff ff 	cmpwi   r2,-1
+    1128:	41 82 00 24 	beq-    114c <fail>
+
+000000000000112c <test_11>:
+test_11():
+    112c:	3b c0 00 0b 	li      r30,11
+    1130:	38 40 00 00 	li      r2,0
+    1134:	7c 00 02 78 	xor     r0,r0,r0
+    1138:	7c 00 02 78 	xor     r0,r0,r0
+    113c:	2c 02 ff ff 	cmpwi   r2,-1
+    1140:	41 82 00 0c 	beq-    114c <fail>
+    1144:	2c 1e 00 00 	cmpwi   r30,0
+    1148:	40 82 00 0c 	bne-    1154 <pass>
+
+000000000000114c <fail>:
+fail():
+    114c:	3b e0 0f ff 	li      r31,4095
+    1150:	4b ff ff fc 	b       114c <fail>
+
+0000000000001154 <pass>:
+pass():
+    1154:	3b e0 0a aa 	li      r31,2730
+    1158:	4b ff ff fc 	b       1154 <pass>

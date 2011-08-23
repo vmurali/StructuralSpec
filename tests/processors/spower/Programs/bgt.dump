@@ -1,0 +1,115 @@
+
+temp:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	3b c0 00 02 	li      r30,2
+    1004:	38 40 00 01 	li      r2,1
+    1008:	2c 02 00 00 	cmpwi   r2,0
+    100c:	41 81 00 10 	bgt-    101c <c2_test_2>
+    1010:	48 00 00 cc 	b       10dc <fail>
+
+0000000000001014 <c1_test_2>:
+c1_test_2():
+    1014:	2c 1e 00 00 	cmpwi   r30,0
+    1018:	40 82 00 10 	bne-    1028 <c3_test_2>
+
+000000000000101c <c2_test_2>:
+c2_test_2():
+    101c:	2c 02 00 00 	cmpwi   r2,0
+    1020:	41 81 ff f4 	bgt+    1014 <c1_test_2>
+    1024:	48 00 00 b8 	b       10dc <fail>
+
+0000000000001028 <c3_test_2>:
+test_3():
+    1028:	3b c0 00 03 	li      r30,3
+    102c:	38 40 00 0a 	li      r2,10
+    1030:	2c 02 00 00 	cmpwi   r2,0
+    1034:	41 81 00 10 	bgt-    1044 <c2_test_3>
+    1038:	48 00 00 a4 	b       10dc <fail>
+
+000000000000103c <c1_test_3>:
+c1_test_3():
+    103c:	2c 1e 00 00 	cmpwi   r30,0
+    1040:	40 82 00 10 	bne-    1050 <c3_test_3>
+
+0000000000001044 <c2_test_3>:
+c2_test_3():
+    1044:	2c 02 00 00 	cmpwi   r2,0
+    1048:	41 81 ff f4 	bgt+    103c <c1_test_3>
+    104c:	48 00 00 90 	b       10dc <fail>
+
+0000000000001050 <c3_test_3>:
+test_4():
+    1050:	3b c0 00 04 	li      r30,4
+    1054:	38 40 00 00 	li      r2,0
+    1058:	2c 02 00 00 	cmpwi   r2,0
+    105c:	41 81 00 0c 	bgt-    1068 <c1_test_4>
+    1060:	2c 1e 00 00 	cmpwi   r30,0
+    1064:	40 82 00 08 	bne-    106c <c2_test_4>
+
+0000000000001068 <c1_test_4>:
+c1_test_4():
+    1068:	48 00 00 74 	b       10dc <fail>
+
+000000000000106c <c2_test_4>:
+c2_test_4():
+    106c:	2c 02 00 00 	cmpwi   r2,0
+    1070:	41 81 ff f8 	bgt+    1068 <c1_test_4>
+
+0000000000001074 <test_5>:
+test_5():
+    1074:	3b c0 00 05 	li      r30,5
+    1078:	38 40 ff f6 	li      r2,-10
+    107c:	2c 02 00 00 	cmpwi   r2,0
+    1080:	41 81 00 0c 	bgt-    108c <c1_test_5>
+    1084:	2c 1e 00 00 	cmpwi   r30,0
+    1088:	40 82 00 08 	bne-    1090 <c2_test_5>
+
+000000000000108c <c1_test_5>:
+c1_test_5():
+    108c:	48 00 00 50 	b       10dc <fail>
+
+0000000000001090 <c2_test_5>:
+c2_test_5():
+    1090:	2c 02 00 00 	cmpwi   r2,0
+    1094:	41 81 ff f8 	bgt+    108c <c1_test_5>
+
+0000000000001098 <test_6>:
+test_6():
+    1098:	3b c0 00 06 	li      r30,6
+    109c:	38 40 ff ff 	li      r2,-1
+    10a0:	2c 02 00 00 	cmpwi   r2,0
+    10a4:	41 81 00 38 	bgt-    10dc <fail>
+
+00000000000010a8 <test_7>:
+test_7():
+    10a8:	3b c0 00 07 	li      r30,7
+    10ac:	38 40 ff ff 	li      r2,-1
+    10b0:	7c 00 02 78 	xor     r0,r0,r0
+    10b4:	2c 02 00 00 	cmpwi   r2,0
+    10b8:	41 81 00 24 	bgt-    10dc <fail>
+
+00000000000010bc <test_8>:
+test_8():
+    10bc:	3b c0 00 08 	li      r30,8
+    10c0:	38 40 ff ff 	li      r2,-1
+    10c4:	7c 00 02 78 	xor     r0,r0,r0
+    10c8:	7c 00 02 78 	xor     r0,r0,r0
+    10cc:	2c 02 00 00 	cmpwi   r2,0
+    10d0:	41 81 00 0c 	bgt-    10dc <fail>
+    10d4:	2c 1e 00 00 	cmpwi   r30,0
+    10d8:	40 82 00 0c 	bne-    10e4 <pass>
+
+00000000000010dc <fail>:
+fail():
+    10dc:	3b e0 0f ff 	li      r31,4095
+    10e0:	4b ff ff fc 	b       10dc <fail>
+
+00000000000010e4 <pass>:
+pass():
+    10e4:	3b e0 0a aa 	li      r31,2730
+    10e8:	4b ff ff fc 	b       10e4 <pass>

@@ -1,0 +1,811 @@
+
+temp:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	3b c0 00 02 	li      r30,2
+    1004:	38 c0 00 0c 	li      r6,12
+    1008:	38 40 00 00 	li      r2,0
+    100c:	7c 42 30 30 	slw     r2,r2,r6
+    1010:	38 42 00 00 	addi    r2,r2,0
+    1014:	7c 42 30 30 	slw     r2,r2,r6
+    1018:	38 42 00 00 	addi    r2,r2,0
+    101c:	38 60 00 00 	li      r3,0
+    1020:	7c 63 30 30 	slw     r3,r3,r6
+    1024:	38 63 00 00 	addi    r3,r3,0
+    1028:	7c 63 30 30 	slw     r3,r3,r6
+    102c:	38 63 00 00 	addi    r3,r3,0
+    1030:	38 a0 00 00 	li      r5,0
+    1034:	7c a5 30 30 	slw     r5,r5,r6
+    1038:	38 a5 00 00 	addi    r5,r5,0
+    103c:	7c a5 30 30 	slw     r5,r5,r6
+    1040:	38 a5 00 00 	addi    r5,r5,0
+    1044:	7c 82 1a 14 	add     r4,r2,r3
+    1048:	7c a4 28 50 	subf    r5,r4,r5
+    104c:	2c 05 00 00 	cmpwi   r5,0
+    1050:	40 82 0a a0 	bne-    1af0 <fail>
+
+0000000000001054 <test_3>:
+test_3():
+    1054:	3b c0 00 03 	li      r30,3
+    1058:	38 c0 00 0c 	li      r6,12
+    105c:	38 40 00 00 	li      r2,0
+    1060:	7c 42 30 30 	slw     r2,r2,r6
+    1064:	38 42 00 00 	addi    r2,r2,0
+    1068:	7c 42 30 30 	slw     r2,r2,r6
+    106c:	38 42 00 01 	addi    r2,r2,1
+    1070:	38 60 00 00 	li      r3,0
+    1074:	7c 63 30 30 	slw     r3,r3,r6
+    1078:	38 63 00 00 	addi    r3,r3,0
+    107c:	7c 63 30 30 	slw     r3,r3,r6
+    1080:	38 63 00 01 	addi    r3,r3,1
+    1084:	38 a0 00 00 	li      r5,0
+    1088:	7c a5 30 30 	slw     r5,r5,r6
+    108c:	38 a5 00 00 	addi    r5,r5,0
+    1090:	7c a5 30 30 	slw     r5,r5,r6
+    1094:	38 a5 00 02 	addi    r5,r5,2
+    1098:	7c 82 1a 14 	add     r4,r2,r3
+    109c:	7c a4 28 50 	subf    r5,r4,r5
+    10a0:	2c 05 00 00 	cmpwi   r5,0
+    10a4:	40 82 0a 4c 	bne-    1af0 <fail>
+
+00000000000010a8 <test_4>:
+test_4():
+    10a8:	3b c0 00 04 	li      r30,4
+    10ac:	38 c0 00 0c 	li      r6,12
+    10b0:	38 40 00 00 	li      r2,0
+    10b4:	7c 42 30 30 	slw     r2,r2,r6
+    10b8:	38 42 00 00 	addi    r2,r2,0
+    10bc:	7c 42 30 30 	slw     r2,r2,r6
+    10c0:	38 42 00 03 	addi    r2,r2,3
+    10c4:	38 60 00 00 	li      r3,0
+    10c8:	7c 63 30 30 	slw     r3,r3,r6
+    10cc:	38 63 00 00 	addi    r3,r3,0
+    10d0:	7c 63 30 30 	slw     r3,r3,r6
+    10d4:	38 63 00 07 	addi    r3,r3,7
+    10d8:	38 a0 00 00 	li      r5,0
+    10dc:	7c a5 30 30 	slw     r5,r5,r6
+    10e0:	38 a5 00 00 	addi    r5,r5,0
+    10e4:	7c a5 30 30 	slw     r5,r5,r6
+    10e8:	38 a5 00 0a 	addi    r5,r5,10
+    10ec:	7c 82 1a 14 	add     r4,r2,r3
+    10f0:	7c a4 28 50 	subf    r5,r4,r5
+    10f4:	2c 05 00 00 	cmpwi   r5,0
+    10f8:	40 82 09 f8 	bne-    1af0 <fail>
+
+00000000000010fc <test_5>:
+test_5():
+    10fc:	3b c0 00 05 	li      r30,5
+    1100:	38 c0 00 0c 	li      r6,12
+    1104:	38 40 00 00 	li      r2,0
+    1108:	7c 42 30 30 	slw     r2,r2,r6
+    110c:	38 42 00 00 	addi    r2,r2,0
+    1110:	7c 42 30 30 	slw     r2,r2,r6
+    1114:	38 42 00 00 	addi    r2,r2,0
+    1118:	38 60 00 ff 	li      r3,255
+    111c:	7c 63 30 30 	slw     r3,r3,r6
+    1120:	38 63 0f f8 	addi    r3,r3,4088
+    1124:	7c 63 30 30 	slw     r3,r3,r6
+    1128:	38 63 00 00 	addi    r3,r3,0
+    112c:	38 a0 00 ff 	li      r5,255
+    1130:	7c a5 30 30 	slw     r5,r5,r6
+    1134:	38 a5 0f f8 	addi    r5,r5,4088
+    1138:	7c a5 30 30 	slw     r5,r5,r6
+    113c:	38 a5 00 00 	addi    r5,r5,0
+    1140:	7c 82 1a 14 	add     r4,r2,r3
+    1144:	7c a4 28 50 	subf    r5,r4,r5
+    1148:	2c 05 00 00 	cmpwi   r5,0
+    114c:	40 82 09 a4 	bne-    1af0 <fail>
+
+0000000000001150 <test_6>:
+test_6():
+    1150:	3b c0 00 06 	li      r30,6
+    1154:	38 c0 00 0c 	li      r6,12
+    1158:	38 40 00 80 	li      r2,128
+    115c:	7c 42 30 30 	slw     r2,r2,r6
+    1160:	38 42 00 00 	addi    r2,r2,0
+    1164:	7c 42 30 30 	slw     r2,r2,r6
+    1168:	38 42 00 00 	addi    r2,r2,0
+    116c:	38 60 00 00 	li      r3,0
+    1170:	7c 63 30 30 	slw     r3,r3,r6
+    1174:	38 63 00 00 	addi    r3,r3,0
+    1178:	7c 63 30 30 	slw     r3,r3,r6
+    117c:	38 63 00 00 	addi    r3,r3,0
+    1180:	38 a0 00 80 	li      r5,128
+    1184:	7c a5 30 30 	slw     r5,r5,r6
+    1188:	38 a5 00 00 	addi    r5,r5,0
+    118c:	7c a5 30 30 	slw     r5,r5,r6
+    1190:	38 a5 00 00 	addi    r5,r5,0
+    1194:	7c 82 1a 14 	add     r4,r2,r3
+    1198:	7c a4 28 50 	subf    r5,r4,r5
+    119c:	2c 05 00 00 	cmpwi   r5,0
+    11a0:	40 82 09 50 	bne-    1af0 <fail>
+
+00000000000011a4 <test_7>:
+test_7():
+    11a4:	3b c0 00 07 	li      r30,7
+    11a8:	38 c0 00 0c 	li      r6,12
+    11ac:	38 40 00 80 	li      r2,128
+    11b0:	7c 42 30 30 	slw     r2,r2,r6
+    11b4:	38 42 00 00 	addi    r2,r2,0
+    11b8:	7c 42 30 30 	slw     r2,r2,r6
+    11bc:	38 42 00 00 	addi    r2,r2,0
+    11c0:	38 60 00 ff 	li      r3,255
+    11c4:	7c 63 30 30 	slw     r3,r3,r6
+    11c8:	38 63 0f f8 	addi    r3,r3,4088
+    11cc:	7c 63 30 30 	slw     r3,r3,r6
+    11d0:	38 63 00 00 	addi    r3,r3,0
+    11d4:	38 a0 00 7f 	li      r5,127
+    11d8:	7c a5 30 30 	slw     r5,r5,r6
+    11dc:	38 a5 0f f8 	addi    r5,r5,4088
+    11e0:	7c a5 30 30 	slw     r5,r5,r6
+    11e4:	38 a5 00 00 	addi    r5,r5,0
+    11e8:	7c 82 1a 14 	add     r4,r2,r3
+    11ec:	7c a4 28 50 	subf    r5,r4,r5
+    11f0:	2c 05 00 00 	cmpwi   r5,0
+    11f4:	40 82 08 fc 	bne-    1af0 <fail>
+
+00000000000011f8 <test_8>:
+test_8():
+    11f8:	3b c0 00 08 	li      r30,8
+    11fc:	38 c0 00 0c 	li      r6,12
+    1200:	38 40 00 00 	li      r2,0
+    1204:	7c 42 30 30 	slw     r2,r2,r6
+    1208:	38 42 00 00 	addi    r2,r2,0
+    120c:	7c 42 30 30 	slw     r2,r2,r6
+    1210:	38 42 00 00 	addi    r2,r2,0
+    1214:	38 60 00 00 	li      r3,0
+    1218:	7c 63 30 30 	slw     r3,r3,r6
+    121c:	38 63 00 07 	addi    r3,r3,7
+    1220:	7c 63 30 30 	slw     r3,r3,r6
+    1224:	38 63 0f ff 	addi    r3,r3,4095
+    1228:	38 a0 00 00 	li      r5,0
+    122c:	7c a5 30 30 	slw     r5,r5,r6
+    1230:	38 a5 00 07 	addi    r5,r5,7
+    1234:	7c a5 30 30 	slw     r5,r5,r6
+    1238:	38 a5 0f ff 	addi    r5,r5,4095
+    123c:	7c 82 1a 14 	add     r4,r2,r3
+    1240:	7c a4 28 50 	subf    r5,r4,r5
+    1244:	2c 05 00 00 	cmpwi   r5,0
+    1248:	40 82 08 a8 	bne-    1af0 <fail>
+
+000000000000124c <test_9>:
+test_9():
+    124c:	3b c0 00 09 	li      r30,9
+    1250:	38 c0 00 0c 	li      r6,12
+    1254:	38 40 00 7f 	li      r2,127
+    1258:	7c 42 30 30 	slw     r2,r2,r6
+    125c:	38 42 0f ff 	addi    r2,r2,4095
+    1260:	7c 42 30 30 	slw     r2,r2,r6
+    1264:	38 42 0f ff 	addi    r2,r2,4095
+    1268:	38 60 00 00 	li      r3,0
+    126c:	7c 63 30 30 	slw     r3,r3,r6
+    1270:	38 63 00 00 	addi    r3,r3,0
+    1274:	7c 63 30 30 	slw     r3,r3,r6
+    1278:	38 63 00 00 	addi    r3,r3,0
+    127c:	38 a0 00 7f 	li      r5,127
+    1280:	7c a5 30 30 	slw     r5,r5,r6
+    1284:	38 a5 0f ff 	addi    r5,r5,4095
+    1288:	7c a5 30 30 	slw     r5,r5,r6
+    128c:	38 a5 0f ff 	addi    r5,r5,4095
+    1290:	7c 82 1a 14 	add     r4,r2,r3
+    1294:	7c a4 28 50 	subf    r5,r4,r5
+    1298:	2c 05 00 00 	cmpwi   r5,0
+    129c:	40 82 08 54 	bne-    1af0 <fail>
+
+00000000000012a0 <test_10>:
+test_10():
+    12a0:	3b c0 00 0a 	li      r30,10
+    12a4:	38 c0 00 0c 	li      r6,12
+    12a8:	38 40 00 7f 	li      r2,127
+    12ac:	7c 42 30 30 	slw     r2,r2,r6
+    12b0:	38 42 0f ff 	addi    r2,r2,4095
+    12b4:	7c 42 30 30 	slw     r2,r2,r6
+    12b8:	38 42 0f ff 	addi    r2,r2,4095
+    12bc:	38 60 00 00 	li      r3,0
+    12c0:	7c 63 30 30 	slw     r3,r3,r6
+    12c4:	38 63 00 07 	addi    r3,r3,7
+    12c8:	7c 63 30 30 	slw     r3,r3,r6
+    12cc:	38 63 0f ff 	addi    r3,r3,4095
+    12d0:	38 a0 00 80 	li      r5,128
+    12d4:	7c a5 30 30 	slw     r5,r5,r6
+    12d8:	38 a5 00 07 	addi    r5,r5,7
+    12dc:	7c a5 30 30 	slw     r5,r5,r6
+    12e0:	38 a5 0f fe 	addi    r5,r5,4094
+    12e4:	7c 82 1a 14 	add     r4,r2,r3
+    12e8:	7c a4 28 50 	subf    r5,r4,r5
+    12ec:	2c 05 00 00 	cmpwi   r5,0
+    12f0:	40 82 08 00 	bne-    1af0 <fail>
+
+00000000000012f4 <test_11>:
+test_11():
+    12f4:	3b c0 00 0b 	li      r30,11
+    12f8:	38 c0 00 0c 	li      r6,12
+    12fc:	38 40 00 80 	li      r2,128
+    1300:	7c 42 30 30 	slw     r2,r2,r6
+    1304:	38 42 00 00 	addi    r2,r2,0
+    1308:	7c 42 30 30 	slw     r2,r2,r6
+    130c:	38 42 00 00 	addi    r2,r2,0
+    1310:	38 60 00 00 	li      r3,0
+    1314:	7c 63 30 30 	slw     r3,r3,r6
+    1318:	38 63 00 07 	addi    r3,r3,7
+    131c:	7c 63 30 30 	slw     r3,r3,r6
+    1320:	38 63 0f ff 	addi    r3,r3,4095
+    1324:	38 a0 00 80 	li      r5,128
+    1328:	7c a5 30 30 	slw     r5,r5,r6
+    132c:	38 a5 00 07 	addi    r5,r5,7
+    1330:	7c a5 30 30 	slw     r5,r5,r6
+    1334:	38 a5 0f ff 	addi    r5,r5,4095
+    1338:	7c 82 1a 14 	add     r4,r2,r3
+    133c:	7c a4 28 50 	subf    r5,r4,r5
+    1340:	2c 05 00 00 	cmpwi   r5,0
+    1344:	40 82 07 ac 	bne-    1af0 <fail>
+
+0000000000001348 <test_12>:
+test_12():
+    1348:	3b c0 00 0c 	li      r30,12
+    134c:	38 c0 00 0c 	li      r6,12
+    1350:	38 40 00 7f 	li      r2,127
+    1354:	7c 42 30 30 	slw     r2,r2,r6
+    1358:	38 42 0f ff 	addi    r2,r2,4095
+    135c:	7c 42 30 30 	slw     r2,r2,r6
+    1360:	38 42 0f ff 	addi    r2,r2,4095
+    1364:	38 60 00 ff 	li      r3,255
+    1368:	7c 63 30 30 	slw     r3,r3,r6
+    136c:	38 63 0f f8 	addi    r3,r3,4088
+    1370:	7c 63 30 30 	slw     r3,r3,r6
+    1374:	38 63 00 00 	addi    r3,r3,0
+    1378:	38 a0 00 7f 	li      r5,127
+    137c:	7c a5 30 30 	slw     r5,r5,r6
+    1380:	38 a5 0f f7 	addi    r5,r5,4087
+    1384:	7c a5 30 30 	slw     r5,r5,r6
+    1388:	38 a5 0f ff 	addi    r5,r5,4095
+    138c:	7c 82 1a 14 	add     r4,r2,r3
+    1390:	7c a4 28 50 	subf    r5,r4,r5
+    1394:	2c 05 00 00 	cmpwi   r5,0
+    1398:	40 82 07 58 	bne-    1af0 <fail>
+
+000000000000139c <test_13>:
+test_13():
+    139c:	3b c0 00 0d 	li      r30,13
+    13a0:	38 c0 00 0c 	li      r6,12
+    13a4:	38 40 00 00 	li      r2,0
+    13a8:	7c 42 30 30 	slw     r2,r2,r6
+    13ac:	38 42 00 00 	addi    r2,r2,0
+    13b0:	7c 42 30 30 	slw     r2,r2,r6
+    13b4:	38 42 00 00 	addi    r2,r2,0
+    13b8:	38 60 00 ff 	li      r3,255
+    13bc:	7c 63 30 30 	slw     r3,r3,r6
+    13c0:	38 63 0f ff 	addi    r3,r3,4095
+    13c4:	7c 63 30 30 	slw     r3,r3,r6
+    13c8:	38 63 0f ff 	addi    r3,r3,4095
+    13cc:	38 a0 00 ff 	li      r5,255
+    13d0:	7c a5 30 30 	slw     r5,r5,r6
+    13d4:	38 a5 0f ff 	addi    r5,r5,4095
+    13d8:	7c a5 30 30 	slw     r5,r5,r6
+    13dc:	38 a5 0f ff 	addi    r5,r5,4095
+    13e0:	7c 82 1a 14 	add     r4,r2,r3
+    13e4:	7c a4 28 50 	subf    r5,r4,r5
+    13e8:	2c 05 00 00 	cmpwi   r5,0
+    13ec:	40 82 07 04 	bne-    1af0 <fail>
+
+00000000000013f0 <test_14>:
+test_14():
+    13f0:	3b c0 00 0e 	li      r30,14
+    13f4:	38 c0 00 0c 	li      r6,12
+    13f8:	38 40 00 ff 	li      r2,255
+    13fc:	7c 42 30 30 	slw     r2,r2,r6
+    1400:	38 42 0f ff 	addi    r2,r2,4095
+    1404:	7c 42 30 30 	slw     r2,r2,r6
+    1408:	38 42 0f ff 	addi    r2,r2,4095
+    140c:	38 60 00 00 	li      r3,0
+    1410:	7c 63 30 30 	slw     r3,r3,r6
+    1414:	38 63 00 00 	addi    r3,r3,0
+    1418:	7c 63 30 30 	slw     r3,r3,r6
+    141c:	38 63 00 01 	addi    r3,r3,1
+    1420:	38 a0 00 00 	li      r5,0
+    1424:	7c a5 30 30 	slw     r5,r5,r6
+    1428:	38 a5 00 00 	addi    r5,r5,0
+    142c:	7c a5 30 30 	slw     r5,r5,r6
+    1430:	38 a5 00 00 	addi    r5,r5,0
+    1434:	7c 82 1a 14 	add     r4,r2,r3
+    1438:	7c a4 28 50 	subf    r5,r4,r5
+    143c:	2c 05 00 00 	cmpwi   r5,0
+    1440:	40 82 06 b0 	bne-    1af0 <fail>
+
+0000000000001444 <test_15>:
+test_15():
+    1444:	3b c0 00 0f 	li      r30,15
+    1448:	38 c0 00 0c 	li      r6,12
+    144c:	38 40 00 ff 	li      r2,255
+    1450:	7c 42 30 30 	slw     r2,r2,r6
+    1454:	38 42 0f ff 	addi    r2,r2,4095
+    1458:	7c 42 30 30 	slw     r2,r2,r6
+    145c:	38 42 0f ff 	addi    r2,r2,4095
+    1460:	38 60 00 ff 	li      r3,255
+    1464:	7c 63 30 30 	slw     r3,r3,r6
+    1468:	38 63 0f ff 	addi    r3,r3,4095
+    146c:	7c 63 30 30 	slw     r3,r3,r6
+    1470:	38 63 0f ff 	addi    r3,r3,4095
+    1474:	38 a0 00 ff 	li      r5,255
+    1478:	7c a5 30 30 	slw     r5,r5,r6
+    147c:	38 a5 0f ff 	addi    r5,r5,4095
+    1480:	7c a5 30 30 	slw     r5,r5,r6
+    1484:	38 a5 0f fe 	addi    r5,r5,4094
+    1488:	7c 82 1a 14 	add     r4,r2,r3
+    148c:	7c a4 28 50 	subf    r5,r4,r5
+    1490:	2c 05 00 00 	cmpwi   r5,0
+    1494:	40 82 06 5c 	bne-    1af0 <fail>
+
+0000000000001498 <test_16>:
+test_16():
+    1498:	3b c0 00 10 	li      r30,16
+    149c:	38 c0 00 0c 	li      r6,12
+    14a0:	38 40 00 13 	li      r2,19
+    14a4:	7c 42 30 30 	slw     r2,r2,r6
+    14a8:	38 42 00 00 	addi    r2,r2,0
+    14ac:	7c 42 30 30 	slw     r2,r2,r6
+    14b0:	38 42 00 00 	addi    r2,r2,0
+    14b4:	38 60 00 11 	li      r3,17
+    14b8:	7c 63 30 30 	slw     r3,r3,r6
+    14bc:	38 63 00 00 	addi    r3,r3,0
+    14c0:	7c 63 30 30 	slw     r3,r3,r6
+    14c4:	38 63 00 00 	addi    r3,r3,0
+    14c8:	38 a0 00 24 	li      r5,36
+    14cc:	7c a5 30 30 	slw     r5,r5,r6
+    14d0:	38 a5 00 00 	addi    r5,r5,0
+    14d4:	7c a5 30 30 	slw     r5,r5,r6
+    14d8:	38 a5 00 00 	addi    r5,r5,0
+    14dc:	7c 42 1a 14 	add     r2,r2,r3
+    14e0:	7c a2 28 50 	subf    r5,r2,r5
+    14e4:	2c 05 00 00 	cmpwi   r5,0
+    14e8:	40 82 06 08 	bne-    1af0 <fail>
+
+00000000000014ec <test_17>:
+test_17():
+    14ec:	3b c0 00 11 	li      r30,17
+    14f0:	38 c0 00 0c 	li      r6,12
+    14f4:	38 40 00 14 	li      r2,20
+    14f8:	7c 42 30 30 	slw     r2,r2,r6
+    14fc:	38 42 00 00 	addi    r2,r2,0
+    1500:	7c 42 30 30 	slw     r2,r2,r6
+    1504:	38 42 00 00 	addi    r2,r2,0
+    1508:	38 60 00 11 	li      r3,17
+    150c:	7c 63 30 30 	slw     r3,r3,r6
+    1510:	38 63 00 00 	addi    r3,r3,0
+    1514:	7c 63 30 30 	slw     r3,r3,r6
+    1518:	38 63 00 00 	addi    r3,r3,0
+    151c:	38 a0 00 25 	li      r5,37
+    1520:	7c a5 30 30 	slw     r5,r5,r6
+    1524:	38 a5 00 00 	addi    r5,r5,0
+    1528:	7c a5 30 30 	slw     r5,r5,r6
+    152c:	38 a5 00 00 	addi    r5,r5,0
+    1530:	7c 62 1a 14 	add     r3,r2,r3
+    1534:	7c a3 28 50 	subf    r5,r3,r5
+    1538:	2c 05 00 00 	cmpwi   r5,0
+    153c:	40 82 05 b4 	bne-    1af0 <fail>
+
+0000000000001540 <test_18>:
+test_18():
+    1540:	3b c0 00 12 	li      r30,18
+    1544:	38 c0 00 0c 	li      r6,12
+    1548:	38 40 00 13 	li      r2,19
+    154c:	7c 42 30 30 	slw     r2,r2,r6
+    1550:	38 42 00 00 	addi    r2,r2,0
+    1554:	7c 42 30 30 	slw     r2,r2,r6
+    1558:	38 42 00 00 	addi    r2,r2,0
+    155c:	38 a0 00 26 	li      r5,38
+    1560:	7c a5 30 30 	slw     r5,r5,r6
+    1564:	38 a5 00 00 	addi    r5,r5,0
+    1568:	7c a5 30 30 	slw     r5,r5,r6
+    156c:	38 a5 00 00 	addi    r5,r5,0
+    1570:	7c 42 12 14 	add     r2,r2,r2
+    1574:	7c a2 28 50 	subf    r5,r2,r5
+    1578:	2c 05 00 00 	cmpwi   r5,0
+    157c:	40 82 05 74 	bne-    1af0 <fail>
+
+0000000000001580 <test_19>:
+test_19():
+    1580:	3b c0 00 13 	li      r30,19
+    1584:	38 c0 00 0c 	li      r6,12
+    1588:	38 40 00 13 	li      r2,19
+    158c:	7c 42 30 30 	slw     r2,r2,r6
+    1590:	38 42 00 00 	addi    r2,r2,0
+    1594:	7c 42 30 30 	slw     r2,r2,r6
+    1598:	38 42 00 00 	addi    r2,r2,0
+    159c:	38 60 00 11 	li      r3,17
+    15a0:	7c 63 30 30 	slw     r3,r3,r6
+    15a4:	38 63 00 00 	addi    r3,r3,0
+    15a8:	7c 63 30 30 	slw     r3,r3,r6
+    15ac:	38 63 00 00 	addi    r3,r3,0
+    15b0:	38 a0 00 24 	li      r5,36
+    15b4:	7c a5 30 30 	slw     r5,r5,r6
+    15b8:	38 a5 00 00 	addi    r5,r5,0
+    15bc:	7c a5 30 30 	slw     r5,r5,r6
+    15c0:	38 a5 00 00 	addi    r5,r5,0
+    15c4:	7c 82 1a 14 	add     r4,r2,r3
+    15c8:	7c a4 28 50 	subf    r5,r4,r5
+    15cc:	2c 05 00 00 	cmpwi   r5,0
+    15d0:	40 82 05 20 	bne-    1af0 <fail>
+
+00000000000015d4 <test_20>:
+test_20():
+    15d4:	3b c0 00 14 	li      r30,20
+    15d8:	38 c0 00 0c 	li      r6,12
+    15dc:	38 40 00 14 	li      r2,20
+    15e0:	7c 42 30 30 	slw     r2,r2,r6
+    15e4:	38 42 00 00 	addi    r2,r2,0
+    15e8:	7c 42 30 30 	slw     r2,r2,r6
+    15ec:	38 42 00 00 	addi    r2,r2,0
+    15f0:	38 60 00 11 	li      r3,17
+    15f4:	7c 63 30 30 	slw     r3,r3,r6
+    15f8:	38 63 00 00 	addi    r3,r3,0
+    15fc:	7c 63 30 30 	slw     r3,r3,r6
+    1600:	38 63 00 00 	addi    r3,r3,0
+    1604:	38 a0 00 25 	li      r5,37
+    1608:	7c a5 30 30 	slw     r5,r5,r6
+    160c:	38 a5 00 00 	addi    r5,r5,0
+    1610:	7c a5 30 30 	slw     r5,r5,r6
+    1614:	38 a5 00 00 	addi    r5,r5,0
+    1618:	7c 82 1a 14 	add     r4,r2,r3
+    161c:	7c 00 02 78 	xor     r0,r0,r0
+    1620:	7c a4 28 50 	subf    r5,r4,r5
+    1624:	2c 05 00 00 	cmpwi   r5,0
+    1628:	40 82 04 c8 	bne-    1af0 <fail>
+
+000000000000162c <test_21>:
+test_21():
+    162c:	3b c0 00 15 	li      r30,21
+    1630:	38 c0 00 0c 	li      r6,12
+    1634:	38 40 00 15 	li      r2,21
+    1638:	7c 42 30 30 	slw     r2,r2,r6
+    163c:	38 42 00 00 	addi    r2,r2,0
+    1640:	7c 42 30 30 	slw     r2,r2,r6
+    1644:	38 42 00 00 	addi    r2,r2,0
+    1648:	38 60 00 11 	li      r3,17
+    164c:	7c 63 30 30 	slw     r3,r3,r6
+    1650:	38 63 00 00 	addi    r3,r3,0
+    1654:	7c 63 30 30 	slw     r3,r3,r6
+    1658:	38 63 00 00 	addi    r3,r3,0
+    165c:	38 a0 00 26 	li      r5,38
+    1660:	7c a5 30 30 	slw     r5,r5,r6
+    1664:	38 a5 00 00 	addi    r5,r5,0
+    1668:	7c a5 30 30 	slw     r5,r5,r6
+    166c:	38 a5 00 00 	addi    r5,r5,0
+    1670:	7c 82 1a 14 	add     r4,r2,r3
+    1674:	7c 00 02 78 	xor     r0,r0,r0
+    1678:	7c 00 02 78 	xor     r0,r0,r0
+    167c:	7c a4 28 50 	subf    r5,r4,r5
+    1680:	2c 05 00 00 	cmpwi   r5,0
+    1684:	40 82 04 6c 	bne-    1af0 <fail>
+
+0000000000001688 <test_22>:
+test_22():
+    1688:	3b c0 00 16 	li      r30,22
+    168c:	38 c0 00 0c 	li      r6,12
+    1690:	38 a0 00 24 	li      r5,36
+    1694:	7c a5 30 30 	slw     r5,r5,r6
+    1698:	38 a5 00 00 	addi    r5,r5,0
+    169c:	7c a5 30 30 	slw     r5,r5,r6
+    16a0:	38 a5 00 00 	addi    r5,r5,0
+    16a4:	38 40 00 13 	li      r2,19
+    16a8:	7c 42 30 30 	slw     r2,r2,r6
+    16ac:	38 42 00 00 	addi    r2,r2,0
+    16b0:	7c 42 30 30 	slw     r2,r2,r6
+    16b4:	38 42 00 00 	addi    r2,r2,0
+    16b8:	38 60 00 11 	li      r3,17
+    16bc:	7c 63 30 30 	slw     r3,r3,r6
+    16c0:	38 63 00 00 	addi    r3,r3,0
+    16c4:	7c 63 30 30 	slw     r3,r3,r6
+    16c8:	38 42 00 00 	addi    r2,r2,0
+    16cc:	38 63 00 00 	addi    r3,r3,0
+    16d0:	7c 82 1a 14 	add     r4,r2,r3
+    16d4:	7c a4 28 50 	subf    r5,r4,r5
+    16d8:	2c 05 00 00 	cmpwi   r5,0
+    16dc:	40 82 04 14 	bne-    1af0 <fail>
+
+00000000000016e0 <test_23>:
+test_23():
+    16e0:	3b c0 00 17 	li      r30,23
+    16e4:	38 c0 00 0c 	li      r6,12
+    16e8:	38 a0 00 25 	li      r5,37
+    16ec:	7c a5 30 30 	slw     r5,r5,r6
+    16f0:	38 a5 00 00 	addi    r5,r5,0
+    16f4:	7c a5 30 30 	slw     r5,r5,r6
+    16f8:	38 a5 00 00 	addi    r5,r5,0
+    16fc:	38 40 00 14 	li      r2,20
+    1700:	7c 42 30 30 	slw     r2,r2,r6
+    1704:	38 42 00 00 	addi    r2,r2,0
+    1708:	7c 42 30 30 	slw     r2,r2,r6
+    170c:	38 42 00 00 	addi    r2,r2,0
+    1710:	38 60 00 11 	li      r3,17
+    1714:	7c 63 30 30 	slw     r3,r3,r6
+    1718:	38 63 00 00 	addi    r3,r3,0
+    171c:	7c 63 30 30 	slw     r3,r3,r6
+    1720:	38 42 00 00 	addi    r2,r2,0
+    1724:	38 63 00 00 	addi    r3,r3,0
+    1728:	7c 00 02 78 	xor     r0,r0,r0
+    172c:	7c 82 1a 14 	add     r4,r2,r3
+    1730:	7c a4 28 50 	subf    r5,r4,r5
+    1734:	2c 05 00 00 	cmpwi   r5,0
+    1738:	40 82 03 b8 	bne-    1af0 <fail>
+
+000000000000173c <test_24>:
+test_24():
+    173c:	3b c0 00 18 	li      r30,24
+    1740:	38 c0 00 0c 	li      r6,12
+    1744:	38 a0 00 26 	li      r5,38
+    1748:	7c a5 30 30 	slw     r5,r5,r6
+    174c:	38 a5 00 00 	addi    r5,r5,0
+    1750:	7c a5 30 30 	slw     r5,r5,r6
+    1754:	38 a5 00 00 	addi    r5,r5,0
+    1758:	38 40 00 15 	li      r2,21
+    175c:	7c 42 30 30 	slw     r2,r2,r6
+    1760:	38 42 00 00 	addi    r2,r2,0
+    1764:	7c 42 30 30 	slw     r2,r2,r6
+    1768:	38 42 00 00 	addi    r2,r2,0
+    176c:	38 60 00 11 	li      r3,17
+    1770:	7c 63 30 30 	slw     r3,r3,r6
+    1774:	38 63 00 00 	addi    r3,r3,0
+    1778:	7c 63 30 30 	slw     r3,r3,r6
+    177c:	38 42 00 00 	addi    r2,r2,0
+    1780:	38 63 00 00 	addi    r3,r3,0
+    1784:	7c 00 02 78 	xor     r0,r0,r0
+    1788:	7c 00 02 78 	xor     r0,r0,r0
+    178c:	7c 82 1a 14 	add     r4,r2,r3
+    1790:	7c a4 28 50 	subf    r5,r4,r5
+    1794:	2c 05 00 00 	cmpwi   r5,0
+    1798:	40 82 03 58 	bne-    1af0 <fail>
+
+000000000000179c <test_25>:
+test_25():
+    179c:	3b c0 00 19 	li      r30,25
+    17a0:	38 c0 00 0c 	li      r6,12
+    17a4:	38 a0 00 24 	li      r5,36
+    17a8:	7c a5 30 30 	slw     r5,r5,r6
+    17ac:	38 a5 00 00 	addi    r5,r5,0
+    17b0:	7c a5 30 30 	slw     r5,r5,r6
+    17b4:	38 a5 00 00 	addi    r5,r5,0
+    17b8:	38 40 00 13 	li      r2,19
+    17bc:	7c 42 30 30 	slw     r2,r2,r6
+    17c0:	38 42 00 00 	addi    r2,r2,0
+    17c4:	7c 42 30 30 	slw     r2,r2,r6
+    17c8:	38 42 00 00 	addi    r2,r2,0
+    17cc:	38 60 00 11 	li      r3,17
+    17d0:	7c 63 30 30 	slw     r3,r3,r6
+    17d4:	38 63 00 00 	addi    r3,r3,0
+    17d8:	7c 63 30 30 	slw     r3,r3,r6
+    17dc:	38 42 00 00 	addi    r2,r2,0
+    17e0:	7c 00 02 78 	xor     r0,r0,r0
+    17e4:	38 63 00 00 	addi    r3,r3,0
+    17e8:	7c 82 1a 14 	add     r4,r2,r3
+    17ec:	7c a4 28 50 	subf    r5,r4,r5
+    17f0:	2c 05 00 00 	cmpwi   r5,0
+    17f4:	40 82 02 fc 	bne-    1af0 <fail>
+
+00000000000017f8 <test_26>:
+test_26():
+    17f8:	3b c0 00 1a 	li      r30,26
+    17fc:	38 c0 00 0c 	li      r6,12
+    1800:	38 a0 00 25 	li      r5,37
+    1804:	7c a5 30 30 	slw     r5,r5,r6
+    1808:	38 a5 00 00 	addi    r5,r5,0
+    180c:	7c a5 30 30 	slw     r5,r5,r6
+    1810:	38 a5 00 00 	addi    r5,r5,0
+    1814:	38 40 00 14 	li      r2,20
+    1818:	7c 42 30 30 	slw     r2,r2,r6
+    181c:	38 42 00 00 	addi    r2,r2,0
+    1820:	7c 42 30 30 	slw     r2,r2,r6
+    1824:	38 42 00 00 	addi    r2,r2,0
+    1828:	38 60 00 11 	li      r3,17
+    182c:	7c 63 30 30 	slw     r3,r3,r6
+    1830:	38 63 00 00 	addi    r3,r3,0
+    1834:	7c 63 30 30 	slw     r3,r3,r6
+    1838:	38 42 00 00 	addi    r2,r2,0
+    183c:	7c 00 02 78 	xor     r0,r0,r0
+    1840:	38 63 00 00 	addi    r3,r3,0
+    1844:	7c 00 02 78 	xor     r0,r0,r0
+    1848:	7c 82 1a 14 	add     r4,r2,r3
+    184c:	7c a4 28 50 	subf    r5,r4,r5
+    1850:	2c 05 00 00 	cmpwi   r5,0
+    1854:	40 82 02 9c 	bne-    1af0 <fail>
+
+0000000000001858 <test_27>:
+test_27():
+    1858:	3b c0 00 1b 	li      r30,27
+    185c:	38 c0 00 0c 	li      r6,12
+    1860:	38 a0 00 26 	li      r5,38
+    1864:	7c a5 30 30 	slw     r5,r5,r6
+    1868:	38 a5 00 00 	addi    r5,r5,0
+    186c:	7c a5 30 30 	slw     r5,r5,r6
+    1870:	38 a5 00 00 	addi    r5,r5,0
+    1874:	38 40 00 15 	li      r2,21
+    1878:	7c 42 30 30 	slw     r2,r2,r6
+    187c:	38 42 00 00 	addi    r2,r2,0
+    1880:	7c 42 30 30 	slw     r2,r2,r6
+    1884:	38 42 00 00 	addi    r2,r2,0
+    1888:	38 60 00 11 	li      r3,17
+    188c:	7c 63 30 30 	slw     r3,r3,r6
+    1890:	38 63 00 00 	addi    r3,r3,0
+    1894:	7c 63 30 30 	slw     r3,r3,r6
+    1898:	38 42 00 00 	addi    r2,r2,0
+    189c:	7c 00 02 78 	xor     r0,r0,r0
+    18a0:	7c 00 02 78 	xor     r0,r0,r0
+    18a4:	38 63 00 00 	addi    r3,r3,0
+    18a8:	7c 82 1a 14 	add     r4,r2,r3
+    18ac:	7c a4 28 50 	subf    r5,r4,r5
+    18b0:	2c 05 00 00 	cmpwi   r5,0
+    18b4:	40 82 02 3c 	bne-    1af0 <fail>
+
+00000000000018b8 <test_28>:
+test_28():
+    18b8:	3b c0 00 1c 	li      r30,28
+    18bc:	38 c0 00 0c 	li      r6,12
+    18c0:	38 a0 00 24 	li      r5,36
+    18c4:	7c a5 30 30 	slw     r5,r5,r6
+    18c8:	38 a5 00 00 	addi    r5,r5,0
+    18cc:	7c a5 30 30 	slw     r5,r5,r6
+    18d0:	38 a5 00 00 	addi    r5,r5,0
+    18d4:	38 40 00 13 	li      r2,19
+    18d8:	7c 42 30 30 	slw     r2,r2,r6
+    18dc:	38 42 00 00 	addi    r2,r2,0
+    18e0:	7c 42 30 30 	slw     r2,r2,r6
+    18e4:	38 42 00 00 	addi    r2,r2,0
+    18e8:	38 60 00 11 	li      r3,17
+    18ec:	7c 63 30 30 	slw     r3,r3,r6
+    18f0:	38 63 00 00 	addi    r3,r3,0
+    18f4:	7c 63 30 30 	slw     r3,r3,r6
+    18f8:	38 63 00 00 	addi    r3,r3,0
+    18fc:	38 42 00 00 	addi    r2,r2,0
+    1900:	7c 82 1a 14 	add     r4,r2,r3
+    1904:	7c a4 28 50 	subf    r5,r4,r5
+    1908:	2c 05 00 00 	cmpwi   r5,0
+    190c:	40 82 01 e4 	bne-    1af0 <fail>
+
+0000000000001910 <test_29>:
+test_29():
+    1910:	3b c0 00 1d 	li      r30,29
+    1914:	38 c0 00 0c 	li      r6,12
+    1918:	38 a0 00 25 	li      r5,37
+    191c:	7c a5 30 30 	slw     r5,r5,r6
+    1920:	38 a5 00 00 	addi    r5,r5,0
+    1924:	7c a5 30 30 	slw     r5,r5,r6
+    1928:	38 a5 00 00 	addi    r5,r5,0
+    192c:	38 40 00 14 	li      r2,20
+    1930:	7c 42 30 30 	slw     r2,r2,r6
+    1934:	38 42 00 00 	addi    r2,r2,0
+    1938:	7c 42 30 30 	slw     r2,r2,r6
+    193c:	38 42 00 00 	addi    r2,r2,0
+    1940:	38 60 00 11 	li      r3,17
+    1944:	7c 63 30 30 	slw     r3,r3,r6
+    1948:	38 63 00 00 	addi    r3,r3,0
+    194c:	7c 63 30 30 	slw     r3,r3,r6
+    1950:	38 63 00 00 	addi    r3,r3,0
+    1954:	38 42 00 00 	addi    r2,r2,0
+    1958:	7c 00 02 78 	xor     r0,r0,r0
+    195c:	7c 82 1a 14 	add     r4,r2,r3
+    1960:	7c a4 28 50 	subf    r5,r4,r5
+    1964:	2c 05 00 00 	cmpwi   r5,0
+    1968:	40 82 01 88 	bne-    1af0 <fail>
+
+000000000000196c <test_30>:
+test_30():
+    196c:	3b c0 00 1e 	li      r30,30
+    1970:	38 c0 00 0c 	li      r6,12
+    1974:	38 a0 00 26 	li      r5,38
+    1978:	7c a5 30 30 	slw     r5,r5,r6
+    197c:	38 a5 00 00 	addi    r5,r5,0
+    1980:	7c a5 30 30 	slw     r5,r5,r6
+    1984:	38 a5 00 00 	addi    r5,r5,0
+    1988:	38 40 00 15 	li      r2,21
+    198c:	7c 42 30 30 	slw     r2,r2,r6
+    1990:	38 42 00 00 	addi    r2,r2,0
+    1994:	7c 42 30 30 	slw     r2,r2,r6
+    1998:	38 42 00 00 	addi    r2,r2,0
+    199c:	38 60 00 11 	li      r3,17
+    19a0:	7c 63 30 30 	slw     r3,r3,r6
+    19a4:	38 63 00 00 	addi    r3,r3,0
+    19a8:	7c 63 30 30 	slw     r3,r3,r6
+    19ac:	38 63 00 00 	addi    r3,r3,0
+    19b0:	38 42 00 00 	addi    r2,r2,0
+    19b4:	7c 00 02 78 	xor     r0,r0,r0
+    19b8:	7c 00 02 78 	xor     r0,r0,r0
+    19bc:	7c 82 1a 14 	add     r4,r2,r3
+    19c0:	7c a4 28 50 	subf    r5,r4,r5
+    19c4:	2c 05 00 00 	cmpwi   r5,0
+    19c8:	40 82 01 28 	bne-    1af0 <fail>
+
+00000000000019cc <test_31>:
+test_31():
+    19cc:	3b c0 00 1f 	li      r30,31
+    19d0:	38 c0 00 0c 	li      r6,12
+    19d4:	38 a0 00 24 	li      r5,36
+    19d8:	7c a5 30 30 	slw     r5,r5,r6
+    19dc:	38 a5 00 00 	addi    r5,r5,0
+    19e0:	7c a5 30 30 	slw     r5,r5,r6
+    19e4:	38 a5 00 00 	addi    r5,r5,0
+    19e8:	38 40 00 13 	li      r2,19
+    19ec:	7c 42 30 30 	slw     r2,r2,r6
+    19f0:	38 42 00 00 	addi    r2,r2,0
+    19f4:	7c 42 30 30 	slw     r2,r2,r6
+    19f8:	38 42 00 00 	addi    r2,r2,0
+    19fc:	38 60 00 11 	li      r3,17
+    1a00:	7c 63 30 30 	slw     r3,r3,r6
+    1a04:	38 63 00 00 	addi    r3,r3,0
+    1a08:	7c 63 30 30 	slw     r3,r3,r6
+    1a0c:	38 63 00 00 	addi    r3,r3,0
+    1a10:	7c 00 02 78 	xor     r0,r0,r0
+    1a14:	38 42 00 00 	addi    r2,r2,0
+    1a18:	7c 82 1a 14 	add     r4,r2,r3
+    1a1c:	7c a4 28 50 	subf    r5,r4,r5
+    1a20:	2c 05 00 00 	cmpwi   r5,0
+    1a24:	40 82 00 cc 	bne-    1af0 <fail>
+
+0000000000001a28 <test_32>:
+test_32():
+    1a28:	3b c0 00 20 	li      r30,32
+    1a2c:	38 c0 00 0c 	li      r6,12
+    1a30:	38 a0 00 25 	li      r5,37
+    1a34:	7c a5 30 30 	slw     r5,r5,r6
+    1a38:	38 a5 00 00 	addi    r5,r5,0
+    1a3c:	7c a5 30 30 	slw     r5,r5,r6
+    1a40:	38 a5 00 00 	addi    r5,r5,0
+    1a44:	38 40 00 14 	li      r2,20
+    1a48:	7c 42 30 30 	slw     r2,r2,r6
+    1a4c:	38 42 00 00 	addi    r2,r2,0
+    1a50:	7c 42 30 30 	slw     r2,r2,r6
+    1a54:	38 42 00 00 	addi    r2,r2,0
+    1a58:	38 60 00 11 	li      r3,17
+    1a5c:	7c 63 30 30 	slw     r3,r3,r6
+    1a60:	38 63 00 00 	addi    r3,r3,0
+    1a64:	7c 63 30 30 	slw     r3,r3,r6
+    1a68:	38 63 00 00 	addi    r3,r3,0
+    1a6c:	7c 00 02 78 	xor     r0,r0,r0
+    1a70:	38 42 00 00 	addi    r2,r2,0
+    1a74:	7c 00 02 78 	xor     r0,r0,r0
+    1a78:	7c 82 1a 14 	add     r4,r2,r3
+    1a7c:	7c a4 28 50 	subf    r5,r4,r5
+    1a80:	2c 05 00 00 	cmpwi   r5,0
+    1a84:	40 82 00 6c 	bne-    1af0 <fail>
+
+0000000000001a88 <test_33>:
+test_33():
+    1a88:	3b c0 00 21 	li      r30,33
+    1a8c:	38 c0 00 0c 	li      r6,12
+    1a90:	38 a0 00 26 	li      r5,38
+    1a94:	7c a5 30 30 	slw     r5,r5,r6
+    1a98:	38 a5 00 00 	addi    r5,r5,0
+    1a9c:	7c a5 30 30 	slw     r5,r5,r6
+    1aa0:	38 a5 00 00 	addi    r5,r5,0
+    1aa4:	38 40 00 15 	li      r2,21
+    1aa8:	7c 42 30 30 	slw     r2,r2,r6
+    1aac:	38 42 00 00 	addi    r2,r2,0
+    1ab0:	7c 42 30 30 	slw     r2,r2,r6
+    1ab4:	38 42 00 00 	addi    r2,r2,0
+    1ab8:	38 60 00 11 	li      r3,17
+    1abc:	7c 63 30 30 	slw     r3,r3,r6
+    1ac0:	38 63 00 00 	addi    r3,r3,0
+    1ac4:	7c 63 30 30 	slw     r3,r3,r6
+    1ac8:	38 63 00 00 	addi    r3,r3,0
+    1acc:	7c 00 02 78 	xor     r0,r0,r0
+    1ad0:	7c 00 02 78 	xor     r0,r0,r0
+    1ad4:	38 42 00 00 	addi    r2,r2,0
+    1ad8:	7c 82 1a 14 	add     r4,r2,r3
+    1adc:	7c a4 28 50 	subf    r5,r4,r5
+    1ae0:	2c 05 00 00 	cmpwi   r5,0
+    1ae4:	40 82 00 0c 	bne-    1af0 <fail>
+    1ae8:	2c 1e 00 00 	cmpwi   r30,0
+    1aec:	40 82 00 0c 	bne-    1af8 <pass>
+
+0000000000001af0 <fail>:
+fail():
+    1af0:	3b e0 0f ff 	li      r31,4095
+    1af4:	4b ff ff fc 	b       1af0 <fail>
+
+0000000000001af8 <pass>:
+pass():
+    1af8:	3b e0 0a aa 	li      r31,2730
+    1afc:	4b ff ff fc 	b       1af8 <pass>

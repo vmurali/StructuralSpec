@@ -1,0 +1,91 @@
+
+stwtest:     file format elf64-powerpc
+
+
+Disassembly of section .text:
+
+0000000000001000 <_start>:
+starthere():
+    1000:	48 00 00 bd 	bl      10bc <getbase>
+    1004:	48 00 00 c5 	bl      10c8 <getbase2>
+    1008:	38 40 00 ff 	li      r2,255
+    100c:	90 57 00 00 	stw     r2,0(r23)
+    1010:	80 77 00 00 	lwz     r3,0(r23)
+    1014:	2c 03 00 ff 	cmpwi   r3,255
+    1018:	40 82 00 94 	bne-    10ac <fail>
+    101c:	38 40 7f 00 	li      r2,32512
+    1020:	90 57 00 04 	stw     r2,4(r23)
+    1024:	80 77 00 04 	lwz     r3,4(r23)
+    1028:	2c 03 7f 00 	cmpwi   r3,32512
+    102c:	40 82 00 80 	bne-    10ac <fail>
+    1030:	38 40 0f f0 	li      r2,4080
+    1034:	90 57 00 08 	stw     r2,8(r23)
+    1038:	80 77 00 08 	lwz     r3,8(r23)
+    103c:	2c 03 0f f0 	cmpwi   r3,4080
+    1040:	40 82 00 6c 	bne-    10ac <fail>
+    1044:	38 40 70 0f 	li      r2,28687
+    1048:	90 57 00 0c 	stw     r2,12(r23)
+    104c:	80 77 00 0c 	lwz     r3,12(r23)
+    1050:	2c 03 70 0f 	cmpwi   r3,28687
+    1054:	40 82 00 58 	bne-    10ac <fail>
+    1058:	38 40 00 ff 	li      r2,255
+    105c:	90 56 ff f0 	stw     r2,-16(r22)
+    1060:	80 76 ff f0 	lwz     r3,-16(r22)
+    1064:	2c 03 00 ff 	cmpwi   r3,255
+    1068:	40 82 00 44 	bne-    10ac <fail>
+    106c:	38 40 7f 00 	li      r2,32512
+    1070:	90 56 ff f4 	stw     r2,-12(r22)
+    1074:	80 76 ff f4 	lwz     r3,-12(r22)
+    1078:	2c 03 7f 00 	cmpwi   r3,32512
+    107c:	40 82 00 30 	bne-    10ac <fail>
+    1080:	38 40 0f f0 	li      r2,4080
+    1084:	90 56 ff f8 	stw     r2,-8(r22)
+    1088:	80 76 ff f8 	lwz     r3,-8(r22)
+    108c:	2c 03 0f f0 	cmpwi   r3,4080
+    1090:	40 82 00 1c 	bne-    10ac <fail>
+    1094:	38 40 70 0f 	li      r2,28687
+    1098:	90 56 ff fc 	stw     r2,-4(r22)
+    109c:	80 76 ff fc 	lwz     r3,-4(r22)
+    10a0:	2c 03 70 0f 	cmpwi   r3,28687
+    10a4:	40 82 00 08 	bne-    10ac <fail>
+    10a8:	48 00 00 0c 	b       10b4 <pass>
+
+00000000000010ac <fail>:
+fail():
+    10ac:	3b e0 0f ff 	li      r31,4095
+    10b0:	4b ff ff fc 	b       10ac <fail>
+
+00000000000010b4 <pass>:
+pass():
+    10b4:	3b e0 0a aa 	li      r31,2730
+    10b8:	4b ff ff fc 	b       10b4 <pass>
+
+00000000000010bc <getbase>:
+getbase():
+    10bc:	7e c8 02 a6 	mflr    r22
+    10c0:	3a d6 00 f0 	addi    r22,r22,240
+    10c4:	4e 80 00 20 	blr
+
+00000000000010c8 <getbase2>:
+getbase2():
+    10c8:	7e e8 02 a6 	mflr    r23
+    10cc:	3a f7 00 cc 	addi    r23,r23,204
+    10d0:	4e 80 00 20 	blr
+
+00000000000010d4 <testdata>:
+testdata():
+    10d4:	de ad be ef 	stfdu   f21,-16657(r13)
+    10d8:	de ad be ef 	stfdu   f21,-16657(r13)
+    10dc:	de ad be ef 	stfdu   f21,-16657(r13)
+    10e0:	de ad be ef 	stfdu   f21,-16657(r13)
+    10e4:	de ad be ef 	stfdu   f21,-16657(r13)
+    10e8:	de ad be ef 	stfdu   f21,-16657(r13)
+    10ec:	de ad be ef 	stfdu   f21,-16657(r13)
+    10f0:	de ad be ef 	stfdu   f21,-16657(r13)
+
+00000000000010f4 <strg>:
+strg():
+    10f4:	54 65 73 74 	rlwinm  r5,r3,14,13,26
+    10f8:	20 50 61 73 	subfic  r2,r16,24947
+    10fc:	73 21 21 21 	andi.   r1,r25,8481
+	...
