@@ -1,0 +1,62 @@
+D
+	|op|  dest| src|            imm|
+	| 6|     5|   5|             16|
+
+XO
+	|op|  dest|src1|src2|oe|func|rc|
+	| 6|     5|   5|   5| 1|   9| 1|
+
+X
+	|op|  dest|src1|src2|   func|rc|
+	| 6|     5|   5|   5|     10| 1|
+
+XFX
+	|op|  dest|      spr|   func|  |
+	| 6|     5|       10|     10| 1|
+
+I
+	|op|                  imm|aa|lk|
+	| 6|                   24| 1| 1|
+
+B
+	|op|    bi|  bo|sE++2'b00|aa|lk|
+        | 6|     5|   5|       14| 1| 1|
+
+CMP
+	|op|bf| | |    |               |
+
+addi	|14|      |    |     signExtend|
+
+andi.	|28|      |    |     zeroExtend|
+xori	|26|      |    |     zeroExtend|
+ori	|24|      |    |     zeroExtend|
+
+add	|31|      |    |    |  | 266|  |
+subf	|31|      |    |    |     40|  |
+
+and	|31|      |    |    |     28|  |
+xor	|31|      |    |    |    316|  |
+nor	|31|      |    |    |    124|  |
+or	|31|      |    |    |    444|  |
+
+slw	|31|      |    |    |     24|  |
+sraw	|31|      |    |    |    792|  |
+srw     |31|      |    |    |    536|  |
+
+lwz	|32|      |    |     signExtend|
+stw	|36|      |    |     signExtend|
+
+mfspr	|31|      |         |   339|  |
+
+b	|18|    signExtend++2'b00| 0| 0|
+bl      |18|    signExtend++2'b00| 0| 1|
+blr     |19|      |    |  | |     16|  |
+beq     |16|
+bge
+bgt
+ble
+blt
+bne
+
+cmpw	|11|bf| | |    |     signExtend|
+
