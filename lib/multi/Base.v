@@ -48,6 +48,7 @@ module mkReg_NO_FIFO(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_EN_WRITE, IN_EN_WR
     data = init;
 
   assign OUT_READ_VALID = 1;
+  assign OUT_READ = data;
   assign DONE = 1;
 
   always@(posedge CLK)
@@ -78,14 +79,13 @@ module mkRegU_NO_FIFO(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_EN_WRITE, IN_EN_W
     data = {((width+1))/2{2'b10}};
 
   assign OUT_READ_VALID = 1;
+  assign OUT_READ = data;
   assign DONE = 1;
 
   always@(posedge CLK)
   begin
-    if(!RST_N)
-      data <= {((width+1))/2{2'b10}};
-    else if(RESET && IN_EN_WRITE)
-        data <= IN_WRITE;
+    if(RESET && IN_EN_WRITE)
+      data <= IN_WRITE;
   end
 endmodule
 

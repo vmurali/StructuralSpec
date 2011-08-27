@@ -59,7 +59,7 @@ module mkRegU(Reg#(t)) provisos(Bits#(t, tSz));
   schedule _read CF (_read, _write);
   schedule _write C _write;
   default_clock ck(CLK);
-  default_reset no_reset;
+  default_reset rt(RST_N) clocked_by (ck);
 endmodule
 
 function Bit#(m) truncate(Bit#(n) x) = valueOf(m) == 0? 0: x[valueOf(m)-1:0];

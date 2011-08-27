@@ -1,5 +1,5 @@
 %:
-	UnifiedScript -m $*.spec
+	UnifiedScript -m -e $*.spec
 
 clean:
 	rm -rf bsv
