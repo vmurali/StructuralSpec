@@ -4,30 +4,24 @@ import Vector::*;
 
 (* always_ready *)
 interface Output_#(type t);
-  (* always_enabled, prefix = "" *) method Action write((* port = "WRITE" *)t x);
-  (* enable = "WRITE_VALID" *) method Action valid;
+  (* enable = "WRITE_ENQ", prefix = "" *) method Action write((* port = "WRITE" *)t x);
+  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool consumedBefore;
+  (* result = "WRITE_NOT_FULL" *) method Bool notFull;
   (* result = "WRITE_CONSUMED" *) method Bool consumed;
+  (* enable = "WRITE_RESET" *) method Action reset;
 endinterface
 
 (* always_ready *)
 interface Output#(type t);
   (* result = "READ" *) method t _read;
-  (* result = "READ_VALID" *) method Bool valid;
-  (* enable = "READ_CONSUMED" *) method Action consumed;
+  (* result = "READ_NOT_EMPTY" *) method Bool notEmpty;
+  (* enable = "READ_DEQ" *) method Action deq;
 endinterface
 
 instance Connectable#(Output_#(t), Output#(t));
   module mkConnection#(Output_#(t) a, Output#(t) b)();
     rule _safe1;
       a.write(b);
-    endrule
-
-    rule _safe2(b.valid);
-      a.valid;
-    endrule
-
-    rule _safe3(a.consumed);
-      b.consumed;
     endrule
   endmodule
 endinstance
@@ -39,61 +33,65 @@ instance Connectable#(Output#(t), Output_#(t));
 endinstance
 
 module _Output#(Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bits#(t, tSz));
-  WireNormal#(t) dataLocal <- mkWireNormal;
-  PulseNormal validLocal <- mkPulseNormal;
-  PulseNormal consumedLocal <- mkPulseNormal;
+  RegNormal#(t)        data <- mkRegUNormal;
+  WireNormal#(t)      dataW <- mkWireNormal;
+  PulseNormal           enq <- mkPulseNormal;
+  PulseNormal          deqL <- mkPulseNormal;
+  RegNormal#(Bool)    valid <- mkRegNormal(False);
+  RegNormal#(Bool) consumed <- mkRegNormal(False);
+  PulseNormal        resetW <- mkPulseNormal;
+
+  rule a;
+    if(resetW)
+      consumed <= False;
+    else if(enq)
+      consumed <= True;
+
+    if(deqL)
+      valid <= False;
+    else if(enq)
+      valid <= True;
+  endrule
 
   return tuple2(
     interface Output_;
-      method Action write(t x) if(g1);
-        dataLocal.write(x);
+      method Action write(t x) if(!valid && !consumed);
+        dataW.write(x);
+        data <= x;
+        enq.send;
       endmethod
-
-      method Action valid;
-        validLocal.send;
-      endmethod
-
-      method Bool consumed;
-        return consumedLocal;
-      endmethod
+      method Bool consumedBefore = consumed;
+      method Bool notFull = !valid;
+      method Bool consumed = enq || consumed;
+      method Action reset = resetW.send;
     endinterface,
 
     interface Output;
-      method t _read if(g2);
-        return dataLocal;
+      method t _read if(valid || enq);
+        return enq? dataW: data;
       endmethod
-
-      method Bool valid;
-        return validLocal;
-      endmethod
-
-      method Action consumed;
-        consumedLocal.send;
+      method Bool notEmpty = (valid || enq);
+      method Action deq if(valid || enq);
+        deqL.send;
       endmethod
     endinterface);
 endmodule
 
 (* always_ready *)
 interface OutputPulse_;
-  (* enable = "WRITE" *) method Action _read;
-  (* enable = "WRITE_VALID" *) method Action valid;
+  (* enable = "WRITE_ENQ", prefix = "" *) method Action write((* port = "WRITE" *)Bool x);
+  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool consumedBefore;
+  (* result = "WRITE_NOT_FULL" *) method Bool notFull;
   (* result = "WRITE_CONSUMED" *) method Bool consumed;
+  (* enable = "WRITE_RESET" *) method Action reset;
 endinterface
 
 typedef Output#(Bool) OutputPulse;
 
 instance Connectable#(OutputPulse_, OutputPulse);
   module mkConnection#(OutputPulse_ a, OutputPulse b)();
-    rule _safe1(b);
-      a;
-    endrule
-
-    rule _safe2(b.valid);
-      a.valid;
-    endrule
-
-    rule _safe3(a.consumed);
-      b.consumed;
+    rule _safe1;
+      a.write(b);
     endrule
   endmodule
 endinstance
@@ -105,80 +103,78 @@ instance Connectable#(OutputPulse, OutputPulse_);
 endinstance
 
 module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
-  PulseNormal dataLocal <- mkPulseNormal;
-  PulseNormal validLocal <- mkPulseNormal;
-  PulseNormal consumedLocal <- mkPulseNormal;
+  RegNormal#(Bool)     data <- mkRegUNormal;
+  WireNormal#(Bool)   dataW <- mkWireNormal;
+  PulseNormal           enq <- mkPulseNormal;
+  PulseNormal          deqL <- mkPulseNormal;
+  RegNormal#(Bool)    valid <- mkRegNormal(False);
+  RegNormal#(Bool) consumed <- mkRegNormal(False);
+  PulseNormal        resetW <- mkPulseNormal;
 
+  rule a;
+    if(resetW)
+      consumed <= False;
+    else if(enq)
+      consumed <= True;
+
+    if(deqL)
+      valid <= False;
+    else if(enq)
+      valid <= True;
+  endrule
 
   return tuple2(
     interface OutputPulse_;
-      method Action _read if(g1);
-        dataLocal.send;
+      method Action write(Bool x) if(!valid && !consumed);
+        dataW.write(x);
+        data <= x;
+        enq.send;
       endmethod
-
-      method Action valid;
-        validLocal.send;
-      endmethod
-
-      method Bool consumed;
-        return consumedLocal;
-      endmethod
+      method Bool consumedBefore = consumed;
+      method Bool notFull = !valid;
+      method Bool consumed = enq || consumed;
+      method Action reset = resetW.send;
     endinterface,
 
     interface OutputPulse;
-      method Bool _read if(g2);
-        return dataLocal;
+      method Bool _read if(valid || enq);
+        return enq? dataW: data;
       endmethod
-
-      method Bool valid;
-        return validLocal;
-      endmethod
-
-      method Action consumed;
-        consumedLocal.send;
+      method Bool notEmpty = (valid || enq);
+      method Action deq if(valid || enq);
+        deqL.send;
       endmethod
     endinterface);
 endmodule
 
 (* always_ready *)
 interface ConditionalOutput_#(type t);
-  (* prefix = "", enable = "EN_WRITE" *) method Action write((* port = "WRITE" *)t x);
-  (* enable = "WRITE_VALID" *) method Action valid;
-  (* enable = "EN_WRITE_VALID" *) method Action en_valid;
+  (* enable = "WRITE_ENQ", prefix = "" *) method Action write((* port = "WRITE" *)t x);
+  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool consumedBefore;
+  (* result = "WRITE_NOT_FULL" *) method Bool notFull;
   (* result = "WRITE_CONSUMED" *) method Bool consumed;
-  (* result = "EN_WRITE_CONSUMED" *) method Bool en_consumed;
+  (* enable = "WRITE_RESET" *) method Action reset;
+  (* enable = "EN_WRITE_ENQ", prefix = "" *) method Action en((* port = "EN_WRITE" *)Bool x);
+  (* result = "EN_WRITE_CONSUMED_BEFORE" *) method Bool enConsumedBefore;
+  (* result = "EN_WRITE_NOT_FULL" *) method Bool enNotFull;
+  (* result = "EN_WRITE_CONSUMED" *) method Bool enConsumed;
+  (* enable = "EN_WRITE_RESET" *) method Action enReset;
 endinterface
 
 (* always_ready *)
 interface ConditionalOutput#(type t);
   (* result = "READ" *) method t _read;
+  (* result = "READ_NOT_EMPTY" *) method Bool notEmpty;
+  (* enable = "READ_DEQ" *) method Action deq;
   (* result = "EN_READ" *) method Bool en;
-  (* result = "READ_VALID" *) method Bool valid;
-  (* result = "EN_READ_VALID" *) method Bool en_valid;
-  (* enable = "READ_CONSUMED" *) method Action consumed;
-  (* enable = "EN_READ_CONSUMED" *) method Action en_consumed;
+  (* result = "EN_READ_NOT_EMPTY" *) method Bool enNotEmpty;
+  (* enable = "EN_READ_DEQ" *) method Action enDeq;
 endinterface
 
 instance Connectable#(ConditionalOutput_#(t), ConditionalOutput#(t));
   module mkConnection#(ConditionalOutput_#(t) a, ConditionalOutput#(t) b)();
     rule _safe1(b.en);
       a.write(b);
-    endrule
-
-    rule _safe2(b.valid);
-      a.valid;
-    endrule
-
-    rule _safe3(a.consumed);
-      b.consumed;
-    endrule
-
-    rule _safe4(b.en_valid);
-      a.en_valid;
-    endrule
-
-    rule _safe5(a.en_consumed);
-      b.en_consumed;
     endrule
   endmodule
 endinstance
@@ -190,60 +186,80 @@ instance Connectable#(ConditionalOutput#(t), ConditionalOutput_#(t));
 endinstance
 
 module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), ConditionalOutput#(t))) provisos(Bits#(t, tSz));
-  WireNormal#(t) dataLocal <- mkWireNormal;
-  PulseNormal enLocal <- mkPulseNormal;
-  PulseNormal validLocal <- mkPulseNormal;
-  PulseNormal en_validLocal <- mkPulseNormal;
-  PulseNormal consumedLocal <- mkPulseNormal;
-  PulseNormal en_consumedLocal <- mkPulseNormal;
+  RegNormal#(t)        data <- mkRegUNormal;
+  WireNormal#(t)      dataW <- mkWireNormal;
+  PulseNormal           enq <- mkPulseNormal;
+  PulseNormal          deqL <- mkPulseNormal;
+  RegNormal#(Bool)    valid <- mkRegNormal(False);
+  RegNormal#(Bool) consumed <- mkRegNormal(False);
+  PulseNormal        resetW <- mkPulseNormal;
+
+  RegNormal#(Bool)     enData <- mkRegUNormal;
+  WireNormal#(Bool)   enDataW <- mkWireNormal;
+  PulseNormal           enEnq <- mkPulseNormal;
+  PulseNormal          enDeqL <- mkPulseNormal;
+  RegNormal#(Bool)    enValid <- mkRegNormal(False);
+  RegNormal#(Bool) enConsumed <- mkRegNormal(False);
+  PulseNormal        enResetW <- mkPulseNormal;
+
+  rule a;
+    if(resetW)
+      consumed <= False;
+    else if(enq)
+      consumed <= True;
+
+    if(deqL)
+      valid <= False;
+    else if(enq)
+      valid <= True;
+
+    if(enResetW)
+      enConsumed <= False;
+    else if(enEnq)
+      enConsumed <= True;
+
+    if(enDeqL)
+      enValid <= False;
+    else if(enEnq)
+      enValid <= True;
+  endrule
 
   return tuple2(
     interface ConditionalOutput_;
-      method Action write(t x) if(g1);
-        dataLocal.write(x);
-        enLocal.send;
+      method Action write(t x) if(!valid && !consumed);
+        dataW.write(x);
+        data <= x;
+        enq.send;
       endmethod
-
-      method Action valid;
-        validLocal.send;
+      method Bool consumedBefore = consumed;
+      method Bool notFull = !valid;
+      method Bool consumed = enq || consumed;
+      method Action reset = resetW.send;
+      method Action en(Bool x) if(!enValid && !enConsumed);
+        enDataW.write(x);
+        enData <= x;
+        enEnq.send;
       endmethod
-
-      method Action en_valid;
-        en_validLocal.send;
-      endmethod
-
-      method Bool consumed;
-        return consumedLocal;
-      endmethod
-
-      method Bool en_consumed;
-        return en_consumedLocal;
-      endmethod
+      method Bool enConsumedBefore = enConsumed;
+      method Bool enNotFull = !enValid;
+      method Bool enConsumed = enEnq || enConsumed;
+      method Action enReset = enResetW.send;
     endinterface,
 
     interface ConditionalOutput;
-      method t _read if(g2);
-        return dataLocal;
+      method t _read if(valid || enq);
+        return enq? dataW: data;
       endmethod
-
-      method Bool en if(g2);
-        return enLocal;
+      method Bool notEmpty = (valid || enq);
+      method Action deq if(valid || enq);
+        deqL.send;
       endmethod
-
-      method Bool valid;
-        return validLocal;
+      method Bool en if(enValid || enEnq);
+        return enEnq? enDataW: enData;
       endmethod
-
-      method Bool en_valid;
-        return en_validLocal;
-      endmethod
-
-      method Action consumed;
-        consumedLocal.send;
-      endmethod
-
-      method Action en_consumed;
-        en_consumedLocal.send;
+      method Bool enNotEmpty = (enValid || enEnq);
+      method Action enDeq if(enValid || enEnq);
+        enDeqL.send;
       endmethod
     endinterface);
 endmodule

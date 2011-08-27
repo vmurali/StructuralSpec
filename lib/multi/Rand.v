@@ -1,24 +1,28 @@
-module mkRand32(CLK, REQ_WRITE, REQ_WRITE_VALID, REQ_WRITE_CONSUMED, RESP_READ, RESP_READ_VALID, RESP_READ_CONSUMED);
+module mkRand32(CLK, REQ_WRITE, REQ_WRITE_VALID, RESP_READ, RESP_READ_VALID, DONE, RESET);
   parameter seed = 0;
 
   input CLK;
   input REQ_WRITE;
   input REQ_WRITE_VALID;
-  output REQ_WRITE_CONSUMED;
   output reg [31:0] RESP_READ;
   output RESP_READ_VALID;
-  input RESP_READ_CONSUMED;
+  output DONE;
+  input RESET;
 
   integer randomseed;
   initial
+  begin
     randomseed = seed;
+    RESP_READ = $random(randomseed);
+  end
+
+  assign DONE = 1;
 
   assign RESP_READ_VALID = REQ_WRITE_VALID;
-  assign REQ_WRITE_CONSUMED = RESP_READ_CONSUMED;
 
   always@(posedge CLK)
   begin
-    if(REQ_WRITE)
+    if(RESET && REQ_WRITE)
       RESP_READ = $random(randomseed);
   end
 endmodule

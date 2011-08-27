@@ -1,169 +1,91 @@
-module mkWire(IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, IN_EN_WRITE, IN_EN_WRITE_VALID, IN_EN_WRITE_CONSUMED, OUT_READ, OUT_READ_VALID, OUT_READ_CONSUMED);
+module mkWire_NO_FIFO(IN_WRITE, IN_WRITE_VALID, IN_EN_WRITE, IN_EN_WRITE_VALID, OUT_READ, OUT_READ_VALID, DONE, RESET);
   parameter width = 1;
   input [((width == 0)? 0: width-1):0] IN_WRITE;
   input IN_WRITE_VALID;
-  output IN_WRITE_CONSUMED;
-  output [((width == 0)? 0: width-1):0] OUT_READ;
-  output OUT_READ_VALID;
-  input OUT_READ_CONSUMED;
   input IN_EN_WRITE;
   input IN_EN_WRITE_VALID;
-  output IN_EN_WRITE_CONSUMED;
+  output [((width == 0)? 0: width-1):0] OUT_READ;
+  output OUT_READ_VALID;
+  output DONE;
+  input RESET;
 
   assign OUT_READ = IN_WRITE;
   assign OUT_READ_VALID = (width == 0)? 1: IN_WRITE_VALID;
-  assign IN_WRITE_CONSUMED = (width == 0)? 1: OUT_READ_CONSUMED;
 
-  assign IN_EN_WRITE_CONSUMED = 1;
+  assign DONE = 1;
 endmodule
 
-module mkPulse(IN_EN_WRITE, IN_EN_WRITE_VALID, IN_EN_WRITE_CONSUMED, OUT_READ, OUT_READ_VALID, OUT_READ_CONSUMED);
-  output OUT_READ;
-  output OUT_READ_VALID;
-  input OUT_READ_CONSUMED;
+module mkPulse_NO_FIFO(IN_EN_WRITE, IN_EN_WRITE_VALID, OUT_READ, OUT_READ_VALID, DONE, RESET);
   input IN_EN_WRITE;
   input IN_EN_WRITE_VALID;
-  output IN_EN_WRITE_CONSUMED;
+  output OUT_READ;
+  output OUT_READ_VALID;
+  output DONE;
+  input RESET;
 
   assign OUT_READ = IN_EN_WRITE;
   assign OUT_READ_VALID = IN_EN_WRITE_VALID;
-  assign IN_EN_WRITE_CONSUMED = OUT_READ_CONSUMED;
+
+  assign DONE = 1;
 endmodule
 
-module mkReg(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, OUT_READ, OUT_READ_VALID, OUT_READ_CONSUMED, IN_EN_WRITE, IN_EN_WRITE_VALID, IN_EN_WRITE_CONSUMED);
+module mkReg_NO_FIFO(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_EN_WRITE, IN_EN_WRITE_VALID, OUT_READ, OUT_READ_VALID, DONE, RESET);
   parameter width = 1;
   parameter init = 0;
+  input CLK, RST_N;
   input [((width == 0)? 0: width-1):0] IN_WRITE;
   input IN_WRITE_VALID;
-  output IN_WRITE_CONSUMED;
+  input IN_EN_WRITE;
+  input IN_EN_WRITE_VALID;
   output [((width == 0)? 0: width-1):0] OUT_READ;
   output OUT_READ_VALID;
-  input OUT_READ_CONSUMED;
-  input IN_EN_WRITE, CLK, RST_N;
-  input IN_EN_WRITE_VALID;
-  output IN_EN_WRITE_CONSUMED;
+  output DONE;
+  input RESET;
 
-  reg [((width == 0)? 0: width-1):0] data0;
-  reg [((width == 0)? 0: width-1):0] data1;
-  reg valid0, valid1;
-  reg en0;
-  wire enqCond, inpValid, deqCond;
+  reg [((width == 0)? 0: width-1):0] data;
 
   initial
-  begin
-    valid0 = 0;
-    valid1 = 1;
-    data1 = init;
-    en0 = 0;
-  end
+    data = init;
 
-  assign OUT_READ_VALID = valid1;
-  assign OUT_READ = data1;
-  assign inpValid = ((width == 0)? 1: IN_WRITE_VALID) && IN_EN_WRITE_VALID;
-  assign enqCond = inpValid && !valid0;
-  assign IN_WRITE_CONSUMED = inpValid && !valid0;
-  assign IN_EN_WRITE_CONSUMED = inpValid && !valid0;
-  assign deqCond = ((width == 0)? 1: OUT_READ_CONSUMED);
+  assign OUT_READ_VALID = 1;
+  assign DONE = 1;
 
   always@(posedge CLK)
   begin
     if(!RST_N)
-    begin
-      valid0 <= 0;
-      valid1 <= 1;
-      data1 <= init;
-      en0 <= 0;
-    end
-    else
-    begin
-      if(enqCond && deqCond || enqCond && !deqCond && !valid1)
-      begin
-        valid1 <= 1;
-        if(IN_EN_WRITE)
-          data1 <= IN_WRITE;
-      end
-      else if(enqCond && !deqCond && valid1)
-      begin
-        valid0 <= 1;
-        data0 <= IN_WRITE;
-        en0 <= IN_EN_WRITE;
-      end
-      else if(!enqCond && deqCond)
-      begin
-        valid1 <= valid0;
-        if(valid0 && en0)
-          data1 <= data0;
-        valid0 <= 0;
-      end
-    end
+      data <= init;
+    else if(RESET && IN_EN_WRITE)
+        data <= IN_WRITE;
   end
 endmodule
 
-module mkRegU(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_WRITE_CONSUMED, OUT_READ, OUT_READ_VALID, OUT_READ_CONSUMED, IN_EN_WRITE, IN_EN_WRITE_VALID, IN_EN_WRITE_CONSUMED);
+module mkRegU_NO_FIFO(CLK, RST_N, IN_WRITE, IN_WRITE_VALID, IN_EN_WRITE, IN_EN_WRITE_VALID, OUT_READ, OUT_READ_VALID, DONE, RESET);
   parameter width = 1;
+  parameter init = 0;
+  input CLK, RST_N;
   input [((width == 0)? 0: width-1):0] IN_WRITE;
   input IN_WRITE_VALID;
-  output IN_WRITE_CONSUMED;
+  input IN_EN_WRITE;
+  input IN_EN_WRITE_VALID;
   output [((width == 0)? 0: width-1):0] OUT_READ;
   output OUT_READ_VALID;
-  input OUT_READ_CONSUMED;
-  input IN_EN_WRITE, CLK, RST_N;
-  input IN_EN_WRITE_VALID;
-  output IN_EN_WRITE_CONSUMED;
+  output DONE;
+  input RESET;
 
-  reg [((width == 0)? 0: width-1):0] data0;
-  reg [((width == 0)? 0: width-1):0] data1;
-  reg valid0, valid1;
-  reg en0;
-  wire enqCond, inpValid, deqCond;
+  reg [((width == 0)? 0: width-1):0] data;
 
   initial
-  begin
-    valid0 = 0;
-    valid1 = 1;
-    data1 = {((width+1))/2{2'b10}};
-    en0 = 0;
-  end
+    data = {((width+1))/2{2'b10}};
 
-  assign OUT_READ_VALID = valid1;
-  assign OUT_READ = data1;
-  assign inpValid = ((width == 0)? 1: IN_WRITE_VALID) && IN_EN_WRITE_VALID;
-  assign enqCond = inpValid && !valid0;
-  assign IN_WRITE_CONSUMED = inpValid && !valid0;
-  assign IN_EN_WRITE_CONSUMED = inpValid && !valid0;
-  assign deqCond = ((width == 0)? 1: OUT_READ_CONSUMED);
+  assign OUT_READ_VALID = 1;
+  assign DONE = 1;
 
   always@(posedge CLK)
   begin
     if(!RST_N)
-    begin
-      valid0 <= 0;
-      valid1 <= 1;
-      data1 <= {((width+1))/2{2'b10}};
-      en0 <= 0;
-    end
-    else
-    begin
-      if(enqCond && deqCond || enqCond && !deqCond && !valid1)
-      begin
-        valid1 <= 1;
-        if(IN_EN_WRITE)
-          data1 <= IN_WRITE;
-      end
-      else if(enqCond && !deqCond && valid1)
-      begin
-        valid0 <= 1;
-        data0 <= IN_WRITE;
-        en0 <= IN_EN_WRITE;
-      end
-      else if(!enqCond && deqCond)
-      begin
-        valid1 <= valid0;
-        if(valid0 && en0)
-          data1 <= data0;
-        valid0 <= 0;
-      end
-    end
+      data <= {((width+1))/2{2'b10}};
+    else if(RESET && IN_EN_WRITE)
+        data <= IN_WRITE;
   end
 endmodule
 
@@ -217,4 +139,55 @@ module mkRegUNormal(CLK, IN_WRITE, IN_EN_WRITE, OUT_READ);
   always @(posedge CLK)
     if(IN_EN_WRITE)
       OUT_READ <= IN_WRITE;
+endmodule
+
+module BYPASS_FIFO(CLK, RST_N, ENQ, ENQ_VALUE, NOT_FULL, CONSUMED_BEFORE, RESET, CONSUMED, NOT_EMPTY, DEQ_VALUE, DEQ);
+  parameter width = 0;
+  input ENQ;
+  input [width:0] ENQ_VALUE;
+  output NOT_FULL;
+  output CONSUMED_BEFORE;
+  input RESET;
+  output CONSUMED;
+  output NOT_EMPTY;
+  output [width:0] DEQ_VALUE;
+  input DEQ;
+  input CLK, RST_N;
+
+  reg valid;
+  reg consumed;
+  reg [width:0] data;
+
+  assign NOT_FULL = !valid;
+  assign CONSUMED_BEFORE = consumed;
+  assign CONSUMED = ENQ || consumed;
+  assign NOT_EMPTY = valid || ENQ;
+  assign DEQ_VALUE = ENQ? ENQ_VALUE: data;
+
+  initial
+  begin
+    valid = 0;
+    consumed = 0;
+  end
+
+  always@(posedge CLK)
+  begin
+    if(!RST_N)
+    begin
+      valid <= 0;
+      consumed <= 0;
+    end
+    else
+    begin
+      if(RESET)
+        consumed <= 0;
+      else if(ENQ)
+        consumed <= 1;
+
+      if(DEQ)
+        valid <= 0;
+      else if(ENQ)
+        valid <= 1;
+    end
+  end
 endmodule

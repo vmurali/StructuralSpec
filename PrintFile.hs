@@ -6,11 +6,11 @@ import PrintInstance
 import PrintPartition
 import PrintAlias
 
-printElement _    _                (Generic x) = return x
-printElement _    _                (Include x) = return $ "import " ++ x ++ "::*;\nexport " ++ x ++ "::*;\n\n"
-printElement _    _                x@(Alias {}) = printAlias x
-printElement file filePortsAliases x@(Port {}) = printPort file filePortsAliases x
-printElement _    _                x@(Instance {}) = printInstance x
+printElement _    _                     (Generic x) = return x
+printElement _    _                     (Include x) = return $ "import " ++ x ++ "::*;\nexport " ++ x ++ "::*;\n\n"
+printElement _    _                    x@(Alias {}) = printAlias x
+printElement file filePortsAliases      x@(Port {}) = printPort file filePortsAliases x
+printElement  _    _                x@(Instance {}) = printInstance x
 printElement file filePortsAliases x@(Partition {}) = printPartition file filePortsAliases x
 
 printFile file portsAliases elements = do
