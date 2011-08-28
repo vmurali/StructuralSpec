@@ -42,7 +42,7 @@ partition Empty mkTest;
   //get a new tag and enqueue into FIFO
   atomic gettag(r[1:0] == 1);
     tm.reqTag[0];
-    if(tm.getFreeTag[0] matches tagged Valid .a1)
+    if(tm.getFreeTag[0] matches tagged Valid .a1 &&& tagq.enq.notFull)
     begin
       tagq.enq.enq := a1;
       $display("obtained tag = %d", a1);

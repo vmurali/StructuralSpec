@@ -22,10 +22,10 @@ partition TagMaster#(nx, nports) mkTagMaster;
   //Making sure that we have received all the returnTags
   Vector#(nports, RegNormal#(Bool)) writeDones <- replicateM(mkRegNormal(False));
 
-  atomic a;
-    $display("-------------------------------------------------------------localCycle: %d", localCycle);
-    localCycle <= localCycle + 1;
-  endatomic
+//  atomic a;
+//    $display("-------------------------------------------------------------localCycle: %d", localCycle);
+//    localCycle <= localCycle + 1;
+//  endatomic
 
   function Bool allWriteDones;
     Bool ret = True;
