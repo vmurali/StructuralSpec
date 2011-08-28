@@ -20,12 +20,12 @@ partition TagMaster#(nx, nports) mkTagMaster;
   Vector#(nports, ConditionalInputFifo#(Index#(nx))) returnTagFifo = map(getConditionalInputFifo, returnTag);
 
   //Making sure that we have received all the returnTags
-  Vector#(nports, RegNormal#(Bool)) writeDones <- replicateM(mkRegNormal(False));
+  RegNormal#(BVec#(nports)) writeDones <- mkRegNormal(replicate(False));
 
-//  atomic a;
-//    $display("-------------------------------------------------------------localCycle: %d", localCycle);
-//    localCycle <= localCycle + 1;
-//  endatomic
+  atomic a;
+    $display("                                                             localCycle: %d", localCycle);
+    localCycle <= localCycle + 1;
+  endatomic
 
   function Bool allWriteDones;
     Bool ret = True;
@@ -41,45 +41,57 @@ partition TagMaster#(nx, nports) mkTagMaster;
     return ret;
   endfunction
 
-  for(Integer i = 0; i < valueOf(nports); i = i + 1)
-  begin
-    atomic b(!writeDones[i]);
-      writeDones[i] <= True;
-      returnTagFifo[i].deq;
-      let newTagsInUse = tagsInUse;
-      if(returnTagFifo[i].first matches tagged Valid .idx)
-        newTagsInUse[idx] = False;
-      tagsInUse <= newTagsInUse;
-    endatomic
+  atomic b;
+    Bool busy = False;
+    BVec#(nx) newTagsInUse = tagsInUse;
+    BVec#(nports) newWriteDones = writeDones;
 
-    atomic c(!getFreeTag[i].consumedBefore);
-      reqTag[i].deq;
-      if(reqTag[i])
+    for(Integer i = 0; i < valueOf(nports); i = i + 1)
+      if(!writeDones[i] && returnTagFifo[i].notEmpty)
       begin
-        if(allWriteDones)
+        newWriteDones[i] = True;
+        returnTagFifo[i].deq;
+        if(returnTagFifo[i].first matches tagged Valid .idx)
         begin
-          Maybe#(UInt#(TLog#(nx))) ret = findElem(False, tagsInUse);
-          if(ret matches tagged Valid .j)
-          begin
-            let newTagsInUse = tagsInUse;
-            newTagsInUse[j] = True;
-            getFreeTag[i] := tagged Valid (pack(j));
-            tagsInUse <= newTagsInUse;
-          end
-          else
-            getFreeTag[i] := tagged Invalid;
+          newTagsInUse[idx] = False;
+          busy = True;
         end
       end
-      else
-        getFreeTag[i] := tagged Invalid;
-    endatomic
-  end
 
-  atomic d(allWriteDones && allReadDones);
     for(Integer i = 0; i < valueOf(nports); i = i + 1)
-    begin
-      writeDones[i] <= False;
-      getFreeTag[i].reset;
-    end
+      if(!getFreeTag[i].consumedBefore && reqTag[i].notEmpty && getFreeTag[i].notFull)
+      begin
+        if(reqTag[i])
+        begin
+          if(allWriteDones)
+          begin
+            reqTag[i].deq;
+            Maybe#(UInt#(TLog#(nx))) ret = findElem(False, tagsInUse);
+            if(ret matches tagged Valid .j)
+            begin
+              newTagsInUse[j] = True;
+              getFreeTag[i] := tagged Valid (pack(j));
+              busy = True;
+            end
+            else
+              getFreeTag[i] := tagged Invalid;
+          end
+        end
+        else
+        begin
+          reqTag[i].deq;
+          getFreeTag[i] := tagged Invalid;
+        end
+      end
+
+    if(allWriteDones && allReadDones)
+      for(Integer i = 0; i < valueOf(nports); i = i + 1)
+      begin
+        newWriteDones[i] = False;
+        getFreeTag[i].reset;
+      end
+
+    tagsInUse <= newTagsInUse;
+    writeDones <= newWriteDones;
   endatomic
 endpartition

@@ -55,7 +55,7 @@ module _Output#(Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bit
 
   return tuple2(
     interface Output_;
-      method Action write(t x) if(!valid && !consumedR);
+      method Action write(t x);// if(!valid && !consumedR);
         dataW.write(x);
         data <= x;
         enq.send;
@@ -67,11 +67,11 @@ module _Output#(Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bit
     endinterface,
 
     interface Output;
-      method t _read if(valid || enq);
+      method t _read;// if(valid || enq);
         return enq? dataW: data;
       endmethod
       method Bool notEmpty = (valid || enq);
-      method Action deq if(valid || enq);
+      method Action deq;// if(valid || enq);
         deqL.send;
       endmethod
     endinterface);
@@ -131,11 +131,11 @@ module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
 
   return tuple2(
     interface OutputPulse_;
-      method Action _read if(!valid && !consumedR);
+      method Action _read;// if(!valid && !consumedR);
         dataW.send;
       endmethod
 
-      method Action enq if(!valid && !consumedR);
+      method Action enq;// if(!valid && !consumedR);
         enqW.send;
       endmethod
 
@@ -146,11 +146,11 @@ module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
     endinterface,
 
     interface OutputPulse;
-      method Bool _read if(valid || enqW);
+      method Bool _read;// if(valid || enqW);
         return enqW? dataW: data;
       endmethod
       method Bool notEmpty = (valid || enqW);
-      method Action deq if(valid || enqW);
+      method Action deq;// if(valid || enqW);
         deqL.send;
       endmethod
     endinterface);
@@ -235,7 +235,7 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
 
   return tuple2(
     interface ConditionalOutput_;
-      method Action write(t x) if(!valid && !consumedR);
+      method Action write(t x);// if(!valid && !consumedR);
         dataW.write(x);
         data <= x;
         enq.send;
@@ -244,7 +244,7 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
       method Bool notFull = !valid;
       method Bool consumed = enq || consumedR;
       method Action reset = resetW.send;
-      method Action en(Bool x) if(!enValid && !enConsumedR);
+      method Action en(Bool x);// if(!enValid && !enConsumedR);
         enDataW.write(x);
         enData <= x;
         enEnq.send;
@@ -256,18 +256,18 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
     endinterface,
 
     interface ConditionalOutput;
-      method t _read if(valid || enq);
+      method t _read;// if(valid || enq);
         return enq? dataW: data;
       endmethod
       method Bool notEmpty = (valid || enq);
-      method Action deq if(valid || enq);
+      method Action deq;// if(valid || enq);
         deqL.send;
       endmethod
-      method Bool en if(enValid || enEnq);
+      method Bool en;// if(enValid || enEnq);
         return enEnq? enDataW: enData;
       endmethod
       method Bool enNotEmpty = (enValid || enEnq);
-      method Action enDeq if(enValid || enEnq);
+      method Action enDeq;// if(enValid || enEnq);
         enDeqL.send;
       endmethod
     endinterface);

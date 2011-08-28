@@ -73,7 +73,7 @@ module mkWireNormal(WireNormal#(t)) provisos(Bits#(t, tSz));
   schedule write C write;
   default_clock ck();
   default_reset no_reset;
-  path(OUT_READ, IN_WRITE);
+  path(IN_WRITE, OUT_READ);
 endmodule
 
 (* always_ready *)
@@ -90,7 +90,7 @@ module mkPulseNormal(PulseNormal);
   schedule send C send;
   default_clock ck();
   default_reset no_reset;
-  path(OUT_READ, IN_EN_WRITE);
+  path(IN_EN_WRITE, OUT_READ);
 endmodule
 
 (* always_ready *)
