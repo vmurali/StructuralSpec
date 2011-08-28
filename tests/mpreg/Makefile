@@ -1,5 +1,5 @@
 all:
-	UnifiedScript -r ref -g mkMpregA -e Driver.spec
+	UnifiedScript -rref -gmkMpregA -e Driver.spec
 
 clean:
 	rm -rf bsv buildRefined

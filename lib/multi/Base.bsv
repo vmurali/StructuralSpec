@@ -5,8 +5,9 @@ interface Wire#(type t);
 endinterface
 
 module mkWire(Wire#(t)) provisos(Bits#(t, tSz));
-  method Action write(t x) = noAction;
-  method t _read = ?;
+  WireNormal#(t) w <- mkWireNormal;
+  method write = w.write;
+  method t _read = w;
 endmodule
 
 (* always_ready *)
@@ -16,8 +17,9 @@ interface Pulse;
 endinterface
 
 module mkPulse(Pulse);
-  method Action send = noAction;
-  method Bool _read = ?;
+  PulseNormal p <- mkPulseNormal;
+  method Action send = p.send;
+  method Bool _read = p;
 endmodule
 
 (* always_ready *)
@@ -71,7 +73,7 @@ module mkWireNormal(WireNormal#(t)) provisos(Bits#(t, tSz));
   schedule write C write;
   default_clock ck();
   default_reset no_reset;
-  path(IN_WRITE, OUT_READ);
+  path(OUT_READ, IN_WRITE);
 endmodule
 
 (* always_ready *)

@@ -1,5 +1,5 @@
 %:
-	UnifiedScript -r ref -g mkTagMasterInst -e $*.spec
+	UnifiedScript -rref -gmkTagMasterInst -e $*.spec
 
 clean:
 	rm -rf bsv buildRefined

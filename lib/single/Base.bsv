@@ -13,7 +13,7 @@ module mkWire(Wire#(t)) provisos(Bits#(t, tSz));
   schedule write C write;
   default_clock ck();
   default_reset no_reset;
-  path(IN_WRITE, OUT_READ);
+  path(OUT_READ, IN_WRITE);
 endmodule
 
 (* always_ready *)

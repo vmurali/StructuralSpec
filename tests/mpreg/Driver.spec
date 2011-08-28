@@ -17,22 +17,24 @@ partition GenericDriver#(n, wp, rp, dw) mkGenericDriver#(function _m__#(Mpreg#(n
      $display("                                              cycle %d ------------------", cycle);
    endatomic
 
-   atomic c0 (cycle == 0);
-     rf.writeReq[0] := WriteReq{regnum : 2, regContent : 27};
-     rf.writeReq[1] := WriteReq{regnum : 4, regContent : 47};
-     rf.readReq[0] := 2;
-     rf.readReq[1] := 4;
-     rf.readReq[2] := 6;
-     $display("                                              r2=%d, r4=%d, r6=%d", rf.readResp[0],rf.readResp[1],rf.readResp[2]);
-   endatomic
-
-
-   atomic c2 (cycle == 2);
-     rf.writeReq[0] := WriteReq{regnum : 6, regContent : 67};
-     rf.readReq[0] := 2;
-     rf.readReq[1] := 4;
-     rf.readReq[2] := 6;
-     $display("                                              r2=%d, r4=%d, r6=%d", rf.readResp[0],rf.readResp[1],rf.readResp[2]);
+   atomic c0;
+     if(cycle == 0)
+     begin
+       rf.writeReq[0] := WriteReq{regnum : 2, regContent : 27};
+       rf.writeReq[1] := WriteReq{regnum : 4, regContent : 47};
+       rf.readReq[0] := 2;
+       rf.readReq[1] := 4;
+       rf.readReq[2] := 6;
+       $display("                                              r2=%d, r4=%d, r6=%d", rf.readResp[0],rf.readResp[1],rf.readResp[2]);
+     end
+     else if(cycle == 2)
+     begin
+       rf.writeReq[0] := WriteReq{regnum : 6, regContent : 67};
+       rf.readReq[0] := 2;
+       rf.readReq[1] := 4;
+       rf.readReq[2] := 6;
+       $display("                                              r2=%d, r4=%d, r6=%d", rf.readResp[0],rf.readResp[1],rf.readResp[2]);
+     end
    endatomic
 
 endpartition
