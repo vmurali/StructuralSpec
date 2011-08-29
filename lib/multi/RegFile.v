@@ -1,9 +1,9 @@
-module mkRegFileVerilogLoad_NO_FIFO(CLK, RST_N,
-                                    READ_REQ_WRITE, READ_REQ_WRITE_VALID,
-                                    READ_RESP_READ, READ_RESP_READ_VALID,
-                                    WRITE_EN_WRITE, WRITE_EN_WRITE_VALID,
-                                    WRITE_INDEX_WRITE, WRITE_INDEX_WRITE_VALID,
-                                    WRITE_DATA_WRITE, WRITE_DATA_WRITE_VALID, RESET, DONE);
+module mkRegFileVerilogLoad_FIFO_OUTER_NOT_EXPOSED(CLK, RST_N,
+                                                   READ_REQ_WRITE, READ_REQ_WRITE_VALID,
+                                                   READ_RESP_READ, READ_RESP_READ_VALID,
+                                                   WRITE_EN_WRITE, WRITE_EN_WRITE_VALID,
+                                                   WRITE_INDEX_WRITE, WRITE_INDEX_WRITE_VALID,
+                                                   WRITE_DATA_WRITE, WRITE_DATA_WRITE_VALID, RESET, DONE);
   parameter width = 32;
   parameter n = 5;
   parameter size = 32;
