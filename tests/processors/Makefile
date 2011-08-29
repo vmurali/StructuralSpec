@@ -1,5 +1,5 @@
 %:
-	UnifiedScript -m -e $*.spec
+	UnifiedScript -mmkCop:mkExec -e $*.spec
 
 clean:
 	rm -rf bsv buildRefined

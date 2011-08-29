@@ -29,7 +29,7 @@ module mkRegFileVerilogLoad_FIFO_OUTER_NOT_EXPOSED(CLK, RST_N,
   assign DONE = 1;
 
   assign READ_RESP_READ = arr[(n == 0)?0: READ_REQ_WRITE];
-  assign READ_RESP_READ_VALID = READ_REQ_WRITE_VALID;
+  assign READ_RESP_READ_VALID = (n == 0)? 1: READ_REQ_WRITE_VALID;
 
   initial
   begin
