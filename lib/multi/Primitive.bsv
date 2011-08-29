@@ -5,9 +5,9 @@ import Vector::*;
 (* always_ready *)
 interface Output_#(type t);
   (* enable = "WRITE_ENQ", prefix = "" *) method Action write((* port = "WRITE" *)t x);
-  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool consumedBefore;
+  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool doneBefore;
   (* result = "WRITE_NOT_FULL" *) method Bool notFull;
-  (* result = "WRITE_CONSUMED" *) method Bool consumed;
+  (* result = "WRITE_CONSUMED" *) method Bool done;
   (* enable = "WRITE_RESET" *) method Action reset;
 endinterface
 
@@ -38,14 +38,14 @@ module _Output#(Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bit
   PulseNormal            enq <- mkPulseNormal;
   PulseNormal           deqL <- mkPulseNormal;
   RegNormal#(Bool)     valid <- mkRegNormal(False);
-  RegNormal#(Bool) consumedR <- mkRegNormal(False);
+  RegNormal#(Bool) doneR <- mkRegNormal(False);
   PulseNormal         resetW <- mkPulseNormal;
 
   rule a;
     if(resetW)
-      consumedR <= False;
+      doneR <= False;
     else if(enq)
-      consumedR <= True;
+      doneR <= True;
 
     if(deqL)
       valid <= False;
@@ -55,14 +55,14 @@ module _Output#(Bool g1, Bool g2)(Tuple2#(Output_#(t), Output#(t))) provisos(Bit
 
   return tuple2(
     interface Output_;
-      method Action write(t x);// if(!valid && !consumedR);
+      method Action write(t x);// if(!valid && !doneR);
         dataW.write(x);
         data <= x;
         enq.send;
       endmethod
-      method Bool consumedBefore = consumedR;
+      method Bool doneBefore = doneR;
       method Bool notFull = !valid;
-      method Bool consumed = enq || consumedR;
+      method Bool done = enq || doneR;
       method Action reset = resetW.send;
     endinterface,
 
@@ -81,9 +81,9 @@ endmodule
 interface OutputPulse_;
   (* enable = "WRITE" *) method Action _read;
   (* enable = "WRITE_ENQ" *) method Action enq;
-  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool consumedBefore;
+  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool doneBefore;
   (* result = "WRITE_NOT_FULL" *) method Bool notFull;
-  (* result = "WRITE_CONSUMED" *) method Bool consumed;
+  (* result = "WRITE_CONSUMED" *) method Bool done;
   (* enable = "WRITE_RESET" *) method Action reset;
 endinterface
 
@@ -111,7 +111,7 @@ module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
   PulseNormal           enqW <- mkPulseNormal;
   PulseNormal           deqL <- mkPulseNormal;
   RegNormal#(Bool)     valid <- mkRegNormal(False);
-  RegNormal#(Bool) consumedR <- mkRegNormal(False);
+  RegNormal#(Bool) doneR <- mkRegNormal(False);
   PulseNormal         resetW <- mkPulseNormal;
 
   rule a;
@@ -119,9 +119,9 @@ module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
       data <= dataW;
 
     if(resetW)
-      consumedR <= False;
+      doneR <= False;
     else if(enqW)
-      consumedR <= True;
+      doneR <= True;
 
     if(deqL)
       valid <= False;
@@ -131,17 +131,17 @@ module _OutputPulse#(Bool g1, Bool g2)(Tuple2#(OutputPulse_, OutputPulse));
 
   return tuple2(
     interface OutputPulse_;
-      method Action _read;// if(!valid && !consumedR);
+      method Action _read;// if(!valid && !doneR);
         dataW.send;
       endmethod
 
-      method Action enq;// if(!valid && !consumedR);
+      method Action enq;// if(!valid && !doneR);
         enqW.send;
       endmethod
 
-      method Bool consumedBefore = consumedR;
+      method Bool doneBefore = doneR;
       method Bool notFull = !valid;
-      method Bool consumed = enqW || consumedR;
+      method Bool done = enqW || doneR;
       method Action reset = resetW.send;
     endinterface,
 
@@ -159,9 +159,9 @@ endmodule
 (* always_ready *)
 interface ConditionalOutput_#(type t);
   (* enable = "WRITE_ENQ", prefix = "" *) method Action write((* port = "WRITE" *)t x);
-  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool consumedBefore;
+  (* result = "WRITE_CONSUMED_BEFORE" *) method Bool doneBefore;
   (* result = "WRITE_NOT_FULL" *) method Bool notFull;
-  (* result = "WRITE_CONSUMED" *) method Bool consumed;
+  (* result = "WRITE_CONSUMED" *) method Bool done;
   (* enable = "WRITE_RESET" *) method Action reset;
   (* enable = "EN_WRITE_ENQ", prefix = "" *) method Action en((* port = "EN_WRITE" *)Bool x);
   (* result = "EN_WRITE_CONSUMED_BEFORE" *) method Bool enConsumedBefore;
@@ -200,7 +200,7 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
   PulseNormal            enq <- mkPulseNormal;
   PulseNormal           deqL <- mkPulseNormal;
   RegNormal#(Bool)     valid <- mkRegNormal(False);
-  RegNormal#(Bool) consumedR <- mkRegNormal(False);
+  RegNormal#(Bool) doneR <- mkRegNormal(False);
   PulseNormal         resetW <- mkPulseNormal;
 
   RegNormal#(Bool)      enData <- mkRegUNormal;
@@ -213,9 +213,9 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
 
   rule a;
     if(resetW)
-      consumedR <= False;
+      doneR <= False;
     else if(enq)
-      consumedR <= True;
+      doneR <= True;
 
     if(deqL)
       valid <= False;
@@ -235,14 +235,14 @@ module _ConditionalOutput#(Bool g1, Bool g2)(Tuple2#(ConditionalOutput_#(t), Con
 
   return tuple2(
     interface ConditionalOutput_;
-      method Action write(t x);// if(!valid && !consumedR);
+      method Action write(t x);// if(!valid && !doneR);
         dataW.write(x);
         data <= x;
         enq.send;
       endmethod
-      method Bool consumedBefore = consumedR;
+      method Bool doneBefore = doneR;
       method Bool notFull = !valid;
-      method Bool consumed = enq || consumedR;
+      method Bool done = enq || doneR;
       method Action reset = resetW.send;
       method Action en(Bool x);// if(!enValid && !enConsumedR);
         enDataW.write(x);

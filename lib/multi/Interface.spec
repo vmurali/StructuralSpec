@@ -1,8 +1,8 @@
 interface OutputPulseFifo;
   method Action write(Bool x);
   method Bool notFull;
-  method Bool consumedBefore;
-  method Bool consumed;
+  method Bool doneBefore;
+  method Bool done;
   method Action reset;
 endinterface
 
@@ -15,8 +15,8 @@ function OutputPulseFifo getOutputPulseFifo(OutputPulse_ a);
             endmethod
 
             method Bool notFull = a.notFull;
-            method Bool consumedBefore = a.consumedBefore;
-            method Bool consumed = a.consumed;
+            method Bool doneBefore = a.doneBefore;
+            method Bool done = a.done;
             method Action reset = a.reset;
           endinterface);
 endfunction
@@ -24,8 +24,8 @@ endfunction
 interface ConditionalOutputFifo#(type t);
   method Action write(Maybe#(t) x);
   method Bool notFull;
-  method Bool consumedBefore;
-  method Bool consumed;
+  method Bool doneBefore;
+  method Bool done;
   method Action reset;
 endinterface
 
@@ -37,8 +37,8 @@ function ConditionalOutputFifo#(t) getConditionalOutputFifo(ConditionalOutput_#(
             endmethod
 
             method Bool notFull = a.notFull && a.enNotFull;
-            method Bool consumedBefore = a.consumedBefore && a.enConsumedBefore;
-            method Bool consumed = a.consumed && a.enConsumed;
+            method Bool doneBefore = a.doneBefore && a.enConsumedBefore;
+            method Bool done = a.done && a.enConsumed;
 
             method Action reset;
               a.reset;

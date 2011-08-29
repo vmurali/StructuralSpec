@@ -37,7 +37,7 @@ partition TagMaster#(nx, nports) mkTagMaster;
   function Bool allReadDones;
     Bool ret = True;
     for(Integer i = 0; i < valueOf(nports); i = i + 1)
-      ret = ret && getFreeTag[i].consumed;
+      ret = ret && getFreeTag[i].done;
     return ret;
   endfunction
 
@@ -59,7 +59,7 @@ partition TagMaster#(nx, nports) mkTagMaster;
       end
 
     for(Integer i = 0; i < valueOf(nports); i = i + 1)
-      if(!getFreeTag[i].consumedBefore && reqTag[i].notEmpty && getFreeTag[i].notFull)
+      if(!getFreeTag[i].doneBefore && reqTag[i].notEmpty && getFreeTag[i].notFull)
       begin
         if(reqTag[i])
         begin

@@ -31,7 +31,7 @@ partition Mpreg#(n,wp,rp,dw)  mkMpreg provisos (Add#(wp, rp, np));
     for(Integer i = 0; i < valueOf(wp); i = i + 1)
       $write("%b", done[i]);
     for(Integer i = 0; i < valueOf(rp); i = i + 1)
-      $write("%b", readResp[i].consumed);
+      $write("%b", readResp[i].done);
     $write("\n");
 
     Bool busy = False;
@@ -58,7 +58,7 @@ partition Mpreg#(n,wp,rp,dw)  mkMpreg provisos (Add#(wp, rp, np));
       writesDone = writesDone && newDone[i];
 
     for(Integer i = 0; i < valueOf(rp); i = i + 1)
-      if(!busy && writesDone && readReqFifo[i].notEmpty && readResp[i].notFull && !readResp[i].consumedBefore)
+      if(!busy && writesDone && readReqFifo[i].notEmpty && readResp[i].notFull && !readResp[i].doneBefore)
       begin
         readReqFifo[i].deq;
         $write("Read: %d", i);
@@ -75,7 +75,7 @@ partition Mpreg#(n,wp,rp,dw)  mkMpreg provisos (Add#(wp, rp, np));
 
     Bool allDone = writesDone;
     for(Integer i = 0; i < valueOf(rp); i = i + 1)
-      allDone = allDone && readResp[i].consumed;
+      allDone = allDone && readResp[i].done;
 
     done <= allDone? replicate(False): newDone;
     if(allDone)
@@ -86,7 +86,7 @@ partition Mpreg#(n,wp,rp,dw)  mkMpreg provisos (Add#(wp, rp, np));
     for(Integer i = 0; i < valueOf(wp); i = i + 1)
       $write("%b", allDone? False: newDone[i]);
     for(Integer i = 0; i < valueOf(rp); i = i + 1)
-      $write("%b", allDone? False: readResp[i].consumed);
+      $write("%b", allDone? False: readResp[i].done);
     $write("\n");
 
     regs <= newRegs;
