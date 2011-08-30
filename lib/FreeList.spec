@@ -21,18 +21,18 @@ partition FreeList#(n, allocs, frees) mkFreeList#(NumElems#(n) allots);
 
   Bool initializedLocal = initializing == fromInteger(valueOf(n));
 
-  mkConnection(allocate.numFreeSlots, f.deq.numFilledSlots);
-  mkConnection(allocate.index, f.deq.data);
-  mkConnection(allocate.allocateNum, f.deq.numDeqs);
-
-  mkConnection(free, f.fill.data);
-
   atomic a0(!initializedLocal);
     initializing <= initializing + 1;
-    f.enq.data[0] := initializing;
+    f.enq.data[0] := truncate(initializing);
   endatomic
 
   atomic a1(initializedLocal);
+    allocate.numFreeSlots := f.deq.numFilledSlots;
+    for(Integer i = 0; i < valueOf(allocs); i = i + 1)
+      if(f.deq.data[i].en)
+        allocate.index[i] := f.deq.data[i];
+    f.deq.numDeqs := allocate.allocateNum;
+
     for(Integer i = 0; i < valueOf(frees); i = i + 1)
       if(free[i].en)
         f.enq.data[i] := free[i];

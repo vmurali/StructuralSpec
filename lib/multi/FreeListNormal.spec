@@ -14,20 +14,31 @@ port FreeListNormal#(numeric type n, numeric type allocs, numeric type frees);
   ConditionalInputNormal#(Index#(n))[frees] free;
 endport
 
-partition FreeListNormal#(n, allocs, frees) mkFreeListNormal#(NumElems#(n) allots);
+partition FreeList#(n, allocs, frees) mkFreeList#(NumElems#(n) allots);
   MultiFifoNormal#(n, frees, allocs, Index#(n)) f <- mkMultiFifoNormal;
 
   RegNormal#(NumElems#(n)) initializing <- mkRegNormal(allots);
 
   Bool initializedLocal = initializing == fromInteger(valueOf(n));
 
-  mkConnection(allocate.numFreeSlots, f.remove.numFilledSlots);
-  mkConnection(allocate.index, f.remove.data);
-  mkConnection(allocate.allocateNum, f.remove.numDeqs);
+  atomic a0(!initializedLocal);
+    initializing <= initializing + 1;
+    f.enq.data[0] := truncate(initializing);
+  endatomic
 
-  mkConnection(free, f.fill.data);
+  atomic a1(initializedLocal);
+    allocate.numFreeSlots := f.deq.numFilledSlots;
+    for(Integer i = 0; i < valueOf(allocs); i = i + 1)
+      if(f.deq.data[i].en)
+        allocate.index[i] := f.deq.data[i];
+    f.deq.numDeqs := allocate.allocateNum;
 
-  atomic a0;
+    for(Integer i = 0; i < valueOf(frees); i = i + 1)
+      if(free[i].en)
+        f.enq.data[i] := free[i];
+  endatomic
+
+  atomic a2;
     initialized := initializedLocal;
   endatomic
 endpartition
