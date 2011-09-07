@@ -9,7 +9,7 @@ module mkRand32(CLK, REQ_WRITE, RESP_READ);
   initial
     randomseed = seed;
 
-  always@(posedge CLK)
+  always @(CLK)
   begin
     if(REQ_WRITE)
       RESP_READ = $random(randomseed);
