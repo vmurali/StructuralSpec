@@ -12,7 +12,7 @@ module mkRand32(CLK, REQ_WRITE, RESP_READ);
     RESP_READ = $random(randomseed);
   end
 
-  always @(CLK)
+  always @(posedge CLK)
   begin
     if(REQ_WRITE)
       RESP_READ <= $random(randomseed);
