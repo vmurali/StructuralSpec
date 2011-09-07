@@ -23,7 +23,7 @@ module mkRand32_FIFO_OUTER_NOT_EXPOSED(CLK, REQ_WRITE, REQ_WRITE_VALID, RESP_REA
   always@(CLK)
   begin
     if(RESET && REQ_WRITE)
-      RESP_READ = $random(randomseed);
+      RESP_READ <= $random(randomseed);
   end
 endmodule
 
@@ -36,11 +36,14 @@ module mkRand32Normal(CLK, REQ_WRITE, RESP_READ);
 
   integer randomseed;
   initial
+  begin
     randomseed = seed;
+    RESP_READ = $random(randomseed);
+  end
 
   always@(CLK)
   begin
     if(REQ_WRITE)
-      RESP_READ = $random(randomseed);
+      RESP_READ <= $random(randomseed);
   end
 endmodule

@@ -7,11 +7,14 @@ module mkRand32(CLK, REQ_WRITE, RESP_READ);
 
   integer randomseed;
   initial
+  begin
     randomseed = seed;
+    RESP_READ = $random(randomseed);
+  end
 
   always @(CLK)
   begin
     if(REQ_WRITE)
-      RESP_READ = $random(randomseed);
+      RESP_READ <= $random(randomseed);
   end
 endmodule
