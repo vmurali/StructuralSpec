@@ -1,5 +1,6 @@
 module Options(Options(..), parserOpts) where
 
+
 import System.Console.GetOpt
 import Text.Regex
 import System
