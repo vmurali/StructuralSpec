@@ -37,6 +37,7 @@ process options seenPortsAliasesIO file = do
       input <- readFile name
       case (runParser (whiteSpace>>parseFile) () name $ preprocess input) of
         Left err -> do
+          putStrLn $ "Error in file " ++ file
           print err
           exitFailure
         Right elements -> do
