@@ -10,12 +10,13 @@ endport
 port MultiFifoDeq#(numeric type n, numeric type deqsNum, type t);
   Input#(NumElems#(n)) numFilledSlots;
   ConditionalInput#(t)[deqsNum] data;
-  Output#(NumElems#(n)) numDeqs;
+  ConditionalOutput#(NumElems#(n)) numDeqs;
 endport
 
 port MultiFifo#(numeric type n, numeric type enqsNum, numeric type deqsNum, type t);
   Reverse MultiFifoEnq#(n, enqsNum, t) enq;
   Reverse MultiFifoDeq#(n, deqsNum, t) deq;
+  InputPulse clear;
 endport
 
 partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiFifo provisos(Bits#(t, tSz));
@@ -32,7 +33,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiFifo provisos(Bits#(t, tSz))
         rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
-    head <= moduloPlus(valueOf(n), numEnqs, head);
+    head <= clear? 0: moduloPlus(valueOf(n), numEnqs, head);
 
     enq.numFreeSlots := fromInteger(valueOf(n)) - numElems;
 
@@ -45,9 +46,12 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiFifo provisos(Bits#(t, tSz))
         rf.read[i].req := Index#(n)'(moduloPlus(valueOf(n), fromInteger(i), tail));
         deq.data[i] := rf.read[i].resp;
       end
-    tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
+    NumElems#(n) numDeqs = 0;
+    if(deq.numDeqs.en)
+      numDeqs = deq.numDeqs;
+    tail <= clear? 0: moduloPlus(valueOf(n), numDeqs, tail);
 
-    numElems <= numElems + (numEnqs - deq.numDeqs);
+    numElems <= clear? 0: numElems + (numEnqs - numDeqs);
   endatomic
 endpartition
 
@@ -65,7 +69,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiLFifo provisos(Bits#(t, tSz)
         rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
-    head <= moduloPlus(valueOf(n), numEnqs, head);
+    head <= clear? 0: moduloPlus(valueOf(n), numEnqs, head);
 
     enq.numFreeSlots := fromInteger(valueOf(n)) - numElems + deq.numDeqs;
 
@@ -78,9 +82,12 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiLFifo provisos(Bits#(t, tSz)
         rf.read[i].req := Index#(n)'(moduloPlus(valueOf(n), fromInteger(i), tail));
         deq.data[i] := rf.read[i].resp;
       end
-    tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
+    NumElems#(n) numDeqs = 0;
+    if(deq.numDeqs.en)
+      numDeqs = deq.numDeqs;
+    tail <= clear? 0: moduloPlus(valueOf(n), numDeqs, tail);
 
-    numElems <= numElems + (numEnqs - deq.numDeqs);
+    numElems <= clear? 0: numElems + (numEnqs - numDeqs);
   endatomic
 endpartition
 
@@ -98,7 +105,7 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiBypassFifo provisos(Bits#(t,
         rf.write[i] := Pair{fst: Index#(n)'(moduloPlus(valueOf(n), numEnqs, head)), snd: enq.data[i]};
         numEnqs = numEnqs + 1;
       end
-    head <= moduloPlus(valueOf(n), numEnqs, head);
+    head <= clear? 0: moduloPlus(valueOf(n), numEnqs, head);
 
     enq.numFreeSlots := fromInteger(valueOf(n)) - numElems;
 
@@ -116,8 +123,11 @@ partition MultiFifo#(n, enqsNum, deqsNum, t) mkMultiBypassFifo provisos(Bits#(t,
         else
           deq.data[i] := enq.data[fromInteger(i) - numElems];
       end
-    tail <= moduloPlus(valueOf(n), deq.numDeqs, tail);
+    NumElems#(n) numDeqs = 0;
+    if(deq.numDeqs.en)
+      numDeqs = deq.numDeqs;
+    tail <= clear? 0: moduloPlus(valueOf(n), numDeqs, tail);
 
-    numElems <= numElems + (numEnqs - deq.numDeqs);
+    numElems <= clear? 0: numElems + (numEnqs - numDeqs);
   endatomic
 endpartition
