@@ -51,7 +51,7 @@ parensBalanced = do
   char ')'
   return $ "(" ++ firsts ++ concat mids ++ ")"
   where
-    allChar = manyTill (noneOf ";") $ (try . lookAhead . oneOf) "()"
+    allChar = manyTill (noneOf ";" <?> "a closing \")\"") $ (try . lookAhead . oneOf) "()"
 
 parensBalancedPrefixed prefix p =
   (do
