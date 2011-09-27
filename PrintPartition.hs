@@ -15,7 +15,7 @@ prefixPartition body field = subRegex (mkRegex (nonWordNonDot ++ field ++ nonWor
 modifyBody body port = (replaceAtomic . replaceEndAtomic . replaceConnection . replaceArrow) $ foldl prefixPartition body (map (\x -> fieldName x) $ portFields port)
  where
   replaceArrow str = subRegex (mkRegexWithOpts "[ \n\t]*:=([^;]*);" False True) str ".write(\\1);"
-  replaceAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])atomic([ \t\n])") False True) str "\\1rule\\2"
+  replaceAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])atomic([ \t\n])") False True) str "\\1(* fire_when_enabled *) rule\\2"
   replaceEndAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])endatomic([ \t\n])") False True) str "\\1endrule\\2"
   replaceConnection str = subRegex (mkRegexWithOpts "mkConnection[ \n\t]*\\(([^,]*),([^;]*)\\)" False True) str "mkConnection(asIfc(\\1), asIfc(\\2))"
 
