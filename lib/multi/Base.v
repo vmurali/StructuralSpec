@@ -188,6 +188,9 @@ module BYPASS_FIFO(CLK, RST_N, ENQ, ENQ_VALUE, NOT_FULL, CONSUMED_BEFORE, RESET,
         valid <= 0;
       else if(ENQ)
         valid <= 1;
+
+      if(ENQ)
+        data <= ENQ_VALUE;
     end
   end
 endmodule
