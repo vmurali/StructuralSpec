@@ -5,7 +5,7 @@ include MultiFifo;
 port FreeListAllocate#(numeric type n, numeric type allocs);
   Input#(NumElems#(n)) numFreeSlots;
   ConditionalInput#(Index#(n))[allocs] index;
-  Output#(NumElems#(n)) allocateNum;
+  ConditionalOutput#(NumElems#(n)) allocateNum;
 endport
 
 port FreeList#(numeric type n, numeric type allocs, numeric type frees);
@@ -31,7 +31,8 @@ partition FreeList#(n, allocs, frees) mkFreeList#(NumElems#(n) allots);
     for(Integer i = 0; i < valueOf(allocs); i = i + 1)
       if(f.deq.data[i].en)
         allocate.index[i] := f.deq.data[i];
-    f.deq.numDeqs := allocate.allocateNum;
+    if(allocate.allocateNum.en)
+      f.deq.numDeqs := allocate.allocateNum;
 
     for(Integer i = 0; i < valueOf(frees); i = i + 1)
       if(free[i].en)
