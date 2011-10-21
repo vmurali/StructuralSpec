@@ -17,7 +17,7 @@ modifyBody body port = (replaceAtomic . replaceEndAtomic . replaceConnection . r
   replaceArrow str = subRegex (mkRegexWithOpts "[ \n\t]*:=([^;]*);" False True) str ".write(\\1);"
   replaceAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])atomic([ \t\n])") False True) str "\\1(* fire_when_enabled *) rule\\2"
   replaceEndAtomic str = subRegex (mkRegexWithOpts ("([ \t\n])endatomic([ \t\n])") False True) str "\\1endrule\\2"
-  replaceConnection str = subRegex (mkRegexWithOpts "mkConnection[ \n\t]*\\(([^,]*),([^;]*)\\)" False True) str "mkConnection(asIfc(\\1), asIfc(\\2))"
+  replaceConnection str = subRegex (mkRegexWithOpts "mk([[:alnum:]_]*)Connection[ \n\t]*\\(([^,]*),([^;]*)\\)" False True) str "mk\\1Connection(asIfc(\\2), asIfc(\\3))"
 
 printPartition file filePortsAliases (Partition name args portNameLocal portArgs provisos body) = do
   actualPort <- if (portNameLocal == "Output" || portNameLocal == "OutputPulse" || portNameLocal == "ConditionalOutput" ||
