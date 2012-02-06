@@ -10,7 +10,7 @@ endinterface
 
 module mkClockDiv#(Integer div) (ClockDiv);
   ClockDividerIfc clkDiv <- mkClockDivider(div);
-  Reset destRst <- mkAsyncResetFromCR(div*100, clkDiv.slowClock);
+  Reset destRst <- mkAsyncResetFromCR(div-1, clkDiv.slowClock);
   return (interface ClockDiv;
             interface clk = clkDiv.slowClock;
             interface rst = destRst;
