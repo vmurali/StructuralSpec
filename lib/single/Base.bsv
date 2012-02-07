@@ -7,7 +7,7 @@ endinterface
 import "BVI" mkWire =
 module mkWire(Wire#(t)) provisos(Bits#(t, tSz));
   parameter width = valueOf(tSz);
-  method OUT_READ _read;
+  method OUT_READ _read clocked_by(no_clock);
   method write(IN_WRITE) enable(IN_EN_WRITE);
   schedule _read CF (_read, write);
   schedule write C write;
@@ -24,7 +24,7 @@ endinterface
 
 import "BVI" mkPulse =
 module mkPulse(Pulse);
-  method OUT_READ _read;
+  method OUT_READ _read clocked_by(no_clock);
   method send() enable(IN_EN_WRITE);
   schedule _read CF (_read, send);
   schedule send C send;
