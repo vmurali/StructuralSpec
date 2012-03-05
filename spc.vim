@@ -32,6 +32,10 @@ syn keyword Repeat for
 syn keyword Statement begin end
 syn keyword Structure struct unition enum
 syn keyword Typedef typedef
+syn keyword Typedef Reg Pulse Wire
+syn keyword Typedef Input Output
+syn keyword Typedef ConditionalInput ConditionalOutput
+syn keyword Typedef InputPulse OutputPulse
 syn keyword Statement function endfunction
 syn keyword Statement partition endpartition
 syn keyword Statement port endport
