@@ -1,8 +1,8 @@
-import System
 import Text.Regex
 
 import Options
 import Process
+import System.Environment
 
 removeSpec str = subRegex (mkRegex "\\.spec$") str ""
 removePrefix str = subRegex (mkRegex "^.*\\/") str ""
