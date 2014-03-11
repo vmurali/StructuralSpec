@@ -1,8 +1,9 @@
 module Options(Options(..), parserOpts) where
 
+import System.Environment
+import System.Exit
 import System.Console.GetOpt
 import Text.Regex
-import System.Environment
 import System.IO
 import System.Directory
 import System.Exit
