@@ -1,4 +1,4 @@
-import System
+import System.Environment
 import Text.Regex
 
 import Options

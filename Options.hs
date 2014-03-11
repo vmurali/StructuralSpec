@@ -2,9 +2,10 @@ module Options(Options(..), parserOpts) where
 
 import System.Console.GetOpt
 import Text.Regex
-import System
+import System.Environment
 import System.IO
 import System.Directory
+import System.Exit
 
 data Options = Options
   { optIncludes :: [String]
