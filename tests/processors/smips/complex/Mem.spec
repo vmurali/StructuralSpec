@@ -1,6 +1,6 @@
 include Library;
 include Types;
-include RegFile;
+include RegsFile;
 include Fifo;
 
 port Memory;

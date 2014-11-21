@@ -1,5 +1,5 @@
 include Library;
-include RegFile;
+include RegsFile;
 
 /*****  BRAM ABSTRACTION:   
 1. Bram#(R, W, N, Type)  rf <- mkBramLoad(mode, file)  -- this creates a bank of N registers, initialized or uninitialized depending on the mode, which must belong to the given type "Type".
@@ -28,13 +28,11 @@ partition Bram#(1, 1, size, t) mkBramLoadSingle#(Integer mode, String file) prov
   Reg#(t) valueReadReg <- mkReg(?);
 
   atomic a;
-    t valueRead = valueReadReg;
     read[0].resp := valueReadReg;
     rf.read[0].req := read[0].req;
-    valueRead = rf.read[0].resp;
+    valueReadReg <= rf.read[0].resp;
     if(write[0].en)
       rf.write[0] := write[0];
-    valueReadReg <= valueRead;
   endatomic
 endpartition
 

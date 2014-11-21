@@ -1,5 +1,5 @@
 include Core;
-include Memory;
+include Mem;
 
 (* synthesize *)
 partition Empty mkProcessor;

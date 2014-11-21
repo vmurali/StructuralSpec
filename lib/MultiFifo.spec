@@ -1,6 +1,6 @@
 include Library;
 
-include RegFile;
+include RegsFile;
 
 port MultiFifoEnq#(numeric type n, numeric type enqsNum, type t);
   Input#(NumElems#(n)) numFreeSlots;

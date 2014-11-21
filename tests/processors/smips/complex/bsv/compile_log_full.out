@@ -1,0 +1,90 @@
+checking package dependencies
+compiling /home/vmurali/StructuralSpec/lib/HaskellLib.bs
+compiling /home/vmurali/StructuralSpec/lib/single/Base.bsv
+compiling /home/vmurali/StructuralSpec/lib/single/Primitive.bsv
+compiling ./Types.bsv
+compiling ./Library.bsv
+compiling ./Cop.bsv
+code generation for mkCop starts
+Verilog file created: single/mkCop.v
+compiling ./ExecUtils.bsv
+compiling /home/vmurali/StructuralSpec/lib/single/RegFileVerilog.bsv
+compiling ./RegsFile.bsv
+compiling ./Registers.bsv
+code generation for mkRegisters starts
+Verilog file created: single/mkRegisters.v
+compiling ./MultiFifo.bsv
+compiling ./Fifo.bsv
+compiling ./Mem.bsv
+code generation for mkMemory starts
+Verilog file created: single/mkMemory.v
+compiling ./Fetch.bsv
+code generation for mkFetch starts
+Verilog file created: single/mkFetch.v
+compiling ./Execute.bsv
+code generation for mkExecute starts
+Verilog file created: single/mkExecute.v
+compiling ./Writeback.bsv
+code generation for mkWriteback starts
+Warning: "Writeback.bsv", line 67, column 8: (G0006)
+  Method(s) not always ready: wb_enq_write
+Verilog file created: single/mkWriteback.v
+compiling ./Core.bsv
+code generation for mkPcQ starts
+Warning: "Core.bsv", line 65, column 8: (G0006)
+  Method(s) not always ready: deq_deq__read
+Warning: "Core.bsv", line 65, column 8: (G0006)
+  Method(s) not always ready: deq_first__read
+Warning: "Core.bsv", line 65, column 8: (G0006)
+  Method(s) not always ready: enq_enq_write
+Verilog file created: single/mkPcQ.v
+code generation for mkInstReqQ starts
+Warning: "Core.bsv", line 72, column 8: (G0006)
+  Method(s) not always ready: deq_deq__read
+Warning: "Core.bsv", line 72, column 8: (G0006)
+  Method(s) not always ready: deq_first__read
+Warning: "Core.bsv", line 72, column 8: (G0006)
+  Method(s) not always ready: enq_enq_write
+Verilog file created: single/mkInstReqQ.v
+code generation for mkInstQ starts
+Warning: "Core.bsv", line 79, column 8: (G0006)
+  Method(s) not always ready: deq_deq__read
+Warning: "Core.bsv", line 79, column 8: (G0006)
+  Method(s) not always ready: deq_first__read
+Warning: "Core.bsv", line 79, column 8: (G0006)
+  Method(s) not always ready: enq_enq_write
+Verilog file created: single/mkInstQ.v
+code generation for mkDataReqQ starts
+Warning: "Core.bsv", line 86, column 8: (G0006)
+  Method(s) not always ready: deq_deq__read
+Warning: "Core.bsv", line 86, column 8: (G0006)
+  Method(s) not always ready: deq_first__read
+Warning: "Core.bsv", line 86, column 8: (G0006)
+  Method(s) not always ready: enq_enq_write
+Verilog file created: single/mkDataReqQ.v
+code generation for mkDataQ starts
+Warning: "Core.bsv", line 93, column 8: (G0006)
+  Method(s) not always ready: deq_deq__read
+Warning: "Core.bsv", line 93, column 8: (G0006)
+  Method(s) not always ready: deq_first__read
+Warning: "Core.bsv", line 93, column 8: (G0006)
+  Method(s) not always ready: enq_enq_write
+Verilog file created: single/mkDataQ.v
+code generation for mkCore starts
+Warning: "Core.bsv", line 99, column 8: (G0006)
+  Method(s) not always ready: mem_dataQ_enq_write
+Warning: "Core.bsv", line 99, column 8: (G0006)
+  Method(s) not always ready: mem_dataReqQ_deq__read
+Warning: "Core.bsv", line 99, column 8: (G0006)
+  Method(s) not always ready: mem_dataReqQ_first__read
+Warning: "Core.bsv", line 99, column 8: (G0006)
+  Method(s) not always ready: mem_instQ_enq_write
+Warning: "Core.bsv", line 99, column 8: (G0006)
+  Method(s) not always ready: mem_instReqQ_deq__read
+Warning: "Core.bsv", line 99, column 8: (G0006)
+  Method(s) not always ready: mem_instReqQ_first__read
+Verilog file created: single/mkCore.v
+compiling Processor.bsv
+code generation for mkProcessor starts
+Verilog file created: single/mkProcessor.v
+All packages are up to date.

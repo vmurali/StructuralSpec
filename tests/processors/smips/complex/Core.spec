@@ -4,7 +4,7 @@ include Fetch;
 include Execute;
 include Writeback;
 include Registers;
-include Memory;
+include Mem;
 include Cop;
 
 port Core;

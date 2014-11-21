@@ -1,5 +1,5 @@
 include Library;
-include RegFile;
+include RegsFile;
 
 (* synthesize *)
 partition Empty mkTestRegFile;
@@ -10,7 +10,7 @@ partition Empty mkTestRegFile;
     rf.write[0] := Pair{fst: x, snd: x + 1};
     $display("write: %d %d", x, x + 1);
     rf.read[0].req := x;
-    $display("read: %d %d", x, x, rf.read[0].resp);
+    $display("read: %d %d", x, rf.read[0].resp);
     x <= x + 1;
   endatomic
 endpartition
