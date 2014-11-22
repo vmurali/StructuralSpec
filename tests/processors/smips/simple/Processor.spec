@@ -1,8 +1,9 @@
 include Fifo;
+include BramFifo;
 include Library;
 include Types;
 include Registers;
-include Memory;
+include Mem;
 include ExecUtils;
 
 (* synthesize *)
@@ -11,7 +12,7 @@ partition Empty mkProcessor;
   Registers rf <- mkRegisters;
   Memory mem <- mkMemory;
 
-  Fifo#(1, Tuple2#(VAddr, Inst)) ir <- mkLFifo;
+  Fifo#(1, Tuple2#(VAddr, Inst)) ir <- mkBramLFifo;
 
   Wire#(VAddr) newPc <- mkWire;
   PulseWire brTaken <- mkPulseWire;
@@ -75,4 +76,5 @@ partition Empty mkProcessor;
       ir.deq.deq;
     end
   endatomic
+
 endpartition

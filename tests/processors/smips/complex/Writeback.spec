@@ -1,6 +1,7 @@
 include Library;
 include Types;
 include Fifo;
+include BramFifo;
 
 port Writeback;
   Reverse FifoEnq#(Pair#(RegIndex, Maybe#(Data))) wb;
@@ -11,7 +12,7 @@ endport
 
 (* synthesize *)
 partition Writeback mkWriteback;
-  Fifo#(1, Pair#(RegIndex, Maybe#(Data))) wbQ <- mkLFifo;
+  Fifo#(1, Pair#(RegIndex, Maybe#(Data))) wbQ <- mkBramLFifo;
 
   mkConnection(wb, wbQ.enq);
 

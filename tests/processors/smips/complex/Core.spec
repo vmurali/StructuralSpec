@@ -6,21 +6,22 @@ include Writeback;
 include Registers;
 include Mem;
 include Cop;
+include BramFifo;
 
 port Core;
   Reverse Memory mem;
 endport
 
 (* synthesize *)
-partinst Fifo#(3, Pair#(VAddr, Bool)) mkPcQ = mkLFifo;
+partinst Fifo#(3, Pair#(VAddr, Bool)) mkPcQ = mkBramLFifo;
 (* synthesize *)
-partinst Fifo#(6, VAddr) mkInstReqQ = mkLFifo;
+partinst Fifo#(6, VAddr) mkInstReqQ = mkBramLFifo;
 (* synthesize *)
-partinst Fifo#(2, Inst) mkInstQ = mkLFifo;
+partinst Fifo#(2, Inst) mkInstQ = mkBramLFifo;
 (* synthesize *)
-partinst Fifo#(1, Mem) mkDataReqQ = mkLFifo;
+partinst Fifo#(1, Mem) mkDataReqQ = mkBramLFifo;
 (* synthesize *)
-partinst Fifo#(4, Data) mkDataQ = mkLFifo;
+partinst Fifo#(4, Data) mkDataQ = mkBramLFifo;
 
 (* synthesize *)
 partition Core mkCore;

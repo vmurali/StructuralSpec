@@ -1,5 +1,5 @@
 include Types;
-include RegFile;
+include RegsFile;
 
 port Registers;
   Reverse RegFileRead#(NumRegs, Data)[2] read;

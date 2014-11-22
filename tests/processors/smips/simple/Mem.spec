@@ -1,5 +1,5 @@
 include Types;
-include RegFile;
+include RegsFile;
 
 port Memory;
   Input#(VAddr) iReq;
