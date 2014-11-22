@@ -1,4 +1,3 @@
-include BramFifo;
 include Fifo;
 
 (* synthesize *)

@@ -6,7 +6,6 @@ include Writeback;
 include Registers;
 include Mem;
 include Cop;
-include BramFifo;
 
 port Core;
   Reverse Memory mem;

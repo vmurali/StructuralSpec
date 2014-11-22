@@ -1,7 +1,6 @@
 include Library;
 include Types;
 include Fifo;
-include BramFifo;
 
 port Writeback;
   Reverse FifoEnq#(Pair#(RegIndex, Maybe#(Data))) wb;
